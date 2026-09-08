@@ -1,0 +1,2 @@
+SRC=main.c testRunner.c systemInfo.c 
+OBJ=main.o testRunner.o systemInfo.o

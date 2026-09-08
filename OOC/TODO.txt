@@ -1,0 +1,28 @@
++-------+
+| TO DO |
++-------+
+* CPU subclass for PowerPC.
+* Port ScrollingContainerView from FrugalWidgets.
+* Promises, async-await.
+* Thread safe I/O.
+* Model3D add properties to use OpenGL's translate, scale, rotate.
+* Add PNG reader & writer.
+* Add JPEG writer.
+* Add PPM reader/writer.
+* Iterators.
+* Table, MutableTable and TableView.
+* Exception class.
+* Functional methods map, reduce.
+* Improve equals methods to check class of other object.
+* Port VerticalList from TouchWidgets.
+* Port Fonts class from FrugalWidgets.
+* Add HTML parser from my Beest project.
+* Image expander.
+* TextField: tab-key navigation.
+* STL reader for Model3D.
+* Queue.
+* Cache.
+* JSON parser.
+* Port Android NDK GUI support from FrugalWidgets.
+* Port my PCF font reader, with gzip logic, to read fonts from /usr/share/fonts/X11.
+

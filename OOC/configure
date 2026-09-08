@@ -1,0 +1,284 @@
+#!/bin/bash
+#=============================================================================
+# OOC, a facility for object-oriented programming using C.
+# Copyright (C) 2005-2024, 2026 by Zack T Smith.
+#
+# This program is free software; you can redistribute it and/or modify
+# it under the terms of the GNU Lesser General Public License as published by
+# the Free Software Foundation; either version 3 of the License, or
+# (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU Lesser General Public License for more details.
+#
+# You should have received a copy of the GNU Lesser General Public License
+# along with this program; if not, write to the Free Software
+# Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
+#
+# The author may be reached at 3 at zs3 dot me.
+#============================================================================*/
+
+rm -f Makefile-config
+rm -f config.h
+touch Makefile-config
+touch config.h
+
+TMPFILE=./ooc.c
+OK=1
+
+is_macos=0
+if [[ `uname -o` == 'Darwin' ]]; then
+	is_macos=1
+fi
+OSXINC=/opt/homebrew/include
+OSXLIB=/opt/homebrew/lib
+
+#-------------------
+# Look for Clang:
+#
+found_clang=0
+echo "int main(){}" > $TMPFILE
+if clang $TMPFILE 2> /dev/null ; then
+	echo "CC=clang " >> Makefile-config
+	echo Detected Clang.
+	found_clang=1
+else
+	echo "CC=gcc " >> Makefile-config
+	echo "Missing optional Clang.      (type: sudo apt install clang)"
+fi
+rm -f $TMPFILE
+
+#------------------------------------
+# Look for blocks i.e. closures in C:
+#
+if [ $found_clang -eq 1 ]; then
+	if [[ `uname -o` == "Darwin" ]]; then
+		# MacOS has blocks built-in.
+		echo Detected Clang blocks.
+	else
+		echo "#include <stdio.h>" > $TMPFILE
+		echo "void (^block)(void) = ^{ puts(\"Blocks work!\"); };" >> $TMPFILE
+		echo "int main() { block(); }" >> $TMPFILE
+		if clang $TMPFILE -fblocks -lBlocksRuntime 2> /dev/null ; then
+			echo Detected Clang blocks.
+			echo "CFLAGS+= -fblocks " >> Makefile-config
+			echo "LIBS+= -lBlocksRuntime " >> Makefile-config
+			rm -f a.out a.exe
+		else
+			echo "Missing optional blocks.     (type: sudo apt install libblocksruntime-dev)"
+		fi
+	fi
+fi
+rm -f $TMPFILE
+
+#-----------------
+# Look for OpenGL:
+#
+have_gl=0
+if [[ $is_macos -eq 0 ]]; then
+	echo "#include <stdio.h>" > $TMPFILE
+	echo "#include <GL/gl.h>" >> $TMPFILE
+	echo "#include <GL/glu.h>" >> $TMPFILE
+	echo "int main(){ glClear(0); return 0;}" >> $TMPFILE
+	if gcc -I/usr/include -I/usr/local/include $TMPFILE -lGL 2> /dev/null ; then
+		echo Detected OpenGL and GLU.
+		echo "LIB+=-lGL" >> Makefile-config
+		echo "#define HAVE_OPENGL" >> config.h
+		have_gl=1
+		rm -f a.out a.exe
+	else
+		echo "Missing optional OpenGL+GLU. (type: sudo apt install libgl-dev libglu1-mesa-dev)"
+	fi
+else
+	echo "#include <stdio.h>" > $TMPFILE
+	echo "#include <OpenGL/gl.h>" >> $TMPFILE
+	echo "int main(){ glClear(0); return 0;}" >> $TMPFILE
+	if gcc -I/usr/include -I/usr/local/include -framework OpenGL $TMPFILE 2>/dev/null; then
+		echo "Detected Apple OpenGL framework."
+		echo "LIB+=-framework OpenGL " >> Makefile-config
+		echo "#define HAVE_OPENGL" >> config.h
+		echo "CFLAGS+=-I/Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/System/Library/Frameworks/OpenGL.framework/Versions/A/Headers/ " >> Makefile-config
+		have_gl=1
+		rm -f a.out 
+	else
+		echo "Missing Apple OpenGL framework."
+	fi
+fi
+rm -f $TMPFILE
+
+#---------------
+# Look for GLUT:
+#
+if [[ $have_gl -eq 1 ]]; then
+	if [[ $is_macos -eq 0 ]]; then
+		echo "#include <stdio.h>" > $TMPFILE
+		echo "#include <GL/gl.h>" >> $TMPFILE
+		echo "#include <GL/glu.h>" >> $TMPFILE
+		echo "#include <GL/glext.h>" >> $TMPFILE
+		echo "#include <GL/glut.h>" >> $TMPFILE
+		echo "int main(){ glClear(0); glutMainLoop(); return 0;}" >> $TMPFILE
+		if gcc -I/usr/include -I/usr/local/include $TMPFILE -lGL -lglut 2> /dev/null; then
+			echo Detected FreeGLUT.
+			echo "LIB+=-lglut " >> Makefile-config
+			echo "#define HAVE_GLUT" >> config.h
+			rm -f a.out a.exe
+		else
+			echo "Missing optional FreeGLUT.   (type: sudo apt install freeglut3-dev)"
+		fi
+	else
+		echo "#include <stdio.h>" > $TMPFILE
+		echo "#include <GL/gl.h>" >> $TMPFILE
+		echo "#include <GL/glu.h>" >> $TMPFILE
+		echo "#include <GL/glext.h>" >> $TMPFILE
+		echo "#include <GLUT/glut.h>" >> $TMPFILE
+		echo "int main(){ glClear(0); glutMainLoop(); return 0;}" >> $TMPFILE
+		if gcc -I/usr/include -I/usr/local/include -I$OSXINC -L$OSXLIB $TMPFILE -framework GLUT -framework OpenGL 2>/dev/null; then
+			echo "Detected Apple GLUT framework."
+			echo "LIB+=-framework GLUT " >> Makefile-config
+			echo "CFLAGS+=-I/Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/System/Library/Frameworks/GLUT.framework/Versions/A/Headers/ " >> Makefile-config
+			echo "#define HAVE_GLUT" >> config.h
+			rm -f a.out 
+		else
+			echo "Missing Apple GLUT framework."
+		fi
+	fi
+	rm -f $TMPFILE
+fi
+
+#-------------------
+# Look for jpeglib:
+#
+echo "#include <stdio.h>" > $TMPFILE
+echo "#include <jpeglib.h>" >> $TMPFILE
+echo "int main(){return 0;}" >> $TMPFILE
+if gcc -I/usr/include -I/usr/local/include -I$OSXINC -L$OSXLIB $TMPFILE -ljpeg 2> /dev/null; then
+	echo Detected jpeglib.
+	echo "LIBS+=-ljpeg " >> Makefile-config
+	echo "#define HAVE_JPEGLIB" >> config.h
+	rm -f a.out a.exe
+else
+	echo "#define MISSING_JPEGLIB" >> config.h
+	if [[ $is_macos -eq 0 ]]; then
+		echo "Missing optional jpeglib.    (type: sudo apt install libjpeg-dev)"
+	else
+		echo "Missing optional jpeglib.    (type: brew install jpeg-turbo)"
+	fi
+fi
+rm -f $TMPFILE
+
+#-------------------
+# Look for libpng:
+#
+echo "#include <png.h>" > $TMPFILE
+echo "int main(){ printf (\"PNG version %s\n\",PNG_LIBPNG_VER_STRING);}" >> $TMPFILE
+if gcc -I/usr/include -I/usr/local/include -I$OSXINC -L$OSXLIB $TMPFILE -lpng 2> /dev/null; then
+	echo Detected libpng.
+	echo "LIBS+=-lpng " >> Makefile-config
+	echo "#define HAVE_LIBPNG" >> config.h
+	rm -f a.out a.exe
+else
+	echo "#define MISSING_LIBPNG" >> config.h
+	if [[ $is_macos -eq 0 ]]; then
+		echo "Missing optional libpng.     (type: sudo apt install libpng-dev)"
+	else
+		echo "Missing optional libpng.     (type: brew install libpng)"
+	fi
+fi
+rm -f $TMPFILE
+
+#-------------------
+# Look for libtiff:
+# NOTE: libtiff often depends on other libraries such as zstd and libz, so if you plan on 
+# doing a static build you will need to add those to Makefile-config manually.
+#
+echo "#include <stdio.h>" > $TMPFILE
+echo "#include <tiff.h>" >> $TMPFILE
+echo "#include <tiffio.h>" >> $TMPFILE
+echo "int main(){TIFF *tif = TIFFOpen(\"PIA25970.tif\", \"r\"); return 0;}" >> $TMPFILE
+if gcc $TMPFILE -I$OSXINC -L$OSXLIB -ltiff 2> /dev/null; then
+	echo Detected libtiff.
+	echo "LIBS+=-ltiff " >> Makefile-config
+	echo "#define HAVE_TIFF " >> config.h
+	rm -f a.out a.exe
+else
+	echo "#define MISSING_TIFF" >> config.h
+	if [[ $is_macos -eq 0 ]]; then
+		echo "Missing optional libtiff.    (type: sudo apt install libtiff-dev)"
+	else
+		echo "Missing optional libtiff.    (type: brew install libtiff)"
+	fi
+fi
+rm -f $TMPFILE
+
+#-------------------
+# Look for libcurl:
+#
+echo "#include <stdio.h>" > $TMPFILE
+echo "#include <curl/curl.h>" >> $TMPFILE
+echo "int main(){return 0;}" >> $TMPFILE
+if gcc -I/usr/include -I/usr/local/include $TMPFILE -lcurl 2> /dev/null; then
+	echo Detected libcurl.
+	echo "LIBS+=-lcurl " >> Makefile-config
+	echo "#define HAVE_LIBCURL" >> config.h
+	rm -f a.out a.exe
+else
+	echo "Missing optional libcurl.    (type: sudo apt install libcurl4-openssl-dev)"
+	echo "#define MISSING_LIBCURL" >> config.h
+fi
+rm -f $TMPFILE
+
+#-------------------
+# Look for freetype2:
+#
+echo "#include <stdio.h>" > $TMPFILE
+echo "#include <ft2build.h>" >> $TMPFILE
+echo "#include FT_GLYPH_H" >> $TMPFILE
+echo "#include FT_TRUETYPE_DRIVER_H" >> $TMPFILE
+echo "int main(){" >> $TMPFILE
+echo "FT_Bitmap *bitmap;" >> $TMPFILE
+echo "FT_BitmapGlyphRec *record;" >> $TMPFILE
+echo "FT_Face face;" >> $TMPFILE
+echo "FT_Glyph glyph;" >> $TMPFILE
+echo "}" >> $TMPFILE
+if gcc -I/usr/include -I/usr/include/freetype2 -I$OSXINC/freetype2 -L$OSXLIB $TMPFILE 2> /dev/null; then
+	echo Detected Freetype2.
+	echo "LIBS+=-lfreetype " >> Makefile-config
+	echo "#define HAVE_FREETYPE2" >> config.h
+	rm -f a.out a.exe
+else
+	echo "#define MISSING_FREETYPE2" >> config.h
+	if [[ $is_macos -eq 0 ]]; then
+		echo "Missing optional Freetype2   (type: sudo apt install libfreetype-dev)"
+	else
+		echo "Missing optional Freetype2   (type: brew install freetype)"
+	fi
+fi
+rm -f $TMPFILE
+
+if [[ $is_macos -eq 1 ]]; then
+	echo "OSXINC=/opt/homebrew/include" >> Makefile-config
+	echo "OSXLIB=/opt/homebrew/lib" >> Makefile-config
+fi
+
+#-------------------
+# Compile x86 asm:
+#
+MACHINE=`uname -m`
+if [[ "$MACHINE" == "x86_64" || "$MACHINE" == "i386" || "$MACHINE" == "i486" || "$MACHINE" == "i586" || "$MACHINE" == "i686" ]]; then
+	NASM=`which nasm 2> /dev/null`
+	if [[ "$NASM" == "" ]]; then
+		echo "Missing required NASM.       (type: sudo apt install nasm)"
+		OK=0
+	else
+		echo "Found required NASM."
+		nasm -f elf utility-x86-32bit.asm -o utility-x86-32bit.o
+	fi
+fi
+
+if [[ "$OK" == 1 ]]; then
+	echo Ready.
+fi
+
+rm -f libOOC.a

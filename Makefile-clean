@@ -1,0 +1,14 @@
+clean:
+	chmod 644 *.c *.asm *.h *.txt Makefile* output/*
+	rm -f main.o testRunner.o systemInfo.o bandwidth bandwidth32 bandwidth64 
+	rm -f Benchmark.o BenchmarkARM.o BenchmarkX86.o BenchmarkRISCV.o BenchmarkPPC.o
+	rm -f bandwidth32.exe bandwidth64.exe
+	rm -f utility-x86-32bit.o utility-x86-64bit.o
+	rm -f bandwidth.bmp bandwidth.tif bandwidth32 bandwidth64 
+	rm -f routines-x86-32bit.o routines-x86-64bit.o 
+	rm -f routines-arm-32bit.o routines-arm-64bit.o 
+	rm -f routines-riscv64-64bit.o
+	rm -f routines-ppc64le-64bit.o
+	rm -rf bandwidth64.dSYM bandwidth32.dSYM
+	@rm -f Makefile-config config.h
+	( cd OOC; make clean )

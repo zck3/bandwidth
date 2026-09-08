@@ -1,0 +1,55 @@
+#!/bin/bash
+#=============================================================================
+# bandwidth, a benchmark to measure memory transfer bandwidth.
+# Copyright (C) 2026 by Zack T Smith.
+#
+# This program is free software; you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation; either version 3 of the License, or
+# (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program; if not, write to the Free Software
+# Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
+#
+# The author may be reached at 3 at zs3 dot me.
+#============================================================================*/
+
+reset
+case "$(uname -m)" in
+    aarch64)
+	echo "Your device is arm64."
+	;;
+    armv7l|armv6l) 
+	echo "Your device is arm32."
+	;;
+    *) 
+	echo Your device is neither arm64 nor arm32, so arm32 will be emulated.
+	;;
+esac
+
+CMD=false
+if which podman >/dev/null; then
+	CMD=podman
+	echo We will use Podman.
+elif which docker >/dev/null; then
+	CMD=docker
+	echo We will use Docker.
+else
+	echo You have neither Podman nor Docker installed.
+	exit 2
+fi
+
+if $CMD build --platform=linux/armhf -t debian-aarch32-image -f ./Dockerfile-arm32 .; then
+	if ! $CMD run -e TERM=xterm --platform=linux/armhf -it debian-aarch32-image; then
+		echo Run failed.
+	fi
+else
+	echo Build failed.
+fi
+
