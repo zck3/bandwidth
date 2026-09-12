@@ -1,6 +1,6 @@
 /*============================================================================
   BenchmarkPPC, an Object-Oriented C class for benchmarking.
-  Copyright (C) 2023, 2026 by Zack T Smith.
+  Copyright (C) 2026 by Zack T Smith.
 
   This program is free software; you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by

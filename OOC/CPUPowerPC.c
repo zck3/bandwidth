@@ -1,5 +1,5 @@
 /*============================================================================
-  CPURISCV, an object-oriented C RISC-V CPU class.
+  CPUPowerPC, an object-oriented C PowerPC 64-bit CPU class.
   Copyright (C) 2026 by Zack T Smith.
 
   Object-Oriented C is free software: you can redistribute it and/or modify
@@ -18,46 +18,47 @@
   The author may be reached at 3 at zs3 dot me.
  *===========================================================================*/
 
-#if defined(__riscv) || defined(__riscv__)
+#if defined(__powerpc) || defined(__powerpc__)
 
-#include "CPURISCV.h"
+#include "CPUPowerPC.h"
 #include "Utility.h"
 
 #include <stdlib.h>
 #include <sys/auxv.h>
-#include <asm/hwcap.h>
+#include <bits/hwcap.h> // <- It's not <asm/hwcap.h> on PowerPC.
+#include <endian.h>
 
-CPURISCVClass *_CPURISCVClass = NULL;
+CPUPowerPCClass *_CPUPowerPCClass = NULL;
 
-void CPURISCV_destroy (Any *self)
+void CPUPowerPC_destroy (Any *self)
 {
 	DEBUG_DESTROY;
 	if (!self) {
 		return;
 	}
-	verifyCorrectClassOrSubclass(self,CPURISCV);
+	verifyCorrectClassOrSubclass(self,CPUPowerPC);
 
 	CPU_destroy((CPU*)self);
 }
 
-static void CPURISCV_print (CPURISCV* restrict self, FILE *outputFile) 
+static void CPUPowerPC_print (CPUPowerPC* restrict self, FILE *outputFile) 
 { 
 	if (!self) {
 		return;
 	}
-	verifyCorrectClass(self,CPURISCV);
+	verifyCorrectClass(self,CPUPowerPC);
 
 	if (!outputFile) {
 		outputFile = stdout;
 	}
 }
 
-static void CPURISCV_describe (CPURISCV* restrict self, FILE *outputFile) 
+static void CPUPowerPC_describe (CPUPowerPC* restrict self, FILE *outputFile) 
 { 
 	if (!self) {
 		return;
 	}
-	verifyCorrectClass(self,CPURISCV);
+	verifyCorrectClass(self,CPUPowerPC);
 
 	if (!outputFile) {
 		outputFile = stdout;
@@ -66,7 +67,7 @@ static void CPURISCV_describe (CPURISCV* restrict self, FILE *outputFile)
 	fprintf (outputFile, "%s", $(self, className));
 }
 
-static String* CPURISCV_model (CPURISCV* restrict self) 
+static String* CPUPowerPC_model (CPUPowerPC* restrict self) 
 {
 	if (!self) {
 		return NULL;
@@ -83,12 +84,12 @@ static String* CPURISCV_model (CPURISCV* restrict self)
 	return NULL;
 }
 
-static MutableSet* CPURISCV_features (CPURISCV* restrict self)
+static MutableSet* CPUPowerPC_features (CPUPowerPC* restrict self)
 {
 	if (!self) {
 		return NULL;
 	}
-	verifyCorrectClass(self,CPURISCV);
+	verifyCorrectClass(self,CPUPowerPC);
 
 	MutableSet *mut = self->features;
 	if (!$(mut, isEmpty)) {
@@ -139,50 +140,54 @@ static MutableSet* CPURISCV_features (CPURISCV* restrict self)
 }
 
 		
-static void CPURISCV_memoryFence (CPURISCV* restrict self)
+static void CPUPowerPC_memoryFence (CPUPowerPC* restrict self)
 {
 	if (!self) {
 		return;
 	}
-	verifyCorrectClass(self,CPURISCV);
+	verifyCorrectClass(self,CPUPowerPC);
 
-	asm volatile("fence w,r" ::: "memory");
+	//asm volatile("" ::: "memory");
 }
 
-static void CPURISCV_flushDataCacheAt (CPURISCV* restrict self, void* address, size_t size)
+static void CPUPowerPC_flushDataCacheAt (CPUPowerPC* restrict self, void* address, size_t size)
 {
-	// TODO: No RISC-V instruction for this?
+	//asm volatile("" ::: "memory");
 }
 
-static String* CPURISCV_instructionSet (CPURISCV* restrict self) 
-{
-	if (!self) {
-		return NULL;
-	}
-	verifyCorrectClass(self,CPURISCV);
-
-	// NOTE: No support for riscv32 at this time.
-
-	return _String("riscv64");
-}
-
-static String* CPURISCV_family (CPURISCV* restrict self) 
+static String* CPUPowerPC_instructionSet (CPUPowerPC* restrict self) 
 {
 	if (!self) {
 		return NULL;
 	}
-	verifyCorrectClass(self,CPURISCV);
+	verifyCorrectClass(self,CPUPowerPC);
 
-	return _String("RISC-V");
+	// NOTE: No support for powerpc32 at this time.
+
+#if __BYTE_ORDER == __ORDER_LITTLE_ENDIAN__
+	return _String("ppc64le");
+#else
+	return _String("ppc64");
+#endif
 }
 
-CPURISCV* CPURISCV_init (CPURISCV* restrict self)
+static String* CPUPowerPC_family (CPUPowerPC* restrict self) 
 {
-	ENSURE_CLASS_READY(CPURISCV);
+	if (!self) {
+		return NULL;
+	}
+	verifyCorrectClass(self,CPUPowerPC);
+
+	return _String("PowerPC");
+}
+
+CPUPowerPC* CPUPowerPC_init (CPUPowerPC* restrict self)
+{
+	ENSURE_CLASS_READY(CPUPowerPC);
 
 	if (self) {
 		CPU_init ((CPU*) self);
-		self->is_a = _CPURISCVClass;
+		self->is_a = _CPUPowerPCClass;
 
 		(void) $(self, nCores);
 		(void) $(self, features);
@@ -191,21 +196,21 @@ CPURISCV* CPURISCV_init (CPURISCV* restrict self)
 	return self;
 }
 
-CPURISCVClass* CPURISCVClass_init (CPURISCVClass* restrict class)
+CPUPowerPCClass* CPUPowerPCClass_init (CPUPowerPCClass* restrict class)
 {
 	SET_SUPERCLASS(CPU);
 
-	SET_OVERRIDDEN_METHOD_POINTER(CPURISCV,describe);
-	SET_OVERRIDDEN_METHOD_POINTER(CPURISCV,print);
-	SET_OVERRIDDEN_METHOD_POINTER(CPURISCV,model);
-	SET_OVERRIDDEN_METHOD_POINTER(CPURISCV,features);
-	SET_OVERRIDDEN_METHOD_POINTER(CPURISCV,memoryFence);
-	SET_OVERRIDDEN_METHOD_POINTER(CPURISCV,flushDataCacheAt);
-	SET_OVERRIDDEN_METHOD_POINTER(CPURISCV,family);
-	SET_OVERRIDDEN_METHOD_POINTER(CPURISCV,instructionSet);
+	SET_OVERRIDDEN_METHOD_POINTER(CPUPowerPC,describe);
+	SET_OVERRIDDEN_METHOD_POINTER(CPUPowerPC,print);
+	SET_OVERRIDDEN_METHOD_POINTER(CPUPowerPC,model);
+	SET_OVERRIDDEN_METHOD_POINTER(CPUPowerPC,features);
+	SET_OVERRIDDEN_METHOD_POINTER(CPUPowerPC,memoryFence);
+	SET_OVERRIDDEN_METHOD_POINTER(CPUPowerPC,flushDataCacheAt);
+	SET_OVERRIDDEN_METHOD_POINTER(CPUPowerPC,family);
+	SET_OVERRIDDEN_METHOD_POINTER(CPUPowerPC,instructionSet);
 
         VALIDATE_CLASS_STRUCT(class);
 	return class;
 }
 
-#endif // RISC-V
+#endif // PowerPC

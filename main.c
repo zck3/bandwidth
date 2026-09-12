@@ -33,6 +33,7 @@
 #include "OOC/CPUX86.h"
 #include "OOC/CPUARM.h"
 #include "OOC/CPURISCV.h"
+#include "OOC/CPUPowerPC.h"
 #include "OOC/Hardware.h"
 #include "OOC/colors.h"
 
@@ -168,11 +169,8 @@ main (int argc, char **argv)
 	cpu = (CPU*) new(CPURISCV);
 	benchmarks = new(BenchmarkRISCV);
 #elif defined(__powerpc__) 
-	// TODO
-	// cpu = new(CPUPPC);
-	// benchmarks = new(BenchmarkPPC); 
-	fprintf(stderr, "PowerPC is not yet supported.\n");
-	exit(1);
+	cpu = (CPU*) new(CPUPowerPC);
+	benchmarks = new(BenchmarkPPC);
 #else
 	fprintf(stderr, "Unsupported instruction set architecture.\n");
 	exit(1);

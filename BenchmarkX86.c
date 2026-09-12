@@ -275,8 +275,9 @@ static long BenchmarkX86_write (BenchmarkX86 *self, unsigned long size, Benchmar
 	$(console, flush);
 
 	loops = (1 << 26) / size; 
-	if (loops < 1)
+	if (loops < 1) {
 		loops = 1;
+	}
 
 	t0 = DateTime_getMicrosecondTime ();
 

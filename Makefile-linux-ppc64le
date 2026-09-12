@@ -21,7 +21,7 @@
 
 include Makefile-sources
 CFLAGS= -g -Wno-conditional-type-mismatch -Wall 
-PPC_AS=as -mpower8
+PPC_AS=powerpc64le-linux-gnu-as -mregnames -mpower8
 
 all:	Makefile-config bandwidth64
 

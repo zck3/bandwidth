@@ -66,12 +66,10 @@ static void BenchmarkPPC_describe (BenchmarkPPC* self, FILE *outputFile)
 //----------------------------------------------------------------------------
 static long BenchmarkPPC_write (BenchmarkPPC *self, unsigned long size, BenchmarkMode mode, bool random)
 {
-	return TEST_UNSUPPORTED;
-#ifdef LATER
 	if (size == CHECK_WHETHER_SUPPORTED) {
 		switch (mode) {
 		case SIZE_MAIN_REGISTER:
-			return random? TEST_UNSUPPORTED : TEST_SUPPORTED;
+			return TEST_SUPPORTED;
 		default:
 			return TEST_UNSUPPORTED;
 		}
@@ -199,13 +197,6 @@ static long BenchmarkPPC_write (BenchmarkPPC *self, unsigned long size, Benchmar
 
 		diff = DateTime_getMicrosecondTime () - t0;
 		total_time += diff;
-
-		// This effectively flushes any write buffer.
-		unsigned temp = 0;
-		for (unsigned index = 0; index < size; index += 64) {
-			temp += chunk[index];
-		}
-		dummy = temp;
 	}
 	$(console, printf, "loops = ");
 	$(console, printUnsigned, total_count);
@@ -222,7 +213,6 @@ static long BenchmarkPPC_write (BenchmarkPPC *self, unsigned long size, Benchmar
 	}
 
 	return result;
-#endif
 }
 
 //----------------------------------------------------------------------------
@@ -234,7 +224,7 @@ static long BenchmarkPPC_read (BenchmarkPPC *self, unsigned long size, Benchmark
 	if (size == CHECK_WHETHER_SUPPORTED) {
 		switch (mode) {
 		case SIZE_MAIN_REGISTER:
-			return random? TEST_UNSUPPORTED : TEST_SUPPORTED;
+			return TEST_SUPPORTED;
 		default:
 			return TEST_UNSUPPORTED;
 		}
@@ -378,8 +368,6 @@ static long BenchmarkPPC_read (BenchmarkPPC *self, unsigned long size, Benchmark
 //----------------------------------------------------------------------------
 static long BenchmarkPPC_copy (BenchmarkPPC *self, unsigned long size, BenchmarkMode mode)
 {
-	return TEST_UNSUPPORTED;
-#ifdef LATER
 	if (size == CHECK_WHETHER_SUPPORTED) {
 		switch (mode) {
 		case SIZE_MAIN_REGISTER:
@@ -451,17 +439,12 @@ static long BenchmarkPPC_copy (BenchmarkPPC *self, unsigned long size, Benchmark
 
 		if (mode == SIZE_MAIN_REGISTER ) {
 			CopyWithMainRegisters (chunk_dest, chunk_src, size, loops);
+		} else {
+			puts ("Unsupported copy mode.");
 		}
 
 		diff = DateTime_getMicrosecondTime () - t0;
 		total_time += diff;
-
-		// This effectively flushes any write buffer.
-		uint64_t temp = 0;
-		for (unsigned index = 0; index < size; index += 64) {
-			temp += chunk_dest[index];
-		}
-		dummy = temp;
 	}
 
 	$(console, printf, "loops = %llu, ", total_count);
@@ -474,7 +457,6 @@ static long BenchmarkPPC_copy (BenchmarkPPC *self, unsigned long size, Benchmark
 	$(self, deferFreeOfChunk, (void*)chunk_dest0, size+64);
 
 	return result;
-#endif
 }
 
 BenchmarkPPCClass* BenchmarkPPCClass_init (BenchmarkPPCClass *class)

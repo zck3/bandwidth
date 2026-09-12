@@ -1,6 +1,6 @@
 /*============================================================================
-  CPURISCV, an object-oriented C RISC-V CPU class.
-  Copyright (C) 2019, 2023, 2026 by Zack T Smith.
+  CPUPowerPC, an object-oriented C PowerPC 64-bit CPU class.
+  Copyright (C) 2026 by Zack T Smith.
 
   Object-Oriented C is free software: you can redistribute it and/or modify
   it under the terms of the GNU Lesser General Public License as published
@@ -21,37 +21,37 @@
 // This file is part of a refactoring to break down CPU.c into 
 // subclasses for each CPU type.
 
-#ifndef _OOC_CPURISCV_H
-#define _OOC_CPURISCV_H
+#ifndef _OOC_CPUPowerPC_H
+#define _OOC_CPUPowerPC_H
 
 #include "CPU.h"
 
-#define DECLARE_CPURISCV_INSTANCE_VARS(FOO) \
+#define DECLARE_CPUPowerPC_INSTANCE_VARS(FOO) \
 	;
 
-#define DECLARE_CPURISCV_METHODS(TYPE_POCPURISCVER) \
+#define DECLARE_CPUPowerPC_METHODS(TYPE_POCPUPowerPCER) \
 	;
 
-struct cpu_riscv64;
+struct cpu_powerpc64;
 
-typedef struct cpu_riscv64class {
+typedef struct cpu_powerpc64class {
 	DECLARE_OBJECT_CLASS_VARS
-        DECLARE_OBJECT_METHODS(struct cpu_riscv64*)
-        DECLARE_CPU_METHODS(struct cpu_riscv64*)
-        DECLARE_CPURISCV_METHODS(struct cpu_riscv64*)
-} CPURISCVClass;
+        DECLARE_OBJECT_METHODS(struct cpu_powerpc64*)
+        DECLARE_CPU_METHODS(struct cpu_powerpc64*)
+        DECLARE_CPUPowerPC_METHODS(struct cpu_powerpc64*)
+} CPUPowerPCClass;
 
-extern CPURISCVClass *_CPURISCVClass;
-extern CPURISCVClass* CPURISCVClass_init (CPURISCVClass*);
+extern CPUPowerPCClass *_CPUPowerPCClass;
+extern CPUPowerPCClass* CPUPowerPCClass_init (CPUPowerPCClass*);
 
-typedef struct cpu_riscv64 {
-        CPURISCVClass *is_a;
-	DECLARE_OBJECT_INSTANCE_VARS(struct cpu_riscv64*)
-	DECLARE_CPU_INSTANCE_VARS(struct cpu_riscv64*)
-	DECLARE_CPURISCV_INSTANCE_VARS(struct cpu_riscv64*)
-} CPURISCV;
+typedef struct cpu_powerpc64 {
+        CPUPowerPCClass *is_a;
+	DECLARE_OBJECT_INSTANCE_VARS(struct cpu_powerpc64*)
+	DECLARE_CPU_INSTANCE_VARS(struct cpu_powerpc64*)
+	DECLARE_CPUPowerPC_INSTANCE_VARS(struct cpu_powerpc64*)
+} CPUPowerPC;
 
-extern void CPURISCV_destroy (Any *);
-extern CPURISCV *CPURISCV_init (CPURISCV *self);
+extern void CPUPowerPC_destroy (Any *);
+extern CPUPowerPC *CPUPowerPC_init (CPUPowerPC *self);
 
 #endif

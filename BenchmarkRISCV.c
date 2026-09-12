@@ -200,7 +200,7 @@ static long BenchmarkRISCV_write (BenchmarkRISCV *self, unsigned long size, Benc
 		diff = DateTime_getMicrosecondTime () - t0;
 		total_time += diff;
 
-		// This effectively flushes any write buffer.
+		// This effectively flushes any write buffer, in the absense of a cache flush instruction.
 		unsigned temp = 0;
 		for (unsigned index = 0; index < size; index += 64) {
 			temp += chunk[index];
@@ -453,7 +453,7 @@ static long BenchmarkRISCV_copy (BenchmarkRISCV *self, unsigned long size, Bench
 		diff = DateTime_getMicrosecondTime () - t0;
 		total_time += diff;
 
-		// This effectively flushes any write buffer.
+		// This effectively flushes any write buffer, in the absense of a cache flush instruction.
 		uint64_t temp = 0;
 		for (unsigned index = 0; index < size; index += 64) {
 			temp += chunk_dest[index];
