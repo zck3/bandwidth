@@ -45,6 +45,8 @@ It will also select the appropriate Makefile for your OS and CPU architecture.
 
 ## Change log
 
+* Release 1.16:
+	* Added PowerPC64 support, both little-endian and big-endian.
 * Release 1.15:
 	* Refactoring and bugfixing. Added --main-memory-only (-m).
 * Release 1.14:
@@ -145,8 +147,7 @@ four operating systems:
 and two processor architectures:
 	* x86_64
 	* i386
-I've written custom assembly routines for
-each architecture.
+I've written custom assembly routines for each architecture.
 
 ## Disclaimer
 

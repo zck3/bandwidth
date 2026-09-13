@@ -41,8 +41,7 @@ extern uint64_t g_totalObjectAllocations;
 extern uint64_t g_totalObjectDeallocations;
 
 #define DECLARE_OBJECT_INSTANCE_VARS(TYPE_POINTER) \
-	unsigned magic : 31; \
-	unsigned temporary : 1; \
+	uint32_t magic; \
 	int32_t retainCount; 
 
 #define DECLARE_OBJECT_METHODS(TYPE_POINTER) \

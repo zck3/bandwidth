@@ -1,5 +1,5 @@
 +-------+
 | TO DO |
 +-------+
-* PowerPC64 support.
+* LoongArch64 support.
 * Multithreaded mode.

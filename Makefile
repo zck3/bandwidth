@@ -74,8 +74,8 @@ else ifeq (${UNAMESYS},linux)
 		include Makefile-${UNAMESYS}-${UNAMEMACHINE}
 	else ifeq (${UNAMEMACHINE},mips64)
 		include Makefile-unsupported
-	else ifeq (${UNAMEMACHINE},ppc64)	# Big-endian.
-		include Makefile-linux-ppc64le	# In theory, could work.
+	else ifeq (${UNAMEMACHINE},ppc64)
+		include Makefile-linux-ppc64  # Big-endian.
 	else 
 		include Makefile-unsupported
 	endif

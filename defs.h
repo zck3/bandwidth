@@ -97,7 +97,9 @@
 //	- Added Dockerfiles & scripts for running in i386 & arm32 containers.
 //	- Removed x86 cache asm code in favor of Linux sysfs.
 // 1.15.4
-// 	- Initial PowerPC support (64-bit little endian).
+// 	- Initial PowerPC support (64-bit little endian), tested w/Podman.
+// 1.16.0
+// 	- Added big-endian PowerPC 64-bit support, testing in Qemu.
 //-----------------------------------------------------------------------------
 
 #ifndef _DEFS_H
@@ -114,7 +116,7 @@
 #include "BenchmarkRISCV.h"
 #include "BenchmarkPPC.h"
 
-#define RELEASE "1.15.4"
+#define RELEASE "1.16.0"
 #define RESULTS_IMAGE_FILENAME "bandwidth.bmp"
 
 #define NICE_DURATION (4)

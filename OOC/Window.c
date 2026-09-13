@@ -577,23 +577,18 @@ static Rect Window_redraw (Window* restrict self)
 
 #ifdef UNUSED
 static void Window_selfWasShown (Window* restrict self) {
-	puts(__FUNCTION__);
 }
 
 static void Window_selfWasHidden (Window* restrict self) {
-	puts(__FUNCTION__);
 }
 
 static void Window_didResize (Window* restrict self) {
-	puts(__FUNCTION__);
 }
 
 static void Window_pointerDidEnter (Window* restrict self) {
-	puts(__FUNCTION__);
 }
 
 static void Window_pointerDidLeave (Window* restrict self) {
-	puts(__FUNCTION__);
 }
 #endif
 

@@ -453,7 +453,7 @@ static MutableData *http_synchronous_request (char *url, HTTPOperation operation
 
 	// Extract the response status code.
 	int status_code = 0;
-	char *status_line = strstr((const char*) receivedBytes, "HTTP/1");
+	char *status_line = (char*)strstr((const char*) receivedBytes, "HTTP/1");
 	if (status_line) {
 		char *tmp = strchr (status_line, ' ');
 		if (tmp) {

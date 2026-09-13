@@ -292,7 +292,7 @@ void *ooc_retain (void* object_, const char *funcName)
 	if (object_) {
 		typedef struct {
 			void *is_a;
-			int32_t magic;
+			uint32_t magic;
 			int32_t retainCount;
 		} LiteObj;
 		LiteObj *object = (LiteObj*) object_;
@@ -308,18 +308,12 @@ void *ooc_retain (void* object_, const char *funcName)
 	}
 }
 
-void bad_release ()
-{
-	puts(__FUNCTION__);
-}
-
 bool ooc_release (void *object_, size_t size, const char *funcName)
 {
 	Object *object = (Object*)object_;
 	if (object) { 
 		if (object->magic != OBJECT_MAGIC_NUMBER) {
 			warning(funcName, "Attempt to release a non-object.");
-bad_release();
 			return false;
 		}
 		else if (object->retainCount < 0) {

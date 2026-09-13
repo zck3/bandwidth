@@ -115,9 +115,9 @@ Object* Object_init (Object *object)
 		return NULL;
 	}
 
+	object->is_a = _ObjectClass;
 	object->magic = OBJECT_MAGIC_NUMBER;
 	object->retainCount = 0;
-	object->is_a = _ObjectClass;
 
 	return object;
 }

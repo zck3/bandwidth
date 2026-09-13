@@ -27,8 +27,8 @@ all:	Makefile-config bandwidth64
 
 include Makefile-config
 
-bandwidth64: Benchmark.c BenchmarkRISCV.c ${SRC} routines-riscv64-64bit.asm libOOC.a
-	${RISCV_AS} routines-riscv64-64bit.asm -o routines-riscv64-64bit.o
+bandwidth64: Benchmark.c BenchmarkRISCV.c ${SRC} routines-riscv64.asm libOOC.a
+	${RISCV_AS} routines-riscv64.asm -o routines-riscv64.o
 	${CC} ${CFLAGS} -c -I ./OOC Benchmark.c BenchmarkRISCV.c
-	${CC} routines-riscv64-64bit.o Benchmark.o BenchmarkRISCV.o ${SRC} ${CFLAGS} -o bandwidth64 ${LIB}
+	${CC} routines-riscv64.o Benchmark.o BenchmarkRISCV.o ${SRC} ${CFLAGS} -o bandwidth64 ${LIB}
 

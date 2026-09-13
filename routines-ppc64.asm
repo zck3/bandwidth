@@ -1,6 +1,6 @@
 #============================================================================
 # bandwidth, a benchmark to measure memory bandwidth.
-# 64-bit PowerPC (ppc64le) routines.
+# 64-bit PowerPC (big endian ELFv1) routines.
 # Copyright (C) 2026 by Zack T Smith.
 #
 # This program is free software; you can redistribute it and/or modify
@@ -23,15 +23,16 @@
 # r3 function parameter and return value
 # r4-r10 function parameters
 # r14-r31 callee saved work area
-# f1-f4 floating point function parameters
 #-----------------------------------------------------------------------------
-
-# Achtung! This is little-endian PowerPC code.
+# I tested this code in Debian Linux emulated with Qemu 10.
+# https://cdimage.debian.org/cdimage/ports/snapshots/
+# Another option is CentOS:
+# https://ftp.jaist.ac.jp/pub/Linux/CentOS-vault/altarch/7.2.1511/isos/ppc64/
+#-----------------------------------------------------------------------------
 
 	.text
 	.machine power8
-	.machine altivec
-	.abiversion 2
+	.abiversion 1
 
 	.globl 	Reader
 	.globl 	RandomReader
@@ -45,6 +46,9 @@
 
 	.globl	CopyWithMainRegisters
 	.type	CopyWithMainRegisters, @function
+
+	.globl	RegisterToRegister
+	.type	RegisterToRegister, @function
 
 	.globl	IncrementRegisters
 	.globl	IncrementStack
@@ -85,7 +89,7 @@
 # 	r6 = value to write
 #-----------------------------------------------------------------------------
 .align 16
-Writer:
+.Writer:
 	sync
 
 	mr	r9, r3
@@ -121,6 +125,9 @@ Writer:
 
 	blr
 
+.LWriter_end:
+	.size .Writer,.LWriter_end-.Writer
+
 #-----------------------------------------------------------------------------
 # Name: 	RandomWriter
 # Purpose:	Performs random write into memory, as fast as possible.
@@ -136,7 +143,7 @@ Writer:
 #	r9 = temporary left shift index
 #-----------------------------------------------------------------------------
 .align 16
-RandomWriter:
+.RandomWriter:
 	sync
 
 .Lrw0:
@@ -194,6 +201,9 @@ RandomWriter:
 
 	blr
 
+.LRandomWriter_end:
+	.size .RandomWriter,.LRandomWriter_end-.RandomWriter
+
 #-----------------------------------------------------------------------------
 # Name: 	Reader
 # Purpose:	Performs sequential reads from memory, as fast as possible.
@@ -203,7 +213,7 @@ RandomWriter:
 #	r5 = count
 #-----------------------------------------------------------------------------
 .align 16
-Reader:
+.Reader:
 	sync
 
 	mr	r9, r3
@@ -238,7 +248,9 @@ Reader:
 	bne	.Lr0
 
 	blr
-	blr
+	
+.LReader_end:
+	.size .Reader,.LReader_end-.Reader
 
 #-----------------------------------------------------------------------------
 # Name: 	RandomReader
@@ -255,7 +267,7 @@ Reader:
 #	r9 = temporary index * 8
 #-----------------------------------------------------------------------------
 .align 16
-RandomReader:
+.RandomReader:
 	sync
 
 .Lrr0:
@@ -311,6 +323,9 @@ RandomReader:
 
 	blr
 
+.LRandomReader_end:
+	.size .RandomReader,.LRandomReader_end-.RandomReader
+
 #-----------------------------------------------------------------------------
 # Name: 	RegisterToRegister
 # Purpose:	Performs register-to-register transfers.
@@ -318,7 +333,7 @@ RandomReader:
 #	r3 = count
 #-----------------------------------------------------------------------------
 .align 16
-RegisterToRegister:
+.RegisterToRegister:
 .L8:
 	# Do 64 transfers 
 	mr	r4, r5
@@ -393,13 +408,16 @@ RegisterToRegister:
 
 	blr
 
+.LRegisterToRegister_end:
+	.size .RegisterToRegister,.LRegisterToRegister_end-.RegisterToRegister
+
 #------------------------------------------------------------------------------
 # Name:		IncrementRegisters
 # Purpose:	Increments/decrements 64-bit values in registers.
 # Params:	r3 = count
 #------------------------------------------------------------------------------
 .align 16
-IncrementRegisters:
+.IncrementRegisters:
 .Li1:
 	addi	r4, r4, 1
 	addi	r5, r5, 1
@@ -443,13 +461,16 @@ IncrementRegisters:
 
 	blr
 
+.LIncrementRegisters_end:
+	.size .IncrementRegisters,.LIncrementRegisters_end-.IncrementRegisters
+
 #------------------------------------------------------------------------------
 # Name:		IncrementStack
 # Purpose:	Increments 64-bit values on stack.
 # Params:	r3 = count
 #------------------------------------------------------------------------------
 .align 16
-IncrementStack:
+.IncrementStack:
 	sync
 
 	subi	r1, r1, 16
@@ -571,6 +592,9 @@ IncrementStack:
 
 	blr
 
+.LIncrementStack_end:
+	.size .IncrementStack,.LIncrementStack_end-.IncrementStack
+
 #------------------------------------------------------------------------------
 # Name:		StackReader
 # Purpose:	Reads 64-bit values off the stack into registers of
@@ -579,7 +603,7 @@ IncrementStack:
 # Params:	r3 = loops
 #------------------------------------------------------------------------------
 .align 16
-StackReader:
+.StackReader:
 	sync
 
 	subi	r1, r1, 64
@@ -658,6 +682,9 @@ StackReader:
 	addi	r1, r1, 64
 	blr
 
+.LStackReader_end:
+	.size .StackReader,.LStackReader_end-.StackReader
+
 #------------------------------------------------------------------------------
 # Name:		StackWriter
 # Purpose:	Writes 64-bit values into the stack from registers of
@@ -665,10 +692,10 @@ StackReader:
 # Params:	r3 = loops
 #------------------------------------------------------------------------------
 .align 16
-StackWriter:
+.StackWriter:
 	sync
 
-	subi	r1, r1, 64
+	subi	sp, sp, 64
 
 .Lsw:
 	# 64 transfers
@@ -741,8 +768,11 @@ StackWriter:
 	cmpwi	r3, 0
 	bne	.Lsw
 
-	addi	r1, r1, 64
+	addi	sp, sp, 64
 	blr
+
+.LStackWriter_end:
+	.size .StackWriter,.LStackWriter_end-.StackWriter
 
 #-----------------------------------------------------------------------------
 # Name: 	CopyWithMainRegisters
@@ -767,8 +797,7 @@ StackWriter:
 #	r20 = buffer word 7
 #-----------------------------------------------------------------------------
 .align 16
-CopyWithMainRegisters:
-_CopyWithMainRegisters:
+.CopyWithMainRegisters:
 	sync
 
 	subi	sp, sp, 56
@@ -826,8 +855,10 @@ _CopyWithMainRegisters:
 	ld	r19, 40(sp)
 	ld	r20, 48(sp)
 	addi	sp, sp, 56
-
 	blr
+
+.LCopyWithMainRegisters_end:
+	.size .CopyWithMainRegisters,.LCopyWithMainRegisters_end-.CopyWithMainRegisters
 
 WriterVector:
 ReaderVector:
@@ -847,4 +878,84 @@ VectorToVector:
 VectorToVector128:
 VectorToVector256:
 	blr
+
+.section ".opd","aw"
+.align 3
+Reader:
+	.quad .Reader
+	.quad .TOC.@tocbase
+	.quad 0
+	.text
+
+.section ".opd","aw"
+.align 3
+RandomReader:
+	.quad .RandomReader
+	.quad .TOC.@tocbase
+	.quad 0
+	.text
+
+.section ".opd","aw"
+.align 3
+Writer:
+	.quad .Writer
+	.quad .TOC.@tocbase
+	.quad 0
+	.text
+
+.section ".opd","aw"
+.align 3
+RandomWriter:
+	.quad .RandomWriter
+	.quad .TOC.@tocbase
+	.quad 0
+	.text
+
+.section ".opd","aw"
+.align 3
+CopyWithMainRegisters:
+	.quad .CopyWithMainRegisters
+	.quad .TOC.@tocbase
+	.quad 0
+	.text
+
+.section ".opd","aw"
+.align 3
+IncrementRegisters:
+	.quad .IncrementRegisters 
+	.quad .TOC.@tocbase
+	.quad 0
+	.text
+
+.section ".opd","aw"
+.align 3
+IncrementStack:
+	.quad .IncrementStack
+	.quad .TOC.@tocbase
+	.quad 0
+	.text
+
+.section ".opd","aw"
+.align 3
+StackReader:
+	.quad .StackReader
+	.quad .TOC.@tocbase
+	.quad 0
+	.text
+
+.section ".opd","aw"
+.align 3
+StackWriter:
+	.quad .StackWriter 
+	.quad .TOC.@tocbase
+	.quad 0
+	.text
+
+.section ".opd","aw"
+.align 3
+RegisterToRegister:
+	.quad .RegisterToRegister 
+	.quad .TOC.@tocbase
+	.quad 0
+	.text
 

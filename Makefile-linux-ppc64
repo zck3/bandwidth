@@ -20,16 +20,17 @@
 #============================================================================
 
 include Makefile-sources
-CFLAGS= -g -Wno-conditional-type-mismatch -Wall 
-PPC_AS=powerpc64le-linux-gnu-as -mregnames -mpower8
+CFLAGS= -mabi=elfv1 -g -Wno-conditional-type-mismatch -Wall 
+PPC_AS=as -mregnames -mpower8
 
 all:	Makefile-config bandwidth64
 
 include Makefile-config
 
-ASMSRC=routines-ppc64le-64bit.asm
-ASMOBJ=routines-ppc64le-64bit.o
-bandwidth64: Benchmark.c BenchmarkPPC.c ${SRC} ${ASMSRC} libOOC.a
+ASMSRC=routines-ppc64.asm
+ASMOBJ=routines-ppc64.o
+
+bandwidth64: Benchmark.c BenchmarkPPC.c ${ASMSRC} ${SRC} libOOC.a
 	${PPC_AS} ${ASMSRC} -o ${ASMOBJ}
 	${CC} ${CFLAGS} -c -I ./OOC Benchmark.c BenchmarkPPC.c
 	${CC} ${ASMOBJ} Benchmark.o BenchmarkPPC.o ${SRC} ${CFLAGS} -o bandwidth64 ${LIB}

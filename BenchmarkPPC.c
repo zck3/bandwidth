@@ -440,7 +440,7 @@ static long BenchmarkPPC_copy (BenchmarkPPC *self, unsigned long size, Benchmark
 		if (mode == SIZE_MAIN_REGISTER ) {
 			CopyWithMainRegisters (chunk_dest, chunk_src, size, loops);
 		} else {
-			puts ("Unsupported copy mode.");
+			// Unsupported copy mode.
 		}
 
 		diff = DateTime_getMicrosecondTime () - t0;
