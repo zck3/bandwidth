@@ -34,6 +34,7 @@
 #include "OOC/CPUARM.h"
 #include "OOC/CPURISCV.h"
 #include "OOC/CPUPowerPC.h"
+#include "OOC/CPULoong.h"
 #include "OOC/Hardware.h"
 #include "OOC/colors.h"
 
@@ -41,6 +42,7 @@
 #include "BenchmarkARM.h"
 #include "BenchmarkRISCV.h"
 #include "BenchmarkPPC.h"
+#include "BenchmarkLoong.h"
 #include "testRunner.h"
 #include "systemInfo.h"
 
@@ -54,6 +56,8 @@ ProgramOptions options;
   BenchmarkRISCV *benchmarks;
 #elif defined(__powerpc__) 
   BenchmarkPPC *benchmarks;
+#elif defined(__loongarch64)
+  BenchmarkLoong *benchmarks;
 #else
   Benchmark *benchmarks;
 #endif
@@ -171,6 +175,9 @@ main (int argc, char **argv)
 #elif defined(__powerpc__) 
 	cpu = (CPU*) new(CPUPowerPC);
 	benchmarks = new(BenchmarkPPC);
+#elif defined(__loongarch64)
+	cpu = (CPU*) new(CPULoong);
+	benchmarks = new(BenchmarkLoong);
 #else
 	fprintf(stderr, "Unsupported instruction set architecture.\n");
 	exit(1);

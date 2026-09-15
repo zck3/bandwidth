@@ -62,7 +62,7 @@
 //-----------------------------------------------------------------------------
 #define OOC_RELEASE "0.39"
 
-#if defined(__x86_64__) || defined(_WIN64) || defined(__WIN64__) || defined(__aarch64__) || __WORDSIZE == 64 
+#if __WORDSIZE == 64 
  #define IS_64BIT
 #endif
 

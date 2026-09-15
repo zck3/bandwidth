@@ -29,7 +29,7 @@
 #define DECLARE_CPUPowerPC_INSTANCE_VARS(FOO) \
 	;
 
-#define DECLARE_CPUPowerPC_METHODS(TYPE_POCPUPowerPCER) \
+#define DECLARE_CPUPowerPC_METHODS(TYPE_POINTER) \
 	;
 
 struct cpu_powerpc64;

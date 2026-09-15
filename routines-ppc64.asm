@@ -25,9 +25,19 @@
 # r14-r31 callee saved work area
 #-----------------------------------------------------------------------------
 # I tested this code in Debian Linux emulated with Qemu 10.
-# https://cdimage.debian.org/cdimage/ports/snapshots/
+# https://cdimage.debian.org/cdimage/ports/snapshots/2025-11-11
 # Another option is CentOS:
 # https://ftp.jaist.ac.jp/pub/Linux/CentOS-vault/altarch/7.2.1511/isos/ppc64/
+#-----------------------------------------------------------------------------
+# qemu-system-ppc64 \
+#         -machine pseries \
+#         -m 3072 \
+#         -device AC97 \
+#         -display gtk,zoom-to-fit=on \
+#         -netdev user,id=net0 \
+#         -device virtio-net-pci,netdev=net0 \
+#         -boot c \
+#         -drive file=~/ppc64.img,format=raw,media=disk
 #-----------------------------------------------------------------------------
 
 	.text

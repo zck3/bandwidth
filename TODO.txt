@@ -1,5 +1,5 @@
 +-------+
 | TO DO |
 +-------+
-* LoongArch64 support.
-* Multithreaded mode.
+* Multithreaded mode to measure maximum main memory bandwidth across all cores.
+* Vector support for RISC-V, LoongArch64.

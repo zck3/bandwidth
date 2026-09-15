@@ -21,16 +21,16 @@
 
 include Makefile-sources
 CFLAGS= -g -Wno-conditional-type-mismatch -Wall 
-PPC_AS=powerpc64le-linux-gnu-as -mregnames -mpower8
+AS=as
 
 all:	Makefile-config bandwidth64
 
 include Makefile-config
 
-ASMSRC=routines-ppc64le.asm
-ASMOBJ=routines-ppc64le.o
-bandwidth64: Benchmark.c BenchmarkPPC.c ${SRC} ${ASMSRC} libOOC.a
-	${PPC_AS} ${ASMSRC} -o ${ASMOBJ}
-	${CC} ${CFLAGS} -c -I ./OOC Benchmark.c BenchmarkPPC.c
-	${CC} ${ASMOBJ} Benchmark.o BenchmarkPPC.o ${SRC} ${CFLAGS} -o bandwidth64 ${LIB}
+ASMSRC=routines-loong64.asm
+ASMOBJ=routines-loong64.o
+bandwidth64: Benchmark.c BenchmarkLoong.c ${SRC} ${ASMSRC} libOOC.a
+	${AS} ${ASMSRC} -o ${ASMOBJ}
+	${CC} ${CFLAGS} -c -I ./OOC Benchmark.c BenchmarkLoong.c
+	${CC} ${ASMOBJ} Benchmark.o BenchmarkLoong.o ${SRC} ${CFLAGS} -o bandwidth64 ${LIB}
 

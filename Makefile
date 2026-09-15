@@ -46,6 +46,8 @@ else ifeq (${UNAMESYS},darwin)
 else ifeq (${UNAMESYS},linux)
 	ifeq (${UNAMEMACHINE},ppc64le)
 		include Makefile-${UNAMESYS}-${UNAMEMACHINE}
+	else ifeq (${UNAMEMACHINE},ppc64)
+		include Makefile-linux-ppc64  # Big-endian.
 	else ifeq (${UNAMEMACHINE},armv6l)
 		include Makefile-${UNAMESYS}-aarch32
 	else ifeq (${UNAMEMACHINE},armv7l)
@@ -74,8 +76,8 @@ else ifeq (${UNAMESYS},linux)
 		include Makefile-${UNAMESYS}-${UNAMEMACHINE}
 	else ifeq (${UNAMEMACHINE},mips64)
 		include Makefile-unsupported
-	else ifeq (${UNAMEMACHINE},ppc64)
-		include Makefile-linux-ppc64  # Big-endian.
+	else ifeq (${UNAMEMACHINE},loongarch64)
+		include Makefile-linux-loong64
 	else 
 		include Makefile-unsupported
 	endif

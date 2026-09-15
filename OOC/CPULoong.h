@@ -1,6 +1,6 @@
 /*============================================================================
-  CPUARM, an object-oriented C ARM (aarch64 and aarch32) CPU class.
-  Copyright (C) 2019, 2023, 2026 by Zack T Smith.
+  CPULoong, an object-oriented C LoongArch64 instruction architecture.
+  Copyright (C) 2026 by Zack T Smith.
 
   Object-Oriented C is free software: you can redistribute it and/or modify
   it under the terms of the GNU Lesser General Public License as published
@@ -21,37 +21,37 @@
 // This file is part of a refactoring to break down CPU.c into 
 // subclasses for each CPU type.
 
-#ifndef _OOC_CPUARM_H
-#define _OOC_CPUARM_H
+#ifndef _OOC_CPULoong_H
+#define _OOC_CPULoong_H
 
 #include "CPU.h"
 
-#define DECLARE_CPUARM_INSTANCE_VARS(FOO) \
+#define DECLARE_CPULoong_INSTANCE_VARS(FOO) \
 	;
 
-#define DECLARE_CPUARM_METHODS(TYPE_POINTER) \
+#define DECLARE_CPULoong_METHODS(TYPE_POINTER) \
 	;
 
-struct cpu_arm;
+struct cpu_loongarch64;
 
-typedef struct cpu_armclass {
+typedef struct cpu_loongarch64class {
 	DECLARE_OBJECT_CLASS_VARS
-        DECLARE_OBJECT_METHODS(struct cpu_arm*)
-        DECLARE_CPU_METHODS(struct cpu_arm*)
-        DECLARE_CPUARM_METHODS(struct cpu_arm*)
-} CPUARMClass;
+        DECLARE_OBJECT_METHODS(struct cpu_loongarch64*)
+        DECLARE_CPU_METHODS(struct cpu_loongarch64*)
+        DECLARE_CPULoong_METHODS(struct cpu_loongarch64*)
+} CPULoongClass;
 
-extern CPUARMClass *_CPUARMClass;
-extern CPUARMClass* CPUARMClass_init (CPUARMClass*);
+extern CPULoongClass *_CPULoongClass;
+extern CPULoongClass* CPULoongClass_init (CPULoongClass*);
 
-typedef struct cpu_arm {
-        CPUARMClass *is_a;
-	DECLARE_OBJECT_INSTANCE_VARS(struct cpu_arm*)
-	DECLARE_CPU_INSTANCE_VARS(struct cpu_arm*)
-	DECLARE_CPUARM_INSTANCE_VARS(struct cpu_arm*)
-} CPUARM;
+typedef struct cpu_loongarch64 {
+        CPULoongClass *is_a;
+	DECLARE_OBJECT_INSTANCE_VARS(struct cpu_loongarch64*)
+	DECLARE_CPU_INSTANCE_VARS(struct cpu_loongarch64*)
+	DECLARE_CPULoong_INSTANCE_VARS(struct cpu_loongarch64*)
+} CPULoong;
 
-extern void CPUARM_destroy (Any *);
-extern CPUARM *CPUARM_init (CPUARM *self);
+extern void CPULoong_destroy (Any *);
+extern CPULoong *CPULoong_init (CPULoong *self);
 
 #endif

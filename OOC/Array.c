@@ -182,7 +182,7 @@ static void Array_print (Array* restrict self, FILE *outputFile)
 			fputs ("NULL", outputFile);
 		}
 
-		if (i++ != n-1) {
+		if (i != n-1) {
 			fputc (',', outputFile);
 		}
 	}

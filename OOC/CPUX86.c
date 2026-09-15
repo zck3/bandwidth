@@ -26,6 +26,7 @@
 
 #include <stdlib.h>
 #include <string.h>
+#include <immintrin.h>
 
 #ifdef __linux__
 #include <sys/auxv.h>
@@ -330,7 +331,7 @@ static void CPUX86_memoryFence (CPUX86* restrict self)
 	}
 	verifyCorrectClass(self,CPUX86);
 
-	asm volatile("mfence" ::: "memory");
+	_mm_mfence();
 }
 
 static void CPUX86_flushDataCacheAt (CPUX86* restrict self, void *address, size_t size)
@@ -340,12 +341,7 @@ static void CPUX86_flushDataCacheAt (CPUX86* restrict self, void *address, size_
 	}
 	verifyCorrectClass(self,CPUX86);
 
-	const char *ptr = address;
-	asm volatile(
-		"CLFLUSH (%0)\n" 
-		: 
-		: "r"(&ptr) 
-		: "memory");
+	_mm_clflush(address);
 }
 
 static String* CPUX86_instructionSet (CPUX86* restrict self) 

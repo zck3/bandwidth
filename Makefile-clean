@@ -7,8 +7,9 @@ clean:
 	rm -f bandwidth.bmp bandwidth.tif bandwidth32 bandwidth64 
 	rm -f routines-x86-32bit.o routines-x86-64bit.o 
 	rm -f routines-arm-32bit.o routines-arm-64bit.o 
-	rm -f routines-riscv64-64bit.o
-	rm -f routines-ppc64le-64bit.o
+	rm -f routines-riscv64.o
+	rm -f routines-ppc64le.o routines-ppc64.o
+	rm -f routines-loong64.o
 	rm -rf bandwidth64.dSYM bandwidth32.dSYM
 	@rm -f Makefile-config config.h
 	( cd OOC; make clean )

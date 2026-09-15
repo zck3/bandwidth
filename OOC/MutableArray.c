@@ -296,7 +296,7 @@ static void MutableArray_append (MutableArray* restrict self, Any *object_)
 		return;
 	}
 
-	// NOTE: It's OK to append a NULL.
+	// RULE: It's OK to append a NULL.
 	Object *object = object_;
 	if (object) {
 		if (!isObject(object)) {
@@ -306,14 +306,14 @@ static void MutableArray_append (MutableArray* restrict self, Any *object_)
 	}
 
 	size_t count = self->count;
-	if (count+1 >= self->size) {
+	if (count >= self->size) {
 		size_t newSize = self->size * 2;
-		Object **ary = realloc (self->array, newSize * sizeof(Object*));
+		Object **ary = reallocarray (self->array, newSize, sizeof(Object*));
 		if (ary) {
 			self->array = ary;
 			self->size = newSize;
 		} else {
-			Log_perror(__FUNCTION__, "realloc");
+			Log_perror(__FUNCTION__, "reallocarray");
 		}
 	}
 

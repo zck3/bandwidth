@@ -47,6 +47,7 @@ It will also select the appropriate Makefile for your OS and CPU architecture.
 
 * Release 1.16:
 	* Added PowerPC64 support, both little-endian and big-endian.
+	* Added initial LoongArch64 support.
 * Release 1.15:
 	* Refactoring and bugfixing. Added --main-memory-only (-m).
 * Release 1.14:

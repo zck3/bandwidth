@@ -99,7 +99,12 @@
 // 1.15.4
 // 	- Initial PowerPC support (64-bit little endian), tested w/Podman.
 // 1.16.0
-// 	- Added big-endian PowerPC 64-bit support, testing in Qemu.
+// 	- Added big-endian PowerPC 64-bit support, testing in Qemu/Debian13.
+// 1.16.1
+// 	- Now reporting PowerPC hardware capabilities.
+// 1.16.2
+// 	- Now reporting RISC-V vector size, tested in Podman container.
+//	- Initial LoongArch64 support, tested in Qemu/Debian14.
 //-----------------------------------------------------------------------------
 
 #ifndef _DEFS_H
@@ -115,8 +120,9 @@
 #include "BenchmarkARM.h"
 #include "BenchmarkRISCV.h"
 #include "BenchmarkPPC.h"
+#include "BenchmarkLoong.h"
 
-#define RELEASE "1.16.0"
+#define RELEASE "1.16.2"
 #define RESULTS_IMAGE_FILENAME "bandwidth.bmp"
 
 #define NICE_DURATION (4)
@@ -168,6 +174,8 @@ extern Console *console;
   extern BenchmarkRISCV *benchmarks;
 #elif defined(__powerpc__) 
   extern BenchmarkPPC *benchmarks;
+#elif defined(__loongarch64)
+  extern BenchmarkLoong *benchmarks;
 #else
   extern Benchmark *benchmarks;
 #endif

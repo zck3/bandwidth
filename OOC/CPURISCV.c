@@ -131,6 +131,19 @@ static MutableSet* CPURISCV_features (CPURISCV* restrict self)
     #ifdef COMPAT_HWCAP_ISA_V
 	if (hwcap & COMPAT_HWCAP_ISA_V) {
 		$(mut, add, _String("isa_v"));
+		// There are vector registers, but on RISC-V the size can vary
+		// by CPU implementation, so we have to try to read the size.
+		//
+		unsigned long value = 0;
+		asm volatile ("csrr %0, vlenb" : "=r"(value));
+		unsigned long vector_length = value * 8;
+		switch (vector_length) {
+		case 128: self->has128bitVectors = true; break;
+		case 256: self->has256bitVectors = true; break;
+		case 512: self->has512bitVectors = true; break;
+		default:
+			break;
+		}
 	}
     #endif
 #endif
