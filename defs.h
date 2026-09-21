@@ -40,7 +40,7 @@
 // 1.1	Switched to larger font in graphing module.
 // 1.2	Re-added ARM 32 support.
 // 1.3	Added CSV output support. Added 32-bit Raspberry π 3 support.
-// 1.4	Added 256-bit routines RandomReaderAVX, RandomWriterAVX.
+// 1.4	Added 256-bit routines RandomReaderVector256, RandomWriterAVX.
 // 1.4.1 Added --limit parameter.
 // 1.4.2 Fixed compiler warnings.
 // 1.5	Fixed AVX writer bug that gave inaccurate results. Added nice mode.
@@ -104,13 +104,21 @@
 // 	- Now reporting PowerPC hardware capabilities.
 // 1.16.2
 // 	- Now reporting RISC-V vector size, tested in Podman container.
-//	- Initial LoongArch64 support, tested in Qemu/Debian14.
+//	- Initial LoongArch64 support, tested in Qemu/Debian.
+// 1.16.3
+//	- Now reporting arm32 hardware capabilities on Linux.
+//	- Added vector-to/from-register routines for aarch32.
+//	- Added vector-to/from-register routines for aarch64.
+//	- Regularized method naming to be non-X86-specific.
+//	- Regularized command-line parameters to be non-X86-specific.
+//	- Incorporated KatyushaScarlet's LoongArch64 vector routines.
+//	- Improved program usage information.
+//	- Refactoring and pruning.
+//	- OOC improvements.
 //-----------------------------------------------------------------------------
 
 #ifndef _DEFS_H
 #define _DEFS_H
-
-#include <stdbool.h>
 
 #include "OOC/CPU.h"
 #include "OOC/Hardware.h"
@@ -122,7 +130,7 @@
 #include "BenchmarkPPC.h"
 #include "BenchmarkLoong.h"
 
-#define RELEASE "1.16.2"
+#define RELEASE "1.16.3"
 #define RESULTS_IMAGE_FILENAME "bandwidth.bmp"
 
 #define NICE_DURATION (4)
@@ -165,19 +173,5 @@ typedef struct {
 
 extern ProgramOptions options;
 extern Console *console;
-
-#if defined(__x86_64__) || defined(__i386__)
-  extern BenchmarkX86 *benchmarks;
-#elif defined(__arm__) || defined(__aarch64__)
-  extern BenchmarkARM *benchmarks;
-#elif defined(RISCV64) 
-  extern BenchmarkRISCV *benchmarks;
-#elif defined(__powerpc__) 
-  extern BenchmarkPPC *benchmarks;
-#elif defined(__loongarch64)
-  extern BenchmarkLoong *benchmarks;
-#else
-  extern Benchmark *benchmarks;
-#endif
 
 #endif

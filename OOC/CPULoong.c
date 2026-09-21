@@ -103,89 +103,89 @@ static MutableSet* CPULoong_features (CPULoong* restrict self)
 
 #ifdef HWCAP_LOONGARCH_CPUCFG
 	if (hwcap & HWCAP_LOONGARCH_CPUCFG) {
-		$(mut, add, _String("cpucfg"));
+		$(mut, addCString, "cpucfg");
 	}
 #endif
 #ifdef HWCAP_LOONGARCH_LAM
 	if (hwcap & HWCAP_LOONGARCH_LAM) {
-		$(mut, add, _String("lam"));
+		$(mut, addCString, "lam");
 	}
 #endif
 #ifdef HWCAP_LOONGARCH_UAL
 	if (hwcap & HWCAP_LOONGARCH_UAL) {
-		$(mut, add, _String("ual"));
+		$(mut, addCString, "ual");
 	}
 #endif
 #ifdef HWCAP_LOONGARCH_FPU
 	if (hwcap & HWCAP_LOONGARCH_FPU) {
-		$(mut, add, _String("fpu"));
+		$(mut, addCString, "fpu");
 	}
 #endif
 #ifdef HWCAP_LOONGARCH_LSX
 	if (hwcap & HWCAP_LOONGARCH_LSX) {
-		$(mut, add, _String("lsx"));
+		$(mut, addCString, "lsx");
 		self->has128bitVectors = true;
 	}
 #endif
 #ifdef HWCAP_LOONGARCH_LASX
 	if (hwcap & HWCAP_LOONGARCH_LASX) {
-		$(mut, add, _String("lasx"));
+		$(mut, addCString, "lasx");
 		self->has256bitVectors = true;
 	}
 #endif
 #ifdef HWCAP_LOONGARCH_CRC32
 	if (hwcap & HWCAP_LOONGARCH_CRC32) {
-		$(mut, add, _String("crc32"));
+		$(mut, addCString, "crc32");
 	}
 #endif
 #ifdef HWCAP_LOONGARCH_COMPLEX
 	if (hwcap & HWCAP_LOONGARCH_COMPLEX) {
-		$(mut, add, _String("complex"));
+		$(mut, addCString, "complex");
 	}
 #endif
 #ifdef HWCAP_LOONGARCH_CRYPTO
 	if (hwcap & HWCAP_LOONGARCH_CRYPTO) {
-		$(mut, add, _String("crypto"));
+		$(mut, addCString, "crypto");
 	}
 #endif
 #ifdef HWCAP_LOONGARCH_LVZ
 	if (hwcap & HWCAP_LOONGARCH_LVZ) {
-		$(mut, add, _String("lvz"));
+		$(mut, addCString, "lvz");
 	}
 #endif
 #ifdef HWCAP_LOONGARCH_LBT_X86
 	if (hwcap & HWCAP_LOONGARCH_LBT_X86) {
-		$(mut, add, _String("lbt_x86"));
+		$(mut, addCString, "lbt_x86");
 	}
 #endif
 #ifdef HWCAP_LOONGARCH_LBT_ARM
 	if (hwcap & HWCAP_LOONGARCH_LBT_ARM) {
-		$(mut, add, _String("lbt_arm"));
+		$(mut, addCString, "lbt_arm");
 	}
 #endif
 #ifdef HWCAP_LOONGARCH_LBT_MIPS
 	if (hwcap & HWCAP_LOONGARCH_LBT_MIPS) {
-		$(mut, add, _String("lbt_mips"));
+		$(mut, addCString, "lbt_mips");
 	}
 #endif
 #ifdef HWCAP_LOONGARCH_PTW
 	if (hwcap & HWCAP_LOONGARCH_PTW) {
-		$(mut, add, _String("ptw"));
+		$(mut, addCString, "ptw");
 	}
 #endif
 #ifdef HWCAP_LOONGARCH_LSPW
 	if (hwcap & HWCAP_LOONGARCH_LSPW) {
-		$(mut, add, _String("lspw"));
+		$(mut, addCString, "lspw");
 	}
 #endif
 #ifdef HWCAP_LOONGARCH_SCQ
 	if (hwcap & HWCAP_LOONGARCH_SCQ) {
-		$(mut, add, _String("scq"));
+		$(mut, addCString, "scq");
 	}
 #endif
 #ifdef HWCAP_LOONGARCH_LAM_BH
 	if (hwcap & HWCAP_LOONGARCH_LAM_BH) {
-		$(mut, add, _String("lam_bh"));
+		$(mut, addCString, "lam_bh");
 	}
 #endif
 #endif

@@ -1,5 +1,5 @@
 +-------+
 | TO DO |
 +-------+
-* Multithreaded mode to measure maximum main memory bandwidth across all cores.
-* Vector support for RISC-V, LoongArch64.
+* Multithreaded mode to measure total main memory bandwidth by measuring across all cores simultaneously.
+* Maybe support RISC-V and/or PowerPC vector instructions.

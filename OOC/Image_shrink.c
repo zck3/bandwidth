@@ -26,14 +26,11 @@
  * July 28, 2023: Ported to Object Oriented C.
  */
 
-#include <stdio.h>
-#include <stdlib.h>
+#include "Image.h"
+
 #include <time.h>
 #include <unistd.h>
 #include <math.h>
-#include <string.h>
-
-#include "Image.h"
 
 typedef struct
 {

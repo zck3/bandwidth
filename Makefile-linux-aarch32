@@ -21,8 +21,7 @@
 
 include Makefile-sources
 CFLAGS= -marm -g -Wno-conditional-type-mismatch -Wall -I.
-AS=nasm
-ARM_AS=as
+ARM_AS=as -march=armv7a -mfpu=neon
 ARM_CC=gcc
 
 all:	Makefile-config bandwidth32
@@ -30,7 +29,7 @@ all:	Makefile-config bandwidth32
 include Makefile-config
 
 bandwidth32: Benchmark.c BenchmarkARM.c ${SRC} routines-arm-32bit.asm libOOC.a
-	${ARM_AS} -march=armv7a -mfpu=neon routines-arm-32bit.asm -o routines-arm-32bit.o
+	${ARM_AS} routines-arm-32bit.asm -o routines-arm-32bit.o
 	${ARM_CC} ${CFLAGS} -c -I ./OOC Benchmark.c BenchmarkARM.c
 	${ARM_CC} -L./OOC routines-arm-32bit.o Benchmark.o BenchmarkARM.o ${SRC} ${CFLAGS} -o bandwidth32 ${LIB}
 

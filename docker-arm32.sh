@@ -29,7 +29,7 @@ case "$(uname -m)" in
 	echo "Your device is arm32."
 	;;
     *) 
-	echo Your device is neither arm64 nor arm32, so arm32 will be emulated.
+	echo "Your device is neither arm64 nor arm32, so arm32 will be emulated."
 	;;
 esac
 
@@ -45,8 +45,20 @@ else
 	exit 2
 fi
 
-if $CMD build --platform=linux/armhf -t debian-aarch32-image -f ./Dockerfile-arm32 .; then
-	if ! $CMD run -e TERM=xterm --platform=linux/armhf -it debian-aarch32-image; then
+echo ________________________________________
+
+IMG=bandwidth-arch32
+ARCH=armhf
+PLATFORM=linux/$ARCH
+RELEASE=trixie
+DOCKFILE=/tmp/.bandwidthDockerfile
+
+echo "FROM --platform=$PLATFORM debian:$RELEASE" > $DOCKFILE
+echo "RUN dpkg --add-architecture $ARCH " >> $DOCKFILE
+cat ./Dockerfile-common >> $DOCKFILE
+
+if $CMD build --platform=$PLATFORM -t $IMG -f $DOCKFILE .; then
+	if ! $CMD run -e TERM=xterm --platform=$PLATFORM -it $IMG; then
 		echo Run failed.
 	fi
 else

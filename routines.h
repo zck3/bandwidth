@@ -27,71 +27,65 @@
 extern int Reader (void *ptr, unsigned long size, unsigned long loops);
 extern int Reader_nontemporal (void *ptr, unsigned long size, unsigned long loops);
 
-extern int RandomReader (void *ptr, unsigned long n_chunks, unsigned long loops);
+extern int RandomReader (void **ptr, unsigned long n_chunks, unsigned long loops);
 
 extern int Writer (void *ptr, unsigned long size, unsigned long loops, unsigned long value);
 extern int Writer_nontemporal (void *ptr, unsigned long size, unsigned long loops, unsigned long value);
-extern int RandomWriter (void *ptr, unsigned long size, unsigned long loops, unsigned long value);
-
-extern int ReaderVector (void *ptr, unsigned long size, unsigned long loops);
-extern int RandomReaderVector (void *ptr, unsigned long n_chunks, unsigned long loops);
-extern int WriterVector (void *ptr, unsigned long size, unsigned long loops, unsigned long value);
-extern int RandomWriterVector (void *ptr, unsigned long size, unsigned long loops, unsigned long value);
 
 extern int RegisterToRegister (unsigned long);
 
 extern int StackReader (unsigned long);
 extern int StackWriter (unsigned long);
 
-extern int RegisterToVector (unsigned long);	// SSE2
-extern int Register8ToVector (unsigned long);	// SSE2
-extern int Register16ToVector (unsigned long);	// SSE2
-extern int Register32ToVector (unsigned long);	// SSE2
-extern int Register64ToVector (unsigned long);	// SSE2
+extern int Register8ToVector128 (unsigned long);	// SSE2
+extern int Register16ToVector128 (unsigned long);	// SSE2
+extern int Register32ToVector128 (unsigned long);	// SSE2
+extern int Register64ToVector128 (unsigned long);	// SSE2
 
 extern int VectorToVector128 (unsigned long);	// SSE2
 extern int VectorToVector256 (unsigned long);	// AVX
 extern int VectorToVector512 (unsigned long);	// AVX512
 
-extern int VectorToRegister (unsigned long);	// SSE2
-extern int Vector8ToRegister (unsigned long);	// SSE2
-extern int Vector16ToRegister (unsigned long);	// SSE2
-extern int Vector32ToRegister (unsigned long);	// SSE2
-extern int Vector64ToRegister (unsigned long);	// SSE2
+extern int RegisterToVectorMove (unsigned long);// MOVD
+extern int VectorToRegisterMove (unsigned long);// MOVD
+
+extern int Vector128ToRegister8 (unsigned long);	// SSE2
+extern int Vector128ToRegister16 (unsigned long);	// SSE2
+extern int Vector128ToRegister32 (unsigned long);	// SSE2
+extern int Vector128ToRegister64 (unsigned long);	// SSE2
 
 extern int CopyWithMainRegisters (void*, void*, unsigned long, unsigned long);	
-extern int CopyWithVector128Registers (void*, void*, unsigned long, unsigned long); // ARM
-extern int CopySSE (void*, void*, unsigned long, unsigned long); // x86
-extern int CopyAVX (void*, void*, unsigned long, unsigned long);
-extern int CopyAVX512 (void*, void*, unsigned long, unsigned long);
+extern int CopyVector128 (void*, void*, unsigned long, unsigned long); 
+extern int CopyVector256 (void*, void*, unsigned long, unsigned long);
+extern int CopyVector512 (void*, void*, unsigned long, unsigned long);
 
-extern int ReaderAVX (void *ptr, unsigned long, unsigned long);
-extern int ReaderAVX512 (void *ptr, unsigned long, unsigned long);
-extern int RandomReaderAVX (void *ptr, unsigned long, unsigned long);
+extern int ReaderVector128 (void *ptr, unsigned long, unsigned long); // SSE2
+extern int ReaderVector256 (void *ptr, unsigned long, unsigned long);
+extern int ReaderVector512 (void *ptr, unsigned long, unsigned long);
 
-extern int ReaderSSE2 (void *ptr, unsigned long, unsigned long);
-extern int ReaderSSE4_nontemporal (void *ptr, unsigned long, unsigned long);
-extern int RandomReaderSSE2 (unsigned long **ptr, unsigned long, unsigned long);
-extern int RandomReaderSSE4_nontemporal (unsigned long **ptr, unsigned long, unsigned long);
+extern int RandomReaderVector128 (void **ptr, unsigned long, unsigned long); // SSE2
+extern int RandomReaderVector128_nontemporal (void **ptr, unsigned long, unsigned long); // SSE4
 
-// 256-bit ymm registers
-extern int ReaderAVX_nontemporal (void *ptr, unsigned long, unsigned long);
-// 512-bit zmm registers
-extern int ReaderAVX512_nontemporal (void *ptr, unsigned long, unsigned long);
+extern int RandomReaderVector256 (void **ptr, unsigned long, unsigned long);
 
-extern int WriterAVX (void *ptr, unsigned long, unsigned long, unsigned long);
-extern int WriterAVX512 (void *ptr, unsigned long, unsigned long, unsigned long);
-extern int RandomWriterAVX (void *ptr, unsigned long, unsigned long, unsigned long);
-extern int RandomWriterAVX_nontemporal (void *ptr, unsigned long, unsigned long, unsigned long);
+extern int ReaderVector128_nontemporal (void *ptr, unsigned long, unsigned long); // SSE4
+extern int ReaderVector256_nontemporal (void *ptr, unsigned long, unsigned long);
+extern int ReaderVector512_nontemporal (void *ptr, unsigned long, unsigned long);
 
-extern int WriterSSE2 (void *ptr, unsigned long, unsigned long, unsigned long);
-extern int RandomWriterSSE2(unsigned long **ptr, unsigned long, unsigned long, unsigned long);
+extern int RandomWriter (void **ptr, unsigned long size, unsigned long loops, unsigned long value);
+extern int RandomWriterVector128 (void **ptr, unsigned long, unsigned long, unsigned long);
+extern int RandomWriterVector256 (void **ptr, unsigned long, unsigned long, unsigned long);
 
-extern int WriterSSE2_nontemporal (void *ptr, unsigned long, unsigned long, unsigned long);
-extern int WriterAVX_nontemporal (void *ptr, unsigned long, unsigned long, unsigned long);
-extern int WriterAVX512_nontemporal (void *ptr, unsigned long, unsigned long, unsigned long);
+extern int RandomWriterVector128_nontemporal (void **ptr, unsigned long, unsigned long, unsigned long);
+extern int RandomWriterVector256_nontemporal (void **ptr, unsigned long, unsigned long, unsigned long);
 
-extern int RandomWriterSSE2_nontemporal (unsigned long **ptr, unsigned long, unsigned long, unsigned long);
+extern int WriterVector128 (void *ptr, unsigned long, unsigned long, unsigned long);
+extern int WriterVector256 (void *ptr, unsigned long, unsigned long, unsigned long);
+extern int WriterVector512 (void *ptr, unsigned long, unsigned long, unsigned long);
+
+extern int WriterVector128_nontemporal (void *ptr, unsigned long, unsigned long, unsigned long);
+extern int WriterVector256_nontemporal (void *ptr, unsigned long, unsigned long, unsigned long);
+extern int WriterVector512_nontemporal (void *ptr, unsigned long, unsigned long, unsigned long);
 
 extern void IncrementRegisters (unsigned long count);
 extern void IncrementStack (unsigned long count);

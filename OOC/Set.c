@@ -22,10 +22,6 @@
 #include "MutableArray.h"
 #include "Log.h"
 
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
-
 SetClass *_SetClass = NULL;
 
 static void Set_print (Set* restrict self, FILE *file)

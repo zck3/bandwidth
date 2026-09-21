@@ -19,11 +19,8 @@
  *===========================================================================*/
 
 #include "MutableSet.h"
+#include "String.h"
 #include "Log.h"
-
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
 
 MutableSetClass *_MutableSetClass = NULL;
 
@@ -115,6 +112,15 @@ static void MutableSet_add (MutableSet* restrict self, Any *object_)
 		item->next = self->buckets[index];
 		self->buckets[index] = item;
 	}
+}
+
+static void MutableSet_addCString (MutableSet* restrict self, const char *cstring)
+{
+	if (!self || !cstring) {
+		return;
+	}
+	String *string = _String(cstring);
+	MutableSet_add (self, string);
 }
 
 static void MutableSet_remove (MutableSet* restrict self, Any *object_)
@@ -273,6 +279,7 @@ MutableSetClass* MutableSetClass_init (MutableSetClass *class)
 	SET_SUPERCLASS(Set);
 
         SET_METHOD_POINTER(MutableSet,add);
+        SET_METHOD_POINTER(MutableSet,addCString);
         SET_METHOD_POINTER(MutableSet,remove);
         SET_METHOD_POINTER(MutableSet,unionWith);
         SET_METHOD_POINTER(MutableSet,subtract);

@@ -100,37 +100,37 @@ static MutableSet* CPURISCV_features (CPURISCV* restrict self)
 
     #ifdef COMPAT_HWCAP_ISA_I
 	if (hwcap & COMPAT_HWCAP_ISA_I) {
-		$(mut, add, _String("isa_i"));
+		$(mut, addCString, "isa_i");
 	}
     #endif
     #ifdef COMPAT_HWCAP_ISA_M
 	if (hwcap & COMPAT_HWCAP_ISA_M) {
-		$(mut, add, _String("isa_m"));
+		$(mut, addCString, "isa_m");
 	}
     #endif
     #ifdef COMPAT_HWCAP_ISA_A
 	if (hwcap & COMPAT_HWCAP_ISA_A) {
-		$(mut, add, _String("isa_a"));
+		$(mut, addCString, "isa_a");
 	}
     #endif
     #ifdef COMPAT_HWCAP_ISA_F
 	if (hwcap & COMPAT_HWCAP_ISA_F) {
-		$(mut, add, _String("isa_f"));
+		$(mut, addCString, "isa_f");
 	}
     #endif
     #ifdef COMPAT_HWCAP_ISA_D
 	if (hwcap & COMPAT_HWCAP_ISA_D) {
-		$(mut, add, _String("isa_d"));
+		$(mut, addCString, "isa_d");
 	}
     #endif
     #ifdef COMPAT_HWCAP_ISA_C
 	if (hwcap & COMPAT_HWCAP_ISA_C) {
-		$(mut, add, _String("isa_c"));
+		$(mut, addCString, "isa_c");
 	}
     #endif
     #ifdef COMPAT_HWCAP_ISA_V
 	if (hwcap & COMPAT_HWCAP_ISA_V) {
-		$(mut, add, _String("isa_v"));
+		$(mut, addCString, "isa_v");
 		// There are vector registers, but on RISC-V the size can vary
 		// by CPU implementation, so we have to try to read the size.
 		//

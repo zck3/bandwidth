@@ -40,104 +40,103 @@
 bits	64
 cpu	ia64
 
+global	CopyVector128
+global	CopyVector256
+global	CopyVector512
 global	CopyWithMainRegisters
-global	_CopyWithMainRegisters
-global	CopySSE
-global	_CopySSE
-global	CopyAVX
-global	_CopyAVX
-global	CopyAVX512
-global	_CopyAVX512
 
 global	IncrementRegisters
-global	_IncrementRegisters
 global	IncrementStack
-global	_IncrementStack
 
-global	Reader_nontemporal
-global	_Reader_nontemporal
-global	Writer_nontemporal
-global	_Writer_nontemporal
 global	RandomReader
-global	RandomReaderSSE2
-global	RandomReaderSSE4_nontemporal
+global	RandomReaderVector128
+global	RandomReaderVector128_nontemporal
+global	RandomReaderVector256
 global	RandomWriter
-global	RandomWriterSSE2
-global	RandomWriterSSE2_nontemporal
+global	RandomWriterVector128
+global	RandomWriterVector128_nontemporal
+global	RandomWriterVector256
+global	RandomWriterVector256_nontemporal
 global	Reader
-global	ReaderAVX
-global	ReaderAVX512
-global	RandomReaderAVX
-global	ReaderSSE2
-global	ReaderSSE4_nontemporal
-global	ReaderAVX_nontemporal
-global	_ReaderAVX_nontemporal
-global	ReaderAVX512_nontemporal
-global	_ReaderAVX512_nontemporal
-global	Register16ToVector
-global	Register32ToVector
-global	Register64ToVector
-global	Register8ToVector
+global	ReaderVector128
+global	ReaderVector128_nontemporal
+global	ReaderVector256
+global	ReaderVector256_nontemporal
+global	ReaderVector512
+global	ReaderVector512_nontemporal
+global	Reader_nontemporal
+global	Register16ToVector128
+global	Register32ToVector128
+global	Register64ToVector128
+global	Register8ToVector128
 global	RegisterToRegister
-global	RegisterToVector
 global	StackReader
 global	StackWriter
-global	Vector16ToRegister
-global	Vector32ToRegister
-global	Vector64ToRegister
-global	Vector8ToRegister
-global	VectorToRegister
+global	Vector128ToRegister16
+global	Vector128ToRegister32
+global	Vector128ToRegister64
+global	Vector128ToRegister8
 global	VectorToVector128
 global	VectorToVector256
 global	VectorToVector512
 global	Writer
-global	WriterAVX
-global	WriterAVX512
-global	RandomWriterAVX
-global	RandomWriterAVX_nontemporal
-global	WriterSSE2
-global	WriterSSE2_nontemporal
-global	WriterAVX_nontemporal
-global	_WriterAVX_nontemporal
-global	WriterAVX512_nontemporal
-global	_WriterAVX512_nontemporal
+global	WriterVector128
+global	WriterVector128_nontemporal
+global	WriterVector256
+global	WriterVector256_nontemporal
+global	WriterVector512
+global	WriterVector512_nontemporal
+global	Writer_nontemporal
+global	_CopyVector128
+global	_CopyVector256
+global	_CopyVector512
+global	_CopyWithMainRegisters
+global	_IncrementRegisters
+global	_IncrementStack
 global	_RandomReader
-global	_RandomReaderSSE2
-global	_RandomReaderSSE4_nontemporal
+global	_RandomReaderVector128
+global	_RandomReaderVector128_nontemporal
+global	_RandomReaderVector256
 global	_RandomWriter
-global	_RandomWriterSSE2
-global	_RandomWriterSSE2_nontemporal
+global	_RandomWriterVector128
+global	_RandomWriterVector128_nontemporal
+global	_RandomWriterVector256
+global	_RandomWriterVector256_nontemporal
 global	_Reader
-global	_ReaderAVX
-global	_ReaderAVX512
-global	_RandomReaderAVX
-global	_ReaderSSE2
-global	_ReaderSSE4_nontemporal
-global	_Register16ToVector
-global	_Register32ToVector
-global	_Register64ToVector
-global	_Register8ToVector
+global	_ReaderVector128
+global	_ReaderVector128_nontemporal
+global	_ReaderVector256
+global	_ReaderVector256_nontemporal
+global	_ReaderVector512
+global	_ReaderVector512_nontemporal
+global	_Reader_nontemporal
+global	_Register16ToVector128
+global	_Register32ToVector128
+global	_Register64ToVector128
+global	_Register8ToVector128
 global	_RegisterToRegister
-global	_RegisterToVector
 global	_StackReader
 global	_StackWriter
-global	_Vector16ToRegister
-global	_Vector32ToRegister
-global	_Vector64ToRegister
-global	_Vector8ToRegister
-global	_VectorToRegister
-global	_VectorToVector
-global	_VectorToVectorAVX
+global	_Vector128ToRegister16
+global	_Vector128ToRegister32
+global	_Vector128ToRegister64
+global	_Vector128ToRegister8
 global	_VectorToVector128
 global	_VectorToVector256
 global	_VectorToVector512
 global	_Writer
-global	_WriterSSE2
-global	_WriterAVX
-global	_WriterAVX512
-global	_RandomWriterAVX
-global	_RandomWriterAVX_nontemporal
-global	_WriterSSE2_nontemporal
+global	_WriterVector128
+global	_WriterVector128_nontemporal
+global	_WriterVector256
+global	_WriterVector256_nontemporal
+global	_WriterVector512
+global	_WriterVector512_nontemporal
+global	_Writer_nontemporal
+
+global	VectorToRegisterMove
+global	_VectorToRegisterMove
+global	RegisterToVectorMove
+global	_RegisterToVectorMove
 
 global	RowHammerTest 
 global	_RowHammerTest 
@@ -278,15 +277,15 @@ _RandomReader:
 	ret
 
 ;------------------------------------------------------------------------------
-; Name:		RandomReaderSSE2
+; Name:		RandomReaderVector128
 ; Purpose:	Reads 128-bit values randomly from an area of memory.
 ; Params:	P1 = ptr to array of chunk pointers
 ; 		P2 = # of chunks
 ; 		P3 = loops
 ;------------------------------------------------------------------------------
 	align 64
-RandomReaderSSE2:
-_RandomReaderSSE2:
+RandomReaderVector128:
+_RandomReaderVector128:
 	mfence
 	push	r10
 	push	r11
@@ -327,15 +326,15 @@ _RandomReaderSSE2:
 	ret
 
 ;------------------------------------------------------------------------------
-; Name:		RandomReaderSSE4_nontemporal
+; Name:		RandomReaderVector128_nontemporal (using SSE4)
 ; Purpose:	Reads 128-bit values randomly from an area of memory.
 ; Params:	P1 = ptr to array of chunk pointers
 ; 		P2 = # of chunks
 ; 		P3 = loops
 ;------------------------------------------------------------------------------
 	align 64
-RandomReaderSSE4_nontemporal:
-_RandomReaderSSE4_nontemporal:
+RandomReaderVector128_nontemporal:
+_RandomReaderVector128_nontemporal:
 	mfence
 	push	r10
 	push	r11
@@ -446,7 +445,7 @@ _RandomWriter:
 	ret
 
 ;------------------------------------------------------------------------------
-; Name:		RandomWriterSSE2
+; Name:		RandomWriterVector128
 ; Purpose:	Writes 128-bit values randomly to an area of memory.
 ; Params:	P1 = ptr to array of chunk pointers
 ; 		P2 = # of chunks
@@ -454,8 +453,8 @@ _RandomWriter:
 ; 		P4 = datum to write
 ;------------------------------------------------------------------------------
 	align 64
-RandomWriterSSE2:
-_RandomWriterSSE2:
+RandomWriterVector128:
+_RandomWriterVector128:
 	sfence
 	push	r10
 	push	r11
@@ -501,7 +500,7 @@ _RandomWriterSSE2:
 	ret
 
 ;------------------------------------------------------------------------------
-; Name:		RandomWriterSSE2_nontemporal
+; Name:		RandomWriterVector128_nontemporal
 ; Purpose:	Nontemporal writes of 128-bit values randomly into memory.
 ; Params:	P1 = ptr to array of chunk pointers
 ; 		P2 = # of chunks
@@ -509,8 +508,8 @@ _RandomWriterSSE2:
 ; 		P4 = datum to write
 ;------------------------------------------------------------------------------
 	align 64
-RandomWriterSSE2_nontemporal:
-_RandomWriterSSE2_nontemporal:
+RandomWriterVector128_nontemporal:
+_RandomWriterVector128_nontemporal:
 	sfence
 	push	r10
 	push	r11
@@ -557,15 +556,15 @@ _RandomWriterSSE2_nontemporal:
 	ret
 
 ;------------------------------------------------------------------------------
-; Name:		ReaderSSE2
+; Name:		ReaderVector128
 ; Purpose:	Reads 128-bit values sequentially from an area of memory.
 ; Params:	P1 = ptr to memory area
 ; 		P2 = length in bytes
 ; 		P3 = loops
 ;------------------------------------------------------------------------------
 	align 64
-ReaderSSE2:
-_ReaderSSE2:
+ReaderVector128:
+_ReaderVector128:
 	lfence
 	push	r10
 
@@ -605,15 +604,15 @@ _ReaderSSE2:
 	ret
 
 ;------------------------------------------------------------------------------
-; Name:		ReaderAVX
+; Name:		ReaderVector256 (using AVX)
 ; Purpose:	Reads 256-bit values sequentially from an area of memory.
 ; Params:	P1 = ptr to memory area
 ; 		P2 = length in bytes
 ; 		P3 = loops
 ;------------------------------------------------------------------------------
 	align 64
-ReaderAVX:
-_ReaderAVX:
+ReaderVector256:
+_ReaderVector256:
 	lfence
 	sub	rsp, 32
 	vmovdqu	[rsp], ymm0
@@ -661,15 +660,15 @@ _ReaderAVX:
 	ret
 
 ;------------------------------------------------------------------------------
-; Name:		ReaderAVX512
+; Name:		ReaderVector512 (using AVX-512)
 ; Purpose:	Reads 512-bit values sequentially from an area of memory.
 ; Params:	P1 = ptr to memory area
 ; 		P2 = length in bytes
 ; 		P3 = loops
 ;------------------------------------------------------------------------------
 	align 64
-ReaderAVX512:
-_ReaderAVX512:
+ReaderVector512:
+_ReaderVector512:
 	lfence
 	sub	rsp, 64
 	vmovdqu64	[rsp], zmm0
@@ -714,15 +713,15 @@ _ReaderAVX512:
 	ret
 
 ;------------------------------------------------------------------------------
-; Name:		RandomReaderAVX
+; Name:		RandomReaderVector256 (using AVX)
 ; Purpose:	Reads 256-bit values in somewhat random order from RAM.
 ; Params:	P1 = ptr to chunk pointers 
 ; 		P2 = # chunks
 ; 		P3 = loops
 ;------------------------------------------------------------------------------
 	align 64
-RandomReaderAVX:
-_RandomReaderAVX:
+RandomReaderVector256:
+_RandomReaderVector256:
 	lfence
 	sub	rsp, 32
 	vmovdqu	[rsp], ymm0
@@ -773,15 +772,15 @@ _RandomReaderAVX:
 	ret
 
 ;------------------------------------------------------------------------------
-; Name:		ReaderSSE4_nontemporal
+; Name:		ReaderVector128_nontemporal (using SSE4)
 ; Purpose:	Reads 128-bit values sequentially from an area of memory.
 ; Params:	P1 = ptr to memory area
 ; 		P2 = length in bytes
 ; 		P3 = loops
 ;------------------------------------------------------------------------------
 	align 64
-ReaderSSE4_nontemporal:
-_ReaderSSE4_nontemporal:
+ReaderVector128_nontemporal:
+_ReaderVector128_nontemporal:
 	lfence
 	push	r10
 
@@ -955,7 +954,7 @@ _Writer_nontemporal:
 	ret
 
 ;------------------------------------------------------------------------------
-; Name:		WriterSSE2
+; Name:		WriterVector128
 ; Purpose:	Writes 128-bit value sequentially to an area of memory.
 ; Params:	P1 = ptr to memory area
 ; 		P2 = length in bytes
@@ -963,8 +962,8 @@ _Writer_nontemporal:
 ; 		P4 = quad to write
 ;------------------------------------------------------------------------------
 	align 64
-WriterSSE2:
-_WriterSSE2:
+WriterVector128:
+_WriterVector128:
 	sfence
 	push	r10
 
@@ -1006,7 +1005,7 @@ _WriterSSE2:
 	ret
 
 ;------------------------------------------------------------------------------
-; Name:		WriterAVX
+; Name:		WriterVector256 (using AVX)
 ; Purpose:	Writes 256-bit value sequentially to an area of memory.
 ; Params:	P1 = ptr to memory area
 ; 		P2 = length in bytes
@@ -1014,8 +1013,8 @@ _WriterSSE2:
 ; 		P4 = quad to write
 ;------------------------------------------------------------------------------
 	align 64
-WriterAVX:
-_WriterAVX:
+WriterVector256:
+_WriterVector256:
 	sfence
 	vzeroupper
 
@@ -1051,7 +1050,7 @@ _WriterAVX:
 	ret
 
 ;------------------------------------------------------------------------------
-; Name:		WriterAVX512
+; Name:		WriterVector512 (using AVX-512)
 ; Purpose:	Writes 512-bit value sequentially to an area of memory.
 ; Params:	P1 = ptr to memory area
 ; 		P2 = length in bytes
@@ -1059,8 +1058,8 @@ _WriterAVX:
 ; 		P4 = quad to write
 ;------------------------------------------------------------------------------
 	align 64
-WriterAVX512:
-_WriterAVX512:
+WriterVector512:
+_WriterVector512:
 	sfence
 	sub	rsp, 64
 	vmovdqu64	[rsp], zmm0
@@ -1098,7 +1097,7 @@ _WriterAVX512:
 	ret
 
 ;------------------------------------------------------------------------------
-; Name:		WriterAVX512_nontemporal
+; Name:		WriterVector512_nontemporal (using AVX-512)
 ; Purpose:	Writes 512-bit value sequentially to an area of memory.
 ; Params:	P1 = ptr to memory area
 ; 		P2 = length in bytes
@@ -1106,8 +1105,8 @@ _WriterAVX512:
 ; 		P4 = quad to write
 ;------------------------------------------------------------------------------
 	align 64
-WriterAVX512_nontemporal:
-_WriterAVX512_nontemporal:
+WriterVector512_nontemporal:
+_WriterVector512_nontemporal:
 	sfence
 	sub	rsp, 64
 	vmovdqu64	[rsp], zmm0
@@ -1145,7 +1144,7 @@ _WriterAVX512_nontemporal:
 	ret
 
 ;------------------------------------------------------------------------------
-; Name:		RandomWriterAVX
+; Name:		RandomWriterVector256 (using AVX)
 ; Purpose:	Writes 256-bit value in somewhat random order to RAM.
 ; Params:	P1 = ptr to array of chunk pointers
 ; 		P2 = # of chunks
@@ -1153,8 +1152,8 @@ _WriterAVX512_nontemporal:
 ; 		P4 = datum to write
 ;------------------------------------------------------------------------------
 	align 64
-RandomWriterAVX:
-_RandomWriterAVX:
+RandomWriterVector256:
+_RandomWriterVector256:
 	sfence
 	push	r10
 	push	r11
@@ -1195,7 +1194,7 @@ _RandomWriterAVX:
 	ret
 
 ;------------------------------------------------------------------------------
-; Name:		RandomWriterAVX_nontemporal
+; Name:		RandomWriterVector256_nontemporal (using AVX)
 ; Purpose:	Writes 256-bit value in somewhat random order to RAM.
 ; Params:	P1 = ptr to array of chunk pointers
 ; 		P2 = # of chunks
@@ -1203,8 +1202,8 @@ _RandomWriterAVX:
 ; 		P4 = datum to write
 ;------------------------------------------------------------------------------
 	align 64
-RandomWriterAVX_nontemporal:
-_RandomWriterAVX_nontemporal:
+RandomWriterVector256_nontemporal:
+_RandomWriterVector256_nontemporal:
 	sfence
 	push	r10
 	push	r11
@@ -1245,7 +1244,7 @@ _RandomWriterAVX_nontemporal:
 	ret
 
 ;------------------------------------------------------------------------------
-; Name:		WriterSSE2_nontemporal
+; Name:		WriterVector128_nontemporal (using SSE2)
 ; Purpose:	Writes 128-bit value sequentially to an area of memory.
 ; Params:	P1 = ptr to memory area
 ; 		P2 = length in bytes
@@ -1253,8 +1252,8 @@ _RandomWriterAVX_nontemporal:
 ; 		P4 = quad to write
 ;------------------------------------------------------------------------------
 	align 64
-WriterSSE2_nontemporal:
-_WriterSSE2_nontemporal:
+WriterVector128_nontemporal:
+_WriterVector128_nontemporal:
 	sfence
 	push	r10
 
@@ -1296,7 +1295,7 @@ _WriterSSE2_nontemporal:
 	ret
 
 ;------------------------------------------------------------------------------
-; Name:		WriterAVX_nontemporal
+; Name:		WriterVector256_nontemporal (using AVX)
 ; Purpose:	Nontemporal writes of 256-bit values sequentially into memory.
 ; Params:	P1 = ptr to memory area
 ; 		P2 = length in bytes
@@ -1304,8 +1303,8 @@ _WriterSSE2_nontemporal:
 ; 		P4 = quad to write
 ;------------------------------------------------------------------------------
 	align 64
-WriterAVX_nontemporal:
-_WriterAVX_nontemporal:
+WriterVector256_nontemporal:
+_WriterVector256_nontemporal:
 	sfence
 	vzeroupper
 
@@ -1340,15 +1339,15 @@ _WriterAVX_nontemporal:
 	ret
 
 ;------------------------------------------------------------------------------
-; Name:		ReaderAVX_nontemporal
+; Name:		ReaderVector256_nontemporal (using AVX)
 ; Purpose:	Nontemporal reads of 256-bit values sequentially from memory.
 ; Params:	P1 = ptr to memory area
 ; 		P2 = length in bytes
 ; 		P3 = loops
 ;------------------------------------------------------------------------------
 	align 64
-ReaderAVX_nontemporal:
-_ReaderAVX_nontemporal:
+ReaderVector256_nontemporal:
+_ReaderVector256_nontemporal:
 	lfence
 	push	r10
 
@@ -1380,15 +1379,15 @@ _ReaderAVX_nontemporal:
 	ret
 
 ;------------------------------------------------------------------------------
-; Name:		ReaderAVX512_nontemporal
+; Name:		ReaderVector512_nontemporal (using AVX)
 ; Purpose:	Nontemporal reads of 512-bit values sequentially from memory.
 ; Params:	P1 = ptr to memory area
 ; 		P2 = length in bytes
 ; 		P3 = loops
 ;------------------------------------------------------------------------------
 	align 64
-ReaderAVX512_nontemporal:
-_ReaderAVX512_nontemporal:
+ReaderVector512_nontemporal:
+_ReaderVector512_nontemporal:
 	lfence
 	push	r10
 
@@ -1844,17 +1843,54 @@ _VectorToVector512:
 	ret
 
 ;------------------------------------------------------------------------------
-; Name:		RegisterToVector
+; Name:		RegisterToVectorMove
 ; Purpose:	Writes 64-bit main register values into 128-bit vector register
 ;		clearing the upper unused bits.
 ; Params:	P1 = loops
 ;------------------------------------------------------------------------------
 	align 64
-RegisterToVector:
-_RegisterToVector:
+RegisterToVectorMove:
+_RegisterToVectorMove:
 .L1:
-	movq	xmm1, rax 	; Each movq transfers 8 bytes, so we need
-	movq	xmm2, P2	; 32 transfers to move a 256-byte chunk.
+	; 64 moves
+	movq	xmm1, rax 
+	movq	xmm2, P2
+	movq	xmm3, rbx
+	movq	xmm1, P4
+	movq	xmm2, P2
+	movq	xmm3, rsp
+	movq	xmm0, P1
+	movq	xmm0, P3
+
+	movq	xmm0, rax 	
+	movq	xmm1, P2
+	movq	xmm2, rbx
+	movq	xmm3, P4
+	movq	xmm0, P2
+	movq	xmm3, rsp
+	movq	xmm2, P1
+	movq	xmm1, P3
+
+	movq	xmm0, rax 	
+	movq	xmm1, P2
+	movq	xmm2, rbx
+	movq	xmm3, P4
+	movq	xmm0, P2
+	movq	xmm3, rsp
+	movq	xmm2, P1
+	movq	xmm1, P3
+
+	movq	xmm0, rax 	
+	movq	xmm1, P2
+	movq	xmm2, rbx
+	movq	xmm3, P4
+	movq	xmm0, P2
+	movq	xmm3, rsp
+	movq	xmm2, P1
+	movq	xmm1, P3
+
+	movq	xmm1, rax 
+	movq	xmm2, P2
 	movq	xmm3, rbx
 	movq	xmm1, P4
 	movq	xmm2, P2
@@ -1894,15 +1930,52 @@ _RegisterToVector:
 	ret
 
 ;------------------------------------------------------------------------------
-; Name:		VectorToRegister
+; Name:		VectorToRegisterMove
 ; Purpose:	Writes lower 64 bits of vector register into 64-bit main 
 ;		register.
 ; Params:	P1 = loops
 ;------------------------------------------------------------------------------
 	align 64
-VectorToRegister:
-_VectorToRegister:
+VectorToRegisterMove:
+_VectorToRegisterMove:
 .L1:
+	; 64 transfers
+	movq	rax, xmm1
+	movq	rax, xmm2
+	movq	rax, xmm3
+	movq	rax, xmm1
+	movq	rax, xmm2
+	movq	rax, xmm3
+	movq	rax, xmm0
+	movq	rax, xmm0
+
+	movq	rax, xmm0
+	movq	rax, xmm1
+	movq	rax, xmm2
+	movq	rax, xmm3
+	movq	rax, xmm0
+	movq	rax, xmm3
+	movq	rax, xmm2
+	movq	rax, xmm1
+
+	movq	rax, xmm0
+	movq	rax, xmm1
+	movq	rax, xmm2
+	movq	rax, xmm3
+	movq	rax, xmm0
+	movq	rax, xmm3
+	movq	rax, xmm2
+	movq	rax, xmm1
+
+	movq	rax, xmm0
+	movq	rax, xmm1
+	movq	rax, xmm2
+	movq	rax, xmm3
+	movq	rax, xmm0
+	movq	rax, xmm3
+	movq	rax, xmm2
+	movq	rax, xmm1
+
 	movq	rax, xmm1
 	movq	rax, xmm2
 	movq	rax, xmm3
@@ -1944,14 +2017,14 @@ _VectorToRegister:
 	ret
 
 ;------------------------------------------------------------------------------
-; Name:		Register8ToVector
+; Name:		Register8ToVector128
 ; Purpose:	Writes 8-bit main register values into 128-bit vector register
 ;		without clearing the unused bits.
 ; Params:	P1 = loops
 ;------------------------------------------------------------------------------
 	align 64
-Register8ToVector:
-_Register8ToVector:
+Register8ToVector128:
+_Register8ToVector128:
 
 .L1:
 	pinsrb	xmm1, al, 0	; 64 transfers x 1 byte = 64 bytes
@@ -2031,14 +2104,14 @@ _Register8ToVector:
 	ret
 
 ;------------------------------------------------------------------------------
-; Name:		Register16ToVector
+; Name:		Register16ToVector128
 ; Purpose:	Writes 16-bit main register values into 128-bit vector register
 ;		without clearing the unused bits.
 ; Params:	P1 = loops
 ;------------------------------------------------------------------------------
 	align 64
-Register16ToVector:
-_Register16ToVector:
+Register16ToVector128:
+_Register16ToVector128:
 
 .L1:
 	pinsrw	xmm1, ax, 0	; 64 transfers x 2 bytes = 128 bytes
@@ -2118,14 +2191,14 @@ _Register16ToVector:
 	ret
 
 ;------------------------------------------------------------------------------
-; Name:		Register32ToVector
+; Name:		Register32ToVector128
 ; Purpose:	Writes 32-bit main register values into 128-bit vector register
 ;		without clearing the unused bits.
 ; Params:	P1 = loops
 ;------------------------------------------------------------------------------
 	align 64
-Register32ToVector:
-_Register32ToVector:
+Register32ToVector128:
+_Register32ToVector128:
 	mov	eax, 0xcafef00d
 .L1:
 	pinsrd	xmm1, eax, 0	; Each xfer moves 4 bytes so to move 256 bytes
@@ -2205,14 +2278,14 @@ _Register32ToVector:
 	ret
 
 ;------------------------------------------------------------------------------
-; Name:		Register64ToVector
+; Name:		Register64ToVector128
 ; Purpose:	Writes 64-bit main register values into 128-bit vector register
 ;		without clearing the unused bits.
 ; Params:	P1 = loops
 ;------------------------------------------------------------------------------
 	align 64
-Register64ToVector:
-_Register64ToVector:
+Register64ToVector128:
+_Register64ToVector128:
 
 .L1:
 	pinsrq	xmm1, r8, 0	; Each xfer moves 8 bytes, therefore to do
@@ -2293,13 +2366,13 @@ _Register64ToVector:
 
 
 ;------------------------------------------------------------------------------
-; Name:		Vector8ToRegister
+; Name:		Vector128ToRegister8
 ; Purpose:	Writes 8-bit vector register values into main register.
 ; Params:	P1 = loops
 ;------------------------------------------------------------------------------
 	align 64
-Vector8ToRegister:
-_Vector8ToRegister:
+Vector128ToRegister8:
+_Vector128ToRegister8:
 
 .L1:
 	pextrb	eax, xmm1, 0	; 64 transfers x 1 bytes = 64 bytes 
@@ -2379,13 +2452,13 @@ _Vector8ToRegister:
 	ret
 
 ;------------------------------------------------------------------------------
-; Name:		Vector16ToRegister
+; Name:		Vector128ToRegister16
 ; Purpose:	Writes 16-bit vector register values into main register.
 ; Params:	P1 = loops
 ;------------------------------------------------------------------------------
 	align 64
-Vector16ToRegister:
-_Vector16ToRegister:
+Vector128ToRegister16:
+_Vector128ToRegister16:
 
 .L1:
 	pextrw	eax, xmm1, 0	; 64 transfers x 2 bytes = 128 bytes 
@@ -2465,13 +2538,13 @@ _Vector16ToRegister:
 	ret
 
 ;------------------------------------------------------------------------------
-; Name:		Vector32ToRegister
+; Name:		Vector128ToRegister32
 ; Purpose:	Writes 32-bit vector register values into main register.
 ; Params:	P1 = loops
 ;------------------------------------------------------------------------------
 	align 64
-Vector32ToRegister:
-_Vector32ToRegister:
+Vector128ToRegister32:
+_Vector128ToRegister32:
 	
 .L1:
 	pextrd	eax, xmm1, 0	; 64 xfers x 4 bytes = 256 bytes
@@ -2551,13 +2624,13 @@ _Vector32ToRegister:
 	ret
 
 ;------------------------------------------------------------------------------
-; Name:		Vector64ToRegister
+; Name:		Vector128ToRegister64
 ; Purpose:	Writes 64-bit vector register values into main register.
 ; Params:	P1 = loops
 ;------------------------------------------------------------------------------
 	align 64
-Vector64ToRegister:
-_Vector64ToRegister:
+Vector128ToRegister64:
+_Vector128ToRegister64:
 	
 .L1:
 	pextrq	rax, xmm1, 0	; 64 transfers 
@@ -2596,7 +2669,7 @@ _Vector64ToRegister:
 	pextrq	rax, xmm0, 0
 	pextrq	rax, xmm0, 1
 
-	pextrq	rax, xmm1, 0	; 64 transfers 
+	pextrq	rax, xmm1, 0
 	pextrq	rax, xmm2, 1
 	pextrq	rax, xmm3, 0
 	pextrq	rax, xmm1, 1
@@ -2757,7 +2830,7 @@ _CopyWithMainRegisters:
 	ret
 
 ;------------------------------------------------------------------------------
-; Name:		CopyAVX512
+; Name:		CopyVector512 (using AVX512)
 ; Purpose:	Copies memory chunks that are 64-byte aligned.
 ; Params:	P1 = ptr to destination memory area
 ;		P2 = ptr to source memory area
@@ -2765,8 +2838,8 @@ _CopyWithMainRegisters:
 ; 		P4 = loops
 ;------------------------------------------------------------------------------
 	align 64
-CopyAVX512:
-_CopyAVX512:
+CopyVector512:
+_CopyVector512:
 	mfence
 
 	push	r10
@@ -2807,7 +2880,7 @@ _CopyAVX512:
 	ret
 
 ;------------------------------------------------------------------------------
-; Name:		CopyAVX
+; Name:		CopyVector256 (using AVX)
 ; Purpose:	Copies memory chunks that are 32-byte aligned.
 ; Params:	P1 = ptr to destination memory area
 ;		P2 = ptr to source memory area
@@ -2815,8 +2888,8 @@ _CopyAVX512:
 ; 		P4 = loops
 ;------------------------------------------------------------------------------
 	align 64
-CopyAVX:
-_CopyAVX:
+CopyVector256:
+_CopyVector256:
 	mfence
 	vzeroupper
 
@@ -2868,7 +2941,7 @@ _CopyAVX:
 	ret
 
 ;------------------------------------------------------------------------------
-; Name:		CopySSE
+; Name:		CopyVector128 (using SSE2)
 ; Purpose:	Copies memory chunks that are 16-byte aligned.
 ; Params:	P1 = ptr to destination memory area
 ;		P2 = ptr to source memory area
@@ -2876,9 +2949,10 @@ _CopyAVX:
 ; 		P4 = loops
 ;------------------------------------------------------------------------------
 	align 64
-CopySSE:
-_CopySSE:
-	mfence
+CopyVector128:
+_CopyVector128:
+	mfence	
+
 	push	r10
 
 	shr	P3, 8	; Ensure length is multiple of 256.

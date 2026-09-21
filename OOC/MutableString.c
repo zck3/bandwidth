@@ -21,9 +21,6 @@
 #include "MutableString.h"
 #include "Log.h"
 
-#define _GNU_SOURCE
-#include <stdio.h>
-#include <string.h>
 #include <stdarg.h>
 #include <wctype.h> // towlower, towupper
 

@@ -21,6 +21,14 @@
 #============================================================================*/
 
 reset
+case "$(uname -m)" in
+    aarch64)
+	echo "Your device is arm64."
+	;;
+    *) 
+	echo Your device is not arm64 based, so arm64 will be emulated.
+	;;
+esac
 
 CMD=false
 if which podman >/dev/null; then
@@ -36,8 +44,8 @@ fi
 
 echo ________________________________________
 
-IMG=bandwidth-i386
-ARCH=i386
+IMG=bandwidth-arch64
+ARCH=arm64
 PLATFORM=linux/$ARCH
 RELEASE=trixie
 DOCKFILE=/tmp/.bandwidthDockerfile

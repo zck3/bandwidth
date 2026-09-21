@@ -24,8 +24,9 @@
 
 #include "OOC/MutableString.h"
 #include "OOC/CPU.h"
+#include "Benchmark.h"
 
-extern void runTests (CPU *, MutableString *title);
+extern void runTests (Benchmark *, CPU *, MutableString *title);
 extern void print_system_info (MutableString *title);
 
 #define DEFAULT_GRAPH_WIDTH 1440

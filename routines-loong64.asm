@@ -72,26 +72,7 @@
 	.globl	IncrementStack
 	.globl 	StackReader
 	.globl 	StackWriter
-
-# Unused:
-	.globl 	WriterVector
-	.globl 	ReaderVector
-	.globl 	RandomReaderVector
-	.globl 	RandomWriterVector
-	.globl 	Register16ToVector
-	.globl 	Register32ToVector
-	.globl 	Register64ToVector
-	.globl 	Register8ToVector
 	.globl 	RegisterToRegister
-	.globl 	RegisterToVector
-	.globl 	Vector16ToRegister
-	.globl 	Vector32ToRegister
-	.globl 	Vector64ToRegister
-	.globl 	Vector8ToRegister
-	.globl 	VectorToRegister
-	.globl 	VectorToVector
-	.globl 	VectorToVector128
-	.globl 	VectorToVector256
 
 #-----------------------------------------------------------------------------
 # Name: 	Writer
@@ -811,7 +792,6 @@ StackWriter:
 	bnez	$a0, .Lsw1
 
 	addi.d	$sp, $sp, 64
-
 	ret
 
 #-----------------------------------------------------------------------------
@@ -863,25 +843,5 @@ _CopyWithMainRegisters:
 
 	dec	$a3
 	bnez	$a3, .Lcr0
-
-	ret
-
-WriterVector:
-ReaderVector:
-RandomReaderVector:
-RandomWriterVector:
-Register16ToVector:
-Register32ToVector:
-Register64ToVector:
-Register8ToVector:
-RegisterToVector:
-Vector16ToRegister:
-Vector32ToRegister:
-Vector64ToRegister:
-Vector8ToRegister:
-VectorToRegister:
-VectorToVector:
-VectorToVector128:
-VectorToVector256:
 	ret
 

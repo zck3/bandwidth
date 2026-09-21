@@ -18,7 +18,6 @@
   The author may be reached at 3 at zs3 dot me.
  *===========================================================================*/
 
-#include <stdio.h>
 #include <stdarg.h>
 
 #include "Console.h"

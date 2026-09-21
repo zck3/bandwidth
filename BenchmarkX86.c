@@ -80,16 +80,16 @@ static long BenchmarkX86_write (BenchmarkX86 *self, unsigned long size, Benchmar
 			case SIZE_MAIN_REGISTER_NONTEMPORAL: // Writer_nontemporal
 				return (!self->use_sse2) ? TEST_UNSUPPORTED : TEST_SUPPORTED;
 
-			case SIZE_VECTOR_128: // WriterSSE2
+			case SIZE_VECTOR_128: 
 			case SIZE_VECTOR_128_NONTEMPORAL: // WriterSSE2_nontemporal
 				return (!self->use_sse2) ? TEST_UNSUPPORTED : TEST_SUPPORTED;
 
-			case SIZE_VECTOR_256: // WriterAVX
-			case SIZE_VECTOR_256_NONTEMPORAL: // WriterAVX_nontemporal
+			case SIZE_VECTOR_256:
+			case SIZE_VECTOR_256_NONTEMPORAL: // WriterVector256_nontemporal
 				return (!self->use_avx) ? TEST_UNSUPPORTED : TEST_SUPPORTED;
 
-			case SIZE_VECTOR_512: // WriterAVX512
-			case SIZE_VECTOR_512_NONTEMPORAL: // WriterAVX512_nontemporal
+			case SIZE_VECTOR_512:
+			case SIZE_VECTOR_512_NONTEMPORAL: // WriterVector512_nontemporal
 				return (!self->use_avx512) ? TEST_UNSUPPORTED : TEST_SUPPORTED;
 			}
 		} else {
@@ -100,12 +100,12 @@ static long BenchmarkX86_write (BenchmarkX86 *self, unsigned long size, Benchmar
 			case SIZE_MAIN_REGISTER_NONTEMPORAL:
 				return TEST_UNSUPPORTED;
 
-			case SIZE_VECTOR_128: // RandomWriterSSE2
-			case SIZE_VECTOR_128_NONTEMPORAL: // RandomWriterSSE2_nontemporal
+			case SIZE_VECTOR_128: 
+			case SIZE_VECTOR_128_NONTEMPORAL: 
 				return (!self->use_sse2) ? TEST_UNSUPPORTED : TEST_SUPPORTED;
 
-			case SIZE_VECTOR_256: // RandomWriterAVX
-			case SIZE_VECTOR_256_NONTEMPORAL: // RandomWriterAVX_nontemporal
+			case SIZE_VECTOR_256: 
+			case SIZE_VECTOR_256_NONTEMPORAL: // RandomWriterVector256_nontemporal
 				return (!self->use_avx) ? TEST_UNSUPPORTED : TEST_SUPPORTED;
 
 			case SIZE_VECTOR_512:
@@ -123,12 +123,12 @@ static long BenchmarkX86_write (BenchmarkX86 *self, unsigned long size, Benchmar
 			case SIZE_MAIN_REGISTER_NONTEMPORAL:
 				return TEST_UNSUPPORTED;
 
-			case SIZE_VECTOR_128:	// WriterSSE2
+			case SIZE_VECTOR_128:	
 			case SIZE_VECTOR_128_NONTEMPORAL: // WriterSSE2_nontemporal
 				return (!self->use_sse2) ? TEST_UNSUPPORTED : TEST_SUPPORTED;
 
-			case SIZE_VECTOR_256:	// WriterAVX
-			case SIZE_VECTOR_256_NONTEMPORAL: // WriterAVX_nontemporal
+			case SIZE_VECTOR_256:
+			case SIZE_VECTOR_256_NONTEMPORAL: // WriterVector256_nontemporal
 				return (!self->use_avx) ? TEST_UNSUPPORTED : TEST_SUPPORTED;
 
 			case SIZE_VECTOR_512:
@@ -137,9 +137,9 @@ static long BenchmarkX86_write (BenchmarkX86 *self, unsigned long size, Benchmar
 			}
 		} else {
 			switch (mode) {
-			case SIZE_MAIN_REGISTER: // RandomWriter
-			case SIZE_VECTOR_128:	// RandomWriterSSE2
-			case SIZE_VECTOR_128_NONTEMPORAL: // RandomWriterSSE2_nontemporal
+			case SIZE_MAIN_REGISTER:
+			case SIZE_VECTOR_128:	
+			case SIZE_VECTOR_128_NONTEMPORAL: 
 				return TEST_SUPPORTED;
 
 			case SIZE_MAIN_REGISTER_NONTEMPORAL:
@@ -286,56 +286,56 @@ static long BenchmarkX86_write (BenchmarkX86 *self, unsigned long size, Benchmar
 
 		switch (mode) {
 		case SIZE_VECTOR_128:
-			if (random)
-				RandomWriterSSE2 (chunk_ptrs, size/256, loops, value);
-			else {
-				WriterSSE2 (chunk, size, loops, value);
+			if (!random) {
+				WriterVector128 (chunk, size, loops, value);
+			} else {
+				RandomWriterVector128 ((void**) chunk_ptrs, size/256, loops, value);
 			}
 			break;
 
 		case SIZE_VECTOR_128_NONTEMPORAL:
-			if (random)
-				RandomWriterSSE2_nontemporal (chunk_ptrs, size/256, loops, value);
-			else {
-				WriterSSE2_nontemporal (chunk, size, loops, value);
+			if (!random) {
+				WriterVector128_nontemporal (chunk, size, loops, value);
+			} else {
+				RandomWriterVector128_nontemporal ((void**)chunk_ptrs, size/256, loops, value);
 			}
 			break;
 
 		case SIZE_VECTOR_256:
 			if (!random) {
-				WriterAVX (chunk, size, loops, value);
+				WriterVector256 (chunk, size, loops, value);
 			} else {
-				RandomWriterAVX (chunk_ptrs, size/256, loops, value);
+				RandomWriterVector256 ((void**)chunk_ptrs, size/256, loops, value);
 			}
 			break;
 
 		case SIZE_VECTOR_512:
 			if (!random) {
-				WriterAVX512(chunk, size, loops, value);
+				WriterVector512 (chunk, size, loops, value);
 			}
 			break;
 
 		case SIZE_VECTOR_256_NONTEMPORAL:
 			if (!random) {
-				WriterAVX_nontemporal (chunk, size, loops, value);
+				WriterVector256_nontemporal (chunk, size, loops, value);
 			} else {
-				RandomWriterAVX_nontemporal (chunk_ptrs, size/256, loops, value);
+				RandomWriterVector256_nontemporal ((void**)chunk_ptrs, size/256, loops, value);
 			}
 			break;
 
 		case SIZE_VECTOR_512_NONTEMPORAL:
 			if (!random) {
-				WriterAVX512_nontemporal (chunk, size, loops, value);
+				WriterVector512_nontemporal (chunk, size, loops, value);
 			} else {
 				return TEST_UNSUPPORTED;
 			}
 			break;
 		
 		case SIZE_MAIN_REGISTER:
-			if (random)
-				RandomWriter (chunk_ptrs, size/256, loops, value);
-			else {
+			if (!random) {
 				Writer (chunk, size, loops, value);
+			} else {
+				RandomWriter ((void**) chunk_ptrs, size/256, loops, value);
 			}
 			break;
 
@@ -373,6 +373,7 @@ static long BenchmarkX86_write (BenchmarkX86 *self, unsigned long size, Benchmar
 //----------------------------------------------------------------------------
 // Name:	BenchmarkX86_read
 // Purpose:	Performs sequential read on chunk of memory of specified size.
+// Note:	SSE4 is required for the nontemporal 128-bit vector reads.
 //----------------------------------------------------------------------------
 static long BenchmarkX86_read (BenchmarkX86 *self, unsigned long size, BenchmarkMode mode, bool random)
 {
@@ -392,18 +393,18 @@ static long BenchmarkX86_read (BenchmarkX86 *self, unsigned long size, Benchmark
 			case SIZE_MAIN_REGISTER_NONTEMPORAL: // Reader_nontemporal
 				return TEST_UNSUPPORTED;
 
-			case SIZE_VECTOR_128: // ReaderSSE2
+			case SIZE_VECTOR_128: 
 				return (!self->use_sse2) ? TEST_UNSUPPORTED : TEST_SUPPORTED;
 
-			case SIZE_VECTOR_128_NONTEMPORAL: // ReaderSSE4_nontemporal
+			case SIZE_VECTOR_128_NONTEMPORAL: 
 				return (!self->use_sse4) ? TEST_UNSUPPORTED : TEST_SUPPORTED;
 
-			case SIZE_VECTOR_256: // ReaderAVX
-			case SIZE_VECTOR_256_NONTEMPORAL: // ReaderAVX_nontemporal
+			case SIZE_VECTOR_256: 
+			case SIZE_VECTOR_256_NONTEMPORAL: // ReaderVector256_nontemporal
 				return (!self->use_avx) ? TEST_UNSUPPORTED : TEST_SUPPORTED;
 
-			case SIZE_VECTOR_512: // ReaderAVX512
-			case SIZE_VECTOR_512_NONTEMPORAL: // ReaderAVX512_nontemporal
+			case SIZE_VECTOR_512:
+			case SIZE_VECTOR_512_NONTEMPORAL: // ReaderVector512_nontemporal
 				return (!self->use_avx512) ? TEST_UNSUPPORTED : TEST_SUPPORTED;
 
 			default:
@@ -411,18 +412,19 @@ static long BenchmarkX86_read (BenchmarkX86 *self, unsigned long size, Benchmark
 			}
 		} else {
 			switch (mode) {
-			case SIZE_MAIN_REGISTER: // RandomReader
+			case SIZE_MAIN_REGISTER: 
 				return TEST_SUPPORTED;
 
 			case SIZE_MAIN_REGISTER_NONTEMPORAL:
 				return TEST_UNSUPPORTED;
 
-			case SIZE_VECTOR_128: // RandomReaderSSE2
+			case SIZE_VECTOR_128: 
 				return (!self->use_sse2) ? TEST_UNSUPPORTED : TEST_SUPPORTED;
-			case SIZE_VECTOR_128_NONTEMPORAL: // RandomReaderSSE4_nontemporal
+
+			case SIZE_VECTOR_128_NONTEMPORAL: // RandomReaderVector128_nontemporal
 				return (!self->use_sse4) ? TEST_UNSUPPORTED : TEST_SUPPORTED;
 
-			case SIZE_VECTOR_256: // RandomReaderAVX
+			case SIZE_VECTOR_256:
 				return (!self->use_avx) ? TEST_UNSUPPORTED : TEST_SUPPORTED;
 
 			case SIZE_VECTOR_256_NONTEMPORAL: 
@@ -435,18 +437,19 @@ static long BenchmarkX86_read (BenchmarkX86 *self, unsigned long size, Benchmark
 		// i386
 		if (!random) {
 			switch (mode) {
-			case SIZE_MAIN_REGISTER: // Reader
+			case SIZE_MAIN_REGISTER:
 				return TEST_SUPPORTED;
 
 			case SIZE_MAIN_REGISTER_NONTEMPORAL:
 				return TEST_UNSUPPORTED;
 
-			case SIZE_VECTOR_128:	// ReaderSSE2
+			case SIZE_VECTOR_128:	
 				return (!self->use_sse2) ? TEST_UNSUPPORTED : TEST_SUPPORTED;
-			case SIZE_VECTOR_128_NONTEMPORAL: // ReaderSSE4_nontemporal
+
+			case SIZE_VECTOR_128_NONTEMPORAL: // ReaderVector128_nontemporal
 				return (!self->use_sse4) ? TEST_UNSUPPORTED : TEST_SUPPORTED;
 
-			case SIZE_VECTOR_256:	// ReaderAVX
+			case SIZE_VECTOR_256:
 				return (!self->use_avx) ? TEST_UNSUPPORTED : TEST_SUPPORTED;
 
 			case SIZE_VECTOR_256_NONTEMPORAL: 
@@ -456,15 +459,16 @@ static long BenchmarkX86_read (BenchmarkX86 *self, unsigned long size, Benchmark
 			}
 		} else {
 			switch (mode) {
-			case SIZE_MAIN_REGISTER: // RandomReader
+			case SIZE_MAIN_REGISTER:
+				return TEST_SUPPORTED;
 
 			case SIZE_MAIN_REGISTER_NONTEMPORAL:
 				return TEST_UNSUPPORTED;
 
-			case SIZE_VECTOR_128:	// RandomReaderSSE2
+			case SIZE_VECTOR_128:	
 				return (!self->use_sse2) ? TEST_UNSUPPORTED : TEST_SUPPORTED;
 
-			case SIZE_VECTOR_128_NONTEMPORAL: // RandomReaderSSE4_nontemporal
+			case SIZE_VECTOR_128_NONTEMPORAL: 
 				return (!self->use_sse4) ? TEST_UNSUPPORTED : TEST_SUPPORTED;
 
 			case SIZE_VECTOR_256:
@@ -615,7 +619,7 @@ static long BenchmarkX86_read (BenchmarkX86 *self, unsigned long size, Benchmark
 		switch (mode) {
 		case SIZE_MAIN_REGISTER:
 			if (random) {
-				RandomReader (chunk_ptrs, size/256, loops);
+				RandomReader ((void**) chunk_ptrs, size/256, loops);
 			} else {
 				Reader (chunk, size, loops);
 			}
@@ -629,32 +633,32 @@ static long BenchmarkX86_read (BenchmarkX86 *self, unsigned long size, Benchmark
 
 		case SIZE_VECTOR_128:
 			if (random)
-				RandomReaderSSE2 (chunk_ptrs, size/256, loops);
+				RandomReaderVector128 ((void**) chunk_ptrs, size/256, loops);
 			else {
-				ReaderSSE2 (chunk, size, loops);
+				ReaderVector128 (chunk, size, loops);
 			}
 			break;
 		
 		case SIZE_VECTOR_128_NONTEMPORAL:
 			if (random) {
-				RandomReaderSSE4_nontemporal (chunk_ptrs, size/256, loops);
+				RandomReaderVector128_nontemporal ((void**) chunk_ptrs, size/256, loops);
 			}
 			else {
-				ReaderSSE4_nontemporal (chunk, size, loops);
+				ReaderVector128_nontemporal (chunk, size, loops);
 			}
 			break;
 
 		case SIZE_VECTOR_256:
 			if (!random) {
-				ReaderAVX (chunk, size, loops);
+				ReaderVector256 (chunk, size, loops);
 			} else {
-				RandomReaderAVX (chunk_ptrs, size/256, loops);
+				RandomReaderVector256 ((void**) chunk_ptrs, size/256, loops);
 			}
 			break;
 
 		case SIZE_VECTOR_256_NONTEMPORAL:
 			if (!random) {
-				ReaderAVX_nontemporal (chunk, size, loops);
+				ReaderVector256_nontemporal (chunk, size, loops);
 			} else { 
 				return TEST_UNSUPPORTED;
 			}
@@ -662,7 +666,7 @@ static long BenchmarkX86_read (BenchmarkX86 *self, unsigned long size, Benchmark
 		
 		case SIZE_VECTOR_512:
 			if (!random) {
-				ReaderAVX512 (chunk, size, loops);
+				ReaderVector512 (chunk, size, loops);
 			} else {
 				return TEST_UNSUPPORTED;
 			}
@@ -670,7 +674,7 @@ static long BenchmarkX86_read (BenchmarkX86 *self, unsigned long size, Benchmark
 
 		case SIZE_VECTOR_512_NONTEMPORAL:
 			if (!random) {
-				ReaderAVX512_nontemporal (chunk, size, loops);
+				ReaderVector512_nontemporal (chunk, size, loops);
 			} else { 
 				return TEST_UNSUPPORTED;
 			}
@@ -716,13 +720,13 @@ static long BenchmarkX86_copy (BenchmarkX86 *self, unsigned long size, Benchmark
 		case SIZE_MAIN_REGISTER_NONTEMPORAL:
 			return TEST_UNSUPPORTED;
 
-		case SIZE_VECTOR_128: // CopySSE2
+		case SIZE_VECTOR_128: 
 			return (!self->use_sse2) ? TEST_UNSUPPORTED : TEST_SUPPORTED;
 
-		case SIZE_VECTOR_256: // CopyAVX
+		case SIZE_VECTOR_256:
 			return (!self->use_avx) ? TEST_UNSUPPORTED : TEST_SUPPORTED;
 
-		case SIZE_VECTOR_512: // CopyAVX512
+		case SIZE_VECTOR_512:
 			return (!self->use_avx512) ? TEST_UNSUPPORTED : TEST_SUPPORTED;
 
 		case SIZE_VECTOR_128_NONTEMPORAL: 
@@ -739,10 +743,10 @@ static long BenchmarkX86_copy (BenchmarkX86 *self, unsigned long size, Benchmark
 		case SIZE_MAIN_REGISTER_NONTEMPORAL:
 			return TEST_UNSUPPORTED;
 
-		case SIZE_VECTOR_128:	// CopySSE2
+		case SIZE_VECTOR_128:
 			return (!self->use_sse2) ? TEST_UNSUPPORTED : TEST_SUPPORTED;
 
-		case SIZE_VECTOR_256:	// CopyAVX
+		case SIZE_VECTOR_256:	
 			return (!self->use_avx) ? TEST_UNSUPPORTED : TEST_SUPPORTED;
 
 		case SIZE_VECTOR_128_NONTEMPORAL: 
@@ -844,13 +848,13 @@ static long BenchmarkX86_copy (BenchmarkX86 *self, unsigned long size, Benchmark
 			CopyWithMainRegisters (chunk_dest, chunk_src, size, loops);
 		}
 		else if (mode == SIZE_VECTOR_128) {
-			CopySSE (chunk_dest, chunk_src, size, loops);
+			CopyVector128 (chunk_dest, chunk_src, size, loops);
 		}
 		else if (mode == SIZE_VECTOR_256) {
-			CopyAVX (chunk_dest, chunk_src, size, loops);
+			CopyVector256 (chunk_dest, chunk_src, size, loops);
 		}
 		else if (mode == SIZE_VECTOR_512) {
-			CopyAVX512 (chunk_dest, chunk_src, size, loops);
+			CopyVector512 (chunk_dest, chunk_src, size, loops);
 		}
 
 		diff = DateTime_getMicrosecondTime () - t0;
@@ -868,12 +872,12 @@ static long BenchmarkX86_copy (BenchmarkX86 *self, unsigned long size, Benchmark
 	return result;
 }
 
-static long BenchmarkX86_registerToVectorTest (BenchmarkX86 *self)
+static long BenchmarkX86_registerToVectorMove (BenchmarkX86 *self)
 {
 #ifdef IS_64BIT
-	$(console, printf, "Main register to vector register transfers (64-bit): ");
+	$(console, printf, "Main register to vector register moves (64-bit, MOVQ): ");
 #else
-	$(console, printf, "Main register to vector register transfers (32-bit): ");
+	$(console, printf, "Main register to vector register moves (32-bit, MOVD): ");
 #endif
 	$(console, flush);
 
@@ -883,7 +887,7 @@ static long BenchmarkX86_registerToVectorTest (BenchmarkX86 *self)
 
 	while (diff < self->usec_per_test)
 	{
-		RegisterToVector (VREGISTER_TRANSFERS_COUNT);
+		RegisterToVectorMove (VREGISTER_TRANSFERS_COUNT);
 		total_count += VREGISTER_TRANSFERS_COUNT;
 
 		diff = DateTime_getMicrosecondTime () - t0;
@@ -900,12 +904,12 @@ static long BenchmarkX86_registerToVectorTest (BenchmarkX86 *self)
 	return 0;
 }
 
-static long BenchmarkX86_vectorToRegisterTest (BenchmarkX86 *self)
+static long BenchmarkX86_vectorToRegisterMove (BenchmarkX86 *self)
 {
 #ifdef IS_64BIT
-	$(console, printf, "Vector register to main register transfers (64-bit): ");
+	$(console, printf, "Vector register to main register moves (64-bit, MOVQ): ");
 #else
-	$(console, printf, "Vector register to main register transfers (32-bit): ");
+	$(console, printf, "Vector register to main register moves (32-bit, MOVD): ");
 #endif
 	$(console, flush);
 
@@ -915,7 +919,7 @@ static long BenchmarkX86_vectorToRegisterTest (BenchmarkX86 *self)
 	
 	while (diff < self->usec_per_test)
 	{
-		VectorToRegister (VREGISTER_TRANSFERS_COUNT);
+		VectorToRegisterMove (VREGISTER_TRANSFERS_COUNT);
 		total_count += VREGISTER_TRANSFERS_COUNT;
 
 		diff = DateTime_getMicrosecondTime () - t0;
@@ -990,234 +994,6 @@ static long BenchmarkX86_vectorToVectorTest512 (BenchmarkX86 *self)
 	return 0;
 }
 
-static long BenchmarkX86_vectorToRegister8 (BenchmarkX86 *self)
-{
-	if (self->use_sse4) {
-		$(console, printf, "Vector 8-bit datum to main register transfers: ");
-		$(console, flush);
-
-		long long total_count = 0;
-		unsigned long diff = 0;
-		unsigned long t0 = DateTime_getMicrosecondTime ();
-		
-		while (diff < self->usec_per_test)
-		{
-			Vector8ToRegister (VREGISTER_TRANSFERS_COUNT);
-			total_count += VREGISTER_TRANSFERS_COUNT;
-
-			diff = DateTime_getMicrosecondTime () - t0;
-		}
-
-		long double d = total_count;
-		d *= N_VECTOR_INSERTS_EXTRACTS_PER_LOOP;
-		d /= diff;
-		d *= 1000000; // usec->sec
-		d /= 1000000000; // billions/sec
-		$(console, printf, "%.2Lf billion/second\n", d);
-		$(console, flush);
-	}
-	return 0;
-}
-
-static long BenchmarkX86_vectorToRegister16 (BenchmarkX86 *self)
-{
-	$(console, printf, "Vector 16-bit datum to main register transfers: ");
-	$(console, flush);
-
-	long long total_count = 0;
-	unsigned long diff = 0;
-	unsigned long t0 = DateTime_getMicrosecondTime ();
-	
-	while (diff < self->usec_per_test)
-	{
-		Vector16ToRegister (VREGISTER_TRANSFERS_COUNT);
-		total_count += VREGISTER_TRANSFERS_COUNT;
-
-		diff = DateTime_getMicrosecondTime () - t0;
-	}
-
-	long double d = total_count;
-	d *= N_VECTOR_INSERTS_EXTRACTS_PER_LOOP;
-	d /= diff;
-	d *= 1000000; // usec->sec
-	d /= 1000000000; // billions/sec
-	$(console, printf, "%.2Lf billion/second\n", d);
-	$(console, flush);
-	return 0;
-}
-
-static long BenchmarkX86_vectorToRegister32 (BenchmarkX86 *self)
-{
-	if (self->use_sse4) {
-		$(console, printf, "Vector 32-bit datum to main register transfers: ");
-		$(console, flush);
-
-		long long total_count = 0;
-		unsigned long diff = 0;
-		unsigned long t0 = DateTime_getMicrosecondTime ();
-		
-		while (diff < self->usec_per_test)
-		{
-			Vector32ToRegister (VREGISTER_TRANSFERS_COUNT);
-			total_count += VREGISTER_TRANSFERS_COUNT;
-
-			diff = DateTime_getMicrosecondTime () - t0;
-		}
-
-		long double d = total_count;
-		d *= N_VECTOR_INSERTS_EXTRACTS_PER_LOOP;
-		d /= diff;
-		d *= 1000000; // usec->sec
-		d /= 1000000000; // billions/sec
-		$(console, printf, "%.2Lf billion/second\n", d);
-		$(console, flush);
-	}
-	return 0;
-}
-
-static long BenchmarkX86_vectorToRegister64 (BenchmarkX86 *self)
-{
-	if (self->use_sse4) {
-		$(console, printf, "Vector 64-bit datum to main register transfers: ");
-		$(console, flush);
-
-		long long total_count = 0;
-		unsigned long diff = 0;
-		unsigned long t0 = DateTime_getMicrosecondTime ();
-		
-		while (diff < self->usec_per_test)
-		{
-			Vector64ToRegister (VREGISTER_TRANSFERS_COUNT);
-			total_count += VREGISTER_TRANSFERS_COUNT;
-
-			diff = DateTime_getMicrosecondTime () - t0;
-		}
-
-		long double d = total_count;
-		d *= N_VECTOR_INSERTS_EXTRACTS_PER_LOOP;
-		d /= diff;
-		d *= 1000000; // usec->sec
-		d /= 1000000000; // billions/sec
-		$(console, printf, "%.2Lf billion/second\n", d);
-		$(console, flush);
-	}
-	return 0;
-}
-
-static long BenchmarkX86_registerToVector8 (BenchmarkX86 *self)
-{
-	if (self->use_sse4) {
-		$(console, printf, "Main register 8-bit datum to vector register transfers: ");
-		$(console, flush);
-
-		long long total_count = 0;
-		unsigned long diff = 0;
-		unsigned long t0 = DateTime_getMicrosecondTime ();
-		
-		while (diff < self->usec_per_test)
-		{
-			Register8ToVector (VREGISTER_TRANSFERS_COUNT);
-			total_count += VREGISTER_TRANSFERS_COUNT;
-
-			diff = DateTime_getMicrosecondTime () - t0;
-		}
-
-		long double d = total_count;
-		d *= N_VECTOR_INSERTS_EXTRACTS_PER_LOOP;
-		d /= diff;
-		d *= 1000000; // usec->sec
-		d /= 1000000000; // billions/sec
-		$(console, printf, "%.2Lf billion/second\n", d);
-		$(console, flush);
-	}
-	return 0;
-}
-
-static long BenchmarkX86_registerToVector16 (BenchmarkX86 *self)
-{
-	$(console, printf, "Main register 16-bit datum to vector register transfers: ");
-	$(console, flush);
-
-	long long total_count = 0;
-	unsigned long diff = 0;
-	unsigned long t0 = DateTime_getMicrosecondTime ();
-	
-	while (diff < self->usec_per_test)
-	{
-		Register16ToVector (VREGISTER_TRANSFERS_COUNT);
-		total_count += VREGISTER_TRANSFERS_COUNT;
-
-		diff = DateTime_getMicrosecondTime () - t0;
-	}
-
-	long double d = total_count;
-	d *= N_VECTOR_INSERTS_EXTRACTS_PER_LOOP;
-	d /= diff;
-	d *= 1000000; // usec->sec
-	d /= 1000000000; // billions/sec
-	$(console, printf, "%.2Lf billion/second\n", d);
-	$(console, flush);
-	return 0;
-}
-
-static long BenchmarkX86_registerToVector32 (BenchmarkX86 *self)
-{
-	if (self->use_sse4) {
-		$(console, printf, "Main register 32-bit datum to vector register transfers: ");
-		$(console, flush);
-
-		long long total_count = 0;
-		unsigned long diff = 0;
-		unsigned long t0 = DateTime_getMicrosecondTime ();
-		
-		while (diff < self->usec_per_test)
-		{
-			Register32ToVector (VREGISTER_TRANSFERS_COUNT);
-			total_count += VREGISTER_TRANSFERS_COUNT;
-
-			diff = DateTime_getMicrosecondTime () - t0;
-		}
-
-		long double d = total_count;
-		d *= N_VECTOR_INSERTS_EXTRACTS_PER_LOOP;
-		d /= diff;
-		d *= 1000000; // usec->sec
-		d /= 1000000000; // billions/sec
-		$(console, printf, "%.2Lf billion/second\n", d);
-		$(console, flush);
-	}
-	return 0;
-}
-
-static long BenchmarkX86_registerToVector64 (BenchmarkX86 *self)
-{
-	if (self->use_sse4) {
-		$(console, printf, "Main register 64-bit datum to vector register transfers: ");
-		$(console, flush);
-
-		long long total_count = 0;
-		unsigned long diff = 0;
-		unsigned long t0 = DateTime_getMicrosecondTime ();
-		
-		while (diff < self->usec_per_test)
-		{
-			Register64ToVector (VREGISTER_TRANSFERS_COUNT);
-			total_count += VREGISTER_TRANSFERS_COUNT;
-
-			diff = DateTime_getMicrosecondTime () - t0;
-		}
-
-		long double d = total_count;
-		d *= N_VECTOR_INSERTS_EXTRACTS_PER_LOOP;
-		d /= diff;
-		d *= 1000000; // usec->sec
-		d /= 1000000000; // billions/sec
-		$(console, printf, "%.2Lf billion/second\n", d);
-		$(console, flush);
-	}
-	return 0;
-}
-
 static MemoryCorrectnessTestResult BenchmarkX86_memoryRowHammerTest (BenchmarkX86* self, unsigned long bufferSize, unsigned long nCycles)
 {
 	if (!self) {
@@ -1261,18 +1037,10 @@ BenchmarkX86Class* BenchmarkX86Class_init (BenchmarkX86Class* class)
 	SET_METHOD_POINTER(BenchmarkX86,read);
 	SET_METHOD_POINTER(BenchmarkX86,write);
 	SET_METHOD_POINTER(BenchmarkX86,copy);
-	SET_METHOD_POINTER(BenchmarkX86,registerToVectorTest);
-	SET_METHOD_POINTER(BenchmarkX86,vectorToRegisterTest);
 	SET_METHOD_POINTER(BenchmarkX86,vectorToVectorTest256);
 	SET_METHOD_POINTER(BenchmarkX86,vectorToVectorTest512);
-	SET_METHOD_POINTER(BenchmarkX86,vectorToRegister8);
-	SET_METHOD_POINTER(BenchmarkX86,vectorToRegister16);
-	SET_METHOD_POINTER(BenchmarkX86,vectorToRegister32);
-	SET_METHOD_POINTER(BenchmarkX86,vectorToRegister64);
-	SET_METHOD_POINTER(BenchmarkX86,registerToVector8);
-	SET_METHOD_POINTER(BenchmarkX86,registerToVector16);
-	SET_METHOD_POINTER(BenchmarkX86,registerToVector32);
-	SET_METHOD_POINTER(BenchmarkX86,registerToVector64);
+	SET_METHOD_POINTER(BenchmarkX86,registerToVectorMove);
+	SET_METHOD_POINTER(BenchmarkX86,vectorToRegisterMove);
 	
         VALIDATE_CLASS_STRUCT(_BenchmarkX86Class);
 	return _BenchmarkX86Class;
@@ -1285,6 +1053,7 @@ BenchmarkX86 *BenchmarkX86_init (BenchmarkX86 *self)
         Benchmark_init ((Benchmark*) self);
 
         self->is_a = _BenchmarkX86Class;
+	self->vectorToFromRegisterRoutinesAvailable = true;
 
         return self;
 }

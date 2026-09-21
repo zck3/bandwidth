@@ -1,3 +1,4 @@
+#!/bin/bash
 #=============================================================================
 # bandwidth, a benchmark to measure memory transfer bandwidth.
 # Copyright (C) 2026 by Zack T Smith.
@@ -19,32 +20,45 @@
 # The author may be reached at 3 at zs3 dot me.
 #============================================================================*/
 
-FROM --platform=linux/386 debian:trixie
+reset
+case "$(uname -m)" in
+    riscv64)
+	echo "Your device is riscv64."
+	;;
+    *) 
+	echo Your device is not riscv64-based, so riscv64 will be emulated.
+	;;
+esac
 
-ENV TERM=xterm
+CMD=false
+if which podman >/dev/null; then
+	CMD=podman
+	echo We will use Podman.
+elif which docker >/dev/null; then
+	CMD=docker
+	echo We will use Docker.
+else
+	echo You have neither Podman nor Docker installed.
+	exit 2
+fi
 
-RUN dpkg --add-architecture i386
-RUN apt update
-RUN apt install -y libc6:i386 
-RUN apt install -y dialog
+echo ________________________________________
 
-RUN TERM=xterm apt install -y \
-  bc \
-  build-essential \
-  file \
-  gcc \
-  gdb \
-  gzip \
-  less \
-  libncurses6 \
-  man \
-  nasm \
-  tar \
-  vim \
-  wget \
-  zip unzip 
+IMG=bandwidth-riscv64
+ARCH=riscv64
+PLATFORM=linux/$ARCH
+RELEASE=trixie
+DOCKFILE=/tmp/.bandwidthDockerfile
 
-WORKDIR /app
+echo "FROM --platform=$PLATFORM debian:$RELEASE" > $DOCKFILE
+echo "RUN dpkg --add-architecture $ARCH " >> $DOCKFILE
+cat ./Dockerfile-common >> $DOCKFILE
 
-COPY . .
-CMD [ "sh", "-c", "uname -m && make clean && make && echo 'To run, type ./bandwidth32' && bash"]
+if $CMD build --platform=$PLATFORM -t $IMG -f $DOCKFILE .; then
+	if ! $CMD run -e TERM=xterm --platform=$PLATFORM -it $IMG; then
+		echo Run failed.
+	fi
+else
+	echo Build failed.
+fi
+

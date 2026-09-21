@@ -23,10 +23,6 @@
 #include "String.h"
 #include "Log.h"
 
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
-
 DictionaryClass *_DictionaryClass = NULL;
 
 static void Dictionary_print (Dictionary* restrict self, FILE *file)

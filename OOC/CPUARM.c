@@ -126,615 +126,803 @@ static MutableSet* CPUARM_features (CPUARM* restrict self)
 	}
 
 #if defined(__linux__)
-  #if defined(__aarch64__) 
 	unsigned long hwcap = getauxval(AT_HWCAP);
 	unsigned long hwcap2 = getauxval(AT_HWCAP2);
 
+#ifdef __aarch64__
+//------------------------------------------
+// Note, arm64 hardware capabilities overlap
+// with but are different from arm32.
+//------------------------------------------
     #ifdef HWCAP_FP
 	if (hwcap & HWCAP_FP) {
-		$(mut, add, _String("fp"));
+		$(mut, addCString, "fp");
 	}
     #endif
     #ifdef HWCAP_ASIMD
 	if (hwcap & HWCAP_ASIMD) {
 		self->has128bitVectors = true;
-		self->has128bitCacheBypass = true;
-		$(mut, add, _String("asimd"));
+		$(mut, addCString, "asimd");
 	}
     #endif
     #ifdef HWCAP_EVTSTRM
 	if (hwcap & HWCAP_EVTSTRM) {
-		$(mut, add, _String("evtstrm"));
+		$(mut, addCString, "evtstrm");
 	}
     #endif
     #ifdef HWCAP_AES
 	if (hwcap & HWCAP_AES) {
-		$(mut, add, _String("aes"));
+		$(mut, addCString, "aes");
 	}
     #endif
     #ifdef HWCAP_PMULL
 	if (hwcap & HWCAP_PMULL) {
-		$(mut, add, _String("pmull"));
+		$(mut, addCString, "pmull");
 	}
     #endif
     #ifdef HWCAP_SHA1
 	if (hwcap & HWCAP_SHA1) {
-		$(mut, add, _String("sha1"));
+		$(mut, addCString, "sha1");
 	}
     #endif
     #ifdef HWCAP_SHA2
 	if (hwcap & HWCAP_SHA2) {
-		$(mut, add, _String("sha2"));
+		$(mut, addCString, "sha2");
 	}
     #endif
     #ifdef HWCAP_CRC32
 	if (hwcap & HWCAP_CRC32) {
-		$(mut, add, _String("crc32"));
+		$(mut, addCString, "crc32");
 	}
     #endif
     #ifdef HWCAP_ATOMICS
 	if (hwcap & HWCAP_ATOMICS) {
-		$(mut, add, _String("atomics"));
+		$(mut, addCString, "atomics");
 	}
     #endif
     #ifdef HWCAP_FPHP
 	if (hwcap & HWCAP_FPHP) {
-		$(mut, add, _String("fphp"));
+		$(mut, addCString, "fphp");
 	}
     #endif
     #ifdef HWCAP_ASIMDHP
 	if (hwcap & HWCAP_ASIMDHP) {
-		$(mut, add, _String("asimdhp"));
+		$(mut, addCString, "asimdhp");
 	}
     #endif
     #ifdef HWCAP_CPUID
 	if (hwcap & HWCAP_CPUID) {
-		$(mut, add, _String("cpuid"));
+		$(mut, addCString, "cpuid");
 	}
     #endif
     #ifdef HWCAP_ASIMDRDM
 	if (hwcap & HWCAP_ASIMDRDM) {
-		$(mut, add, _String("asimdrdm"));
+		$(mut, addCString, "asimdrdm");
 	}
     #endif
     #ifdef HWCAP_JSCVT
 	if (hwcap & HWCAP_JSCVT) {
-		$(mut, add, _String("jscvt"));
+		$(mut, addCString, "jscvt");
 	}
     #endif
     #ifdef HWCAP_FCMA
 	if (hwcap & HWCAP_FCMA) {
-		$(mut, add, _String("fcma"));
+		$(mut, addCString, "fcma");
 	}
     #endif
     #ifdef HWCAP_LRCPC
 	if (hwcap & HWCAP_LRCPC) {
-		$(mut, add, _String("lrcpc"));
+		$(mut, addCString, "lrcpc");
 	}
     #endif
     #ifdef HWCAP_DCPOP
 	if (hwcap & HWCAP_DCPOP) {
-		$(mut, add, _String("dcpop"));
+		$(mut, addCString, "dcpop");
 	}
     #endif
     #ifdef HWCAP_SHA3
 	if (hwcap & HWCAP_SHA3) {
-		$(mut, add, _String("sha3"));
+		$(mut, addCString, "sha3");
 	}
     #endif
     #ifdef HWCAP_SM3
 	if (hwcap & HWCAP_SM3) {
-		$(mut, add, _String("sm3"));
+		$(mut, addCString, "sm3");
 	}
     #endif
     #ifdef HWCAP_SM4
 	if (hwcap & HWCAP_SM4) {
-		$(mut, add, _String("sm4"));
+		$(mut, addCString, "sm4");
 	}
     #endif
     #ifdef HWCAP_ASIMDDP
 	if (hwcap & HWCAP_ASIMDDP) {
-		$(mut, add, _String("asimddp"));
+		$(mut, addCString, "asimddp");
 	}
     #endif
     #ifdef HWCAP_SHA512
 	if (hwcap & HWCAP_SHA512) {
-		$(mut, add, _String("sha512"));
+		$(mut, addCString, "sha512");
 	}
     #endif
     #ifdef HWCAP_SVE
 	if (hwcap & HWCAP_SVE) {
-		$(mut, add, _String("sve"));
+		$(mut, addCString, "sve");
+		self->has128bitCacheBypass = true;
 	}
     #endif
     #ifdef HWCAP_ASIMDFHM
 	if (hwcap & HWCAP_ASIMDFHM) {
-		$(mut, add, _String("asimdfhm"));
+		$(mut, addCString, "asimdfhm");
 	}
     #endif
     #ifdef HWCAP_DIT
 	if (hwcap & HWCAP_DIT) {
-		$(mut, add, _String("dit"));
+		$(mut, addCString, "dit");
 	}
     #endif
     #ifdef HWCAP_USCAT
 	if (hwcap & HWCAP_USCAT) {
-		$(mut, add, _String("uscat"));
+		$(mut, addCString, "uscat");
 	}
     #endif
     #ifdef HWCAP_ILRCPC
 	if (hwcap & HWCAP_ILRCPC) {
-		$(mut, add, _String("ilrcpc"));
+		$(mut, addCString, "ilrcpc");
 	}
     #endif
     #ifdef HWCAP_FLAGM
 	if (hwcap & HWCAP_FLAGM) {
-		$(mut, add, _String("flagm"));
+		$(mut, addCString, "flagm");
 	}
     #endif
     #ifdef HWCAP_SSBS
 	if (hwcap & HWCAP_SSBS) {
-		$(mut, add, _String("ssbs"));
+		$(mut, addCString, "ssbs");
 	}
     #endif
     #ifdef HWCAP_SB
 	if (hwcap & HWCAP_SB) {
-		$(mut, add, _String("sb"));
+		$(mut, addCString, "sb");
 	}
     #endif
     #ifdef HWCAP_PACA
 	if (hwcap & HWCAP_PACA) {
-		$(mut, add, _String("paca"));
+		$(mut, addCString, "paca");
 	}
     #endif
     #ifdef HWCAP_PACG
 	if (hwcap & HWCAP_PACG) {
-		$(mut, add, _String("pacg"));
+		$(mut, addCString, "pacg");
 	}
     #endif
     #ifdef HWCAP_GCS
 	if (hwcap & HWCAP_GCS) {
-		$(mut, add, _String("gcs"));
+		$(mut, addCString, "gcs");
 	}
     #endif
     #ifdef HWCAP_CMPBR
 	if (hwcap & HWCAP_CMPBR) {
-		$(mut, add, _String("cmpbr"));
+		$(mut, addCString, "cmpbr");
 	}
     #endif
     #ifdef HWCAP_F8MM4
 	if (hwcap & HWCAP_F8MM4) {
-		$(mut, add, _String("f8mm4"));
+		$(mut, addCString, "f8mm4");
 	}
     #endif
     #ifdef HWCAP_F8MM8
 	if (hwcap & HWCAP_F8MM8) {
-		$(mut, add, _String("f8mm8"));
+		$(mut, addCString, "f8mm8");
 	}
     #endif
     #ifdef HWCAP_FPRCVT
 	if (hwcap & HWCAP_FPRCVT) {
-		$(mut, add, _String("fprcvt"));
+		$(mut, addCString, "fprcvt");
 	}
     #endif
     #ifdef HWCAP_SME2P2
 	if (hwcap & HWCAP_SME2P2) {
-		$(mut, add, _String("sme2p2"));
+		$(mut, addCString, "sme2p2");
 	}
     #endif
     #ifdef HWCAP_SME_AES
 	if (hwcap & HWCAP_SME_AES) {
-		$(mut, add, _String("sme_aes"));
+		$(mut, addCString, "sme_aes");
 	}
     #endif
     #ifdef HWCAP_SME_SBITPERM
 	if (hwcap & HWCAP_SME_SBITPERM) {
-		$(mut, add, _String("sme_sbitperm"));
+		$(mut, addCString, "sme_sbitperm");
 	}
     #endif
     #ifdef HWCAP_SME_SFEXPA
 	if (hwcap & HWCAP_SME_SFEXPA) {
-		$(mut, add, _String("sme_sfexpa"));
+		$(mut, addCString, "sme_sfexpa");
 	}
     #endif
     #ifdef HWCAP_SME_SMOP4
 	if (hwcap & HWCAP_SME_SMOP4) {
-		$(mut, add, _String("sme_smop4"));
+		$(mut, addCString, "sme_smop4");
 	}
     #endif
     #ifdef HWCAP_SME_STMOP
 	if (hwcap & HWCAP_SME_STMOP) {
-		$(mut, add, _String("sme_stmop"));
+		$(mut, addCString, "sme_stmop");
 	}
     #endif
     #ifdef HWCAP_SVE2P2
 	if (hwcap & HWCAP_SVE2P2) {
-		$(mut, add, _String("sve2p2"));
+		$(mut, addCString, "sve2p2");
 	}
     #endif
     #ifdef HWCAP_SVE_AES2
 	if (hwcap & HWCAP_SVE_AES2) {
-		$(mut, add, _String("sve_aes2"));
+		$(mut, addCString, "sve_aes2");
 	}
     #endif
     #ifdef HWCAP_SVE_BFSCALE
 	if (hwcap & HWCAP_SVE_BFSCALE) {
-		$(mut, add, _String("sve_bfscale"));
+		$(mut, addCString, "sve_bfscale");
 	}
     #endif
     #ifdef HWCAP_SVE_ELTPERM
 	if (hwcap & HWCAP_SVE_ELTPERM) {
-		$(mut, add, _String("sve_eltperm"));
+		$(mut, addCString, "sve_eltperm");
 	}
     #endif
     #ifdef HWCAP_SVE_F16MM
 	if (hwcap & HWCAP_SVE_F16MM) {
-		$(mut, add, _String("sve_f16mm"));
+		$(mut, addCString, "sve_f16mm");
 	}
     #endif
 
     #ifdef HWCAP2_AFP
 	if (hwcap2 & HWCAP2_AFP) {
-		$(mut, add, _String("afp"));
+		$(mut, addCString, "afp");
 	}
     #endif
     #ifdef HWCAP2_BF16
 	if (hwcap2 & HWCAP2_BF16) {
-		$(mut, add, _String("bf16"));
+		$(mut, addCString, "bf16");
 	}
     #endif
     #ifdef HWCAP2_BTI
 	if (hwcap2 & HWCAP2_BTI) {
-		$(mut, add, _String("bti"));
+		$(mut, addCString, "bti");
 	}
     #endif
     #ifdef HWCAP2_CSSC
 	if (hwcap2 & HWCAP2_CSSC) {
-		$(mut, add, _String("cssc"));
+		$(mut, addCString, "cssc");
 	}
     #endif
     #ifdef HWCAP2_DCPODP
 	if (hwcap2 & HWCAP2_DCPODP) {
-		$(mut, add, _String("dcpodp"));
+		$(mut, addCString, "dcpodp");
 	}
     #endif
     #ifdef HWCAP2_DGH
 	if (hwcap2 & HWCAP2_DGH) {
-		$(mut, add, _String("dgh"));
+		$(mut, addCString, "dgh");
 	}
     #endif
     #ifdef HWCAP2_EBF16
 	if (hwcap2 & HWCAP2_EBF16) {
-		$(mut, add, _String("ebf16"));
+		$(mut, addCString, "ebf16");
 	}
     #endif
     #ifdef HWCAP2_ECV
 	if (hwcap2 & HWCAP2_ECV) {
-		$(mut, add, _String("ecv"));
+		$(mut, addCString, "ecv");
 	}
     #endif
     #ifdef HWCAP2_F8CVT
 	if (hwcap2 & HWCAP2_F8CVT) {
-		$(mut, add, _String("f8cvt"));
+		$(mut, addCString, "f8cvt");
 	}
     #endif
     #ifdef HWCAP2_F8DP2
 	if (hwcap2 & HWCAP2_F8DP2) {
-		$(mut, add, _String("f8dp2"));
+		$(mut, addCString, "f8dp2");
 	}
     #endif
     #ifdef HWCAP2_F8DP4
 	if (hwcap2 & HWCAP2_F8DP4) {
-		$(mut, add, _String("f8dp4"));
+		$(mut, addCString, "f8dp4");
 	}
     #endif
     #ifdef HWCAP2_F8E4M3
 	if (hwcap2 & HWCAP2_F8E4M3) {
-		$(mut, add, _String("f8e4m3"));
+		$(mut, addCString, "f8e4m3");
 	}
     #endif
     #ifdef HWCAP2_F8E5M2
 	if (hwcap2 & HWCAP2_F8E5M2) {
-		$(mut, add, _String("f8e5m2"));
+		$(mut, addCString, "f8e5m2");
 	}
     #endif
     #ifdef HWCAP2_F8FMA
 	if (hwcap2 & HWCAP2_F8FMA) {
-		$(mut, add, _String("f8fma"));
+		$(mut, addCString, "f8fma");
 	}
     #endif
     #ifdef HWCAP2_FAMINMAX
 	if (hwcap2 & HWCAP2_FAMINMAX) {
-		$(mut, add, _String("faminmax"));
+		$(mut, addCString, "faminmax");
 	}
     #endif
     #ifdef HWCAP2_FLAGM2
 	if (hwcap2 & HWCAP2_FLAGM2) {
-		$(mut, add, _String("flagm2"));
+		$(mut, addCString, "flagm2");
 	}
     #endif
     #ifdef HWCAP2_FPMR
 	if (hwcap2 & HWCAP2_FPMR) {
-		$(mut, add, _String("fpmr"));
+		$(mut, addCString, "fpmr");
 	}
     #endif
     #ifdef HWCAP2_FRINT
 	if (hwcap2 & HWCAP2_FRINT) {
-		$(mut, add, _String("frint"));
+		$(mut, addCString, "frint");
 	}
     #endif
     #ifdef HWCAP2_HBC
 	if (hwcap2 & HWCAP2_HBC) {
-		$(mut, add, _String("hbc"));
+		$(mut, addCString, "hbc");
 	}
     #endif
     #ifdef HWCAP2_I8MM
 	if (hwcap2 & HWCAP2_I8MM) {
-		$(mut, add, _String("i8mm"));
+		$(mut, addCString, "i8mm");
 	}
     #endif
     #ifdef HWCAP2_LRCPC3
 	if (hwcap2 & HWCAP2_LRCPC3) {
-		$(mut, add, _String("lrcpc3"));
+		$(mut, addCString, "lrcpc3");
 	}
     #endif
     #ifdef HWCAP2_LSE128
 	if (hwcap2 & HWCAP2_LSE128) {
-		$(mut, add, _String("lse128"));
+		$(mut, addCString, "lse128");
 	}
     #endif
     #ifdef HWCAP2_LUT
 	if (hwcap2 & HWCAP2_LUT) {
-		$(mut, add, _String("lut"));
+		$(mut, addCString, "lut");
 	}
     #endif
     #ifdef HWCAP2_MOPS
 	if (hwcap2 & HWCAP2_MOPS) {
-		$(mut, add, _String("mops"));
+		$(mut, addCString, "mops");
 	}
     #endif
     #ifdef HWCAP2_MTE
 	if (hwcap2 & HWCAP2_MTE) {
-		$(mut, add, _String("mte"));
+		$(mut, addCString, "mte");
 	}
     #endif
     #ifdef HWCAP2_MTE3
 	if (hwcap2 & HWCAP2_MTE3) {
-		$(mut, add, _String("mte3"));
+		$(mut, addCString, "mte3");
 	}
     #endif
     #ifdef HWCAP2_POE
 	if (hwcap2 & HWCAP2_POE) {
-		$(mut, add, _String("poe"));
+		$(mut, addCString, "poe");
 	}
     #endif
     #ifdef HWCAP2_RNG
 	if (hwcap2 & HWCAP2_RNG) {
-		$(mut, add, _String("rng"));
+		$(mut, addCString, "rng");
 	}
     #endif
     #ifdef HWCAP2_RPRES
 	if (hwcap2 & HWCAP2_RPRES) {
-		$(mut, add, _String("rpres"));
+		$(mut, addCString, "rpres");
 	}
     #endif
     #ifdef HWCAP2_RPRFM
 	if (hwcap2 & HWCAP2_RPRFM) {
-		$(mut, add, _String("rprfm"));
+		$(mut, addCString, "rprfm");
 	}
     #endif
     #ifdef HWCAP2_SME
 	if (hwcap2 & HWCAP2_SME) {
-		$(mut, add, _String("sme"));
+		$(mut, addCString, "sme");
 	}
     #endif
     #ifdef HWCAP2_SME2
 	if (hwcap2 & HWCAP2_SME2) {
-		$(mut, add, _String("sme2"));
+		$(mut, addCString, "sme2");
 	}
     #endif
     #ifdef HWCAP2_SME2P1
 	if (hwcap2 & HWCAP2_SME2P1) {
-		$(mut, add, _String("sme2p1"));
+		$(mut, addCString, "sme2p1");
 	}
     #endif
     #ifdef HWCAP2_SMEB16B16
 	if (hwcap2 & HWCAP2_SMEB16B16) {
-		$(mut, add, _String("smeb16b16"));
+		$(mut, addCString, "smeb16b16");
 	}
     #endif
     #ifdef HWCAP2_SMEBI32I32
 	if (hwcap2 & HWCAP2_SMEBI32I32) {
-		$(mut, add, _String("smebi32i32"));
+		$(mut, addCString, "smebi32i32");
 	}
     #endif
     #ifdef HWCAP2_SMEF16F16
 	if (hwcap2 & HWCAP2_SMEF16F16) {
-		$(mut, add, _String("smef16f16"));
+		$(mut, addCString, "smef16f16");
 	}
     #endif
     #ifdef HWCAP2_SMEI16I32
 	if (hwcap2 & HWCAP2_SMEI16I32) {
-		$(mut, add, _String("smei16i32"));
+		$(mut, addCString, "smei16i32");
 	}
     #endif
     #ifdef HWCAP2_SME_F8F16
 	if (hwcap2 & HWCAP2_SME_F8F16) {
-		$(mut, add, _String("sme_f8f16"));
+		$(mut, addCString, "sme_f8f16");
 	}
     #endif
     #ifdef HWCAP2_SME_F8F32
 	if (hwcap2 & HWCAP2_SME_F8F32) {
-		$(mut, add, _String("sme_f8f32"));
+		$(mut, addCString, "sme_f8f32");
 	}
     #endif
     #ifdef HWCAP2_SME_FA64
 	if (hwcap2 & HWCAP2_SME_FA64) {
-		$(mut, add, _String("sme_fa64"));
+		$(mut, addCString, "sme_fa64");
 	}
     #endif
     #ifdef HWCAP2_SME_LUTV2
 	if (hwcap2 & HWCAP2_SME_LUTV2) {
-		$(mut, add, _String("sme_lutv2"));
+		$(mut, addCString, "sme_lutv2");
 	}
     #endif
     #ifdef HWCAP2_SME_SF8DP2
 	if (hwcap2 & HWCAP2_SME_SF8DP2) {
-		$(mut, add, _String("sme_sf8dp2"));
+		$(mut, addCString, "sme_sf8dp2");
 	}
     #endif
     #ifdef HWCAP2_SME_SF8DP4
 	if (hwcap2 & HWCAP2_SME_SF8DP4) {
-		$(mut, add, _String("sme_sf8dp4"));
+		$(mut, addCString, "sme_sf8dp4");
 	}
     #endif
     #ifdef HWCAP2_SME_SF8DP4
 	if (hwcap2 & HWCAP2_SME_SF8DP4) {
-		$(mut, add, _String("sme_sf8dp4"));
+		$(mut, addCString, "sme_sf8dp4");
 	}
     #endif
     #ifdef HWCAP2_SME_SF8FMA
 	if (hwcap2 & HWCAP2_SME_SF8FMA) {
-		$(mut, add, _String("sme_sf8fma"));
+		$(mut, addCString, "sme_sf8fma");
 	}
     #endif
     #ifdef HWCAP2_SVE2
 	if (hwcap2 & HWCAP2_SVE2) {
-		$(mut, add, _String("sve2"));
+		$(mut, addCString, "sve2");
 	}
     #endif
     #ifdef HWCAP2_SVE2P1
 	if (hwcap2 & HWCAP2_SVE2P1) {
-		$(mut, add, _String("sve2p1"));
+		$(mut, addCString, "sve2p1");
 	}
     #endif
     #ifdef HWCAP2_SVEAES
 	if (hwcap2 & HWCAP2_SVEAES) {
-		$(mut, add, _String("sveaes"));
+		$(mut, addCString, "sveaes");
 	}
     #endif
     #ifdef HWCAP2_SVEBF16
 	if (hwcap2 & HWCAP2_SVEBF16) {
-		$(mut, add, _String("svebf16"));
+		$(mut, addCString, "svebf16");
 	}
     #endif
     #ifdef HWCAP2_SVEBITPERM
 	if (hwcap2 & HWCAP2_SVEBITPERM) {
-		$(mut, add, _String("svebitperm"));
+		$(mut, addCString, "svebitperm");
 	}
     #endif
     #ifdef HWCAP2_SVEF32MM
 	if (hwcap2 & HWCAP2_SVEF32MM) {
-		$(mut, add, _String("svef32mm"));
+		$(mut, addCString, "svef32mm");
 	}
     #endif
     #ifdef HWCAP2_SVEF64MM
 	if (hwcap2 & HWCAP2_SVEF64MM) {
-		$(mut, add, _String("svef64mm"));
+		$(mut, addCString, "svef64mm");
 	}
     #endif
     #ifdef HWCAP2_SVEI8MM
 	if (hwcap2 & HWCAP2_SVEI8MM) {
-		$(mut, add, _String("svei8mm"));
+		$(mut, addCString, "svei8mm");
 	}
     #endif
     #ifdef HWCAP2_SVEPMULL
 	if (hwcap2 & HWCAP2_SVEPMULL) {
-		$(mut, add, _String("svepmull"));
+		$(mut, addCString, "svepmull");
 	}
     #endif
     #ifdef HWCAP2_SVESHA3
 	if (hwcap2 & HWCAP2_SVESHA3) {
-		$(mut, add, _String("svesha3"));
+		$(mut, addCString, "svesha3");
 	}
     #endif
     #ifdef HWCAP2_SVESM4
 	if (hwcap2 & HWCAP2_SVESM4) {
-		$(mut, add, _String("svesm4"));
+		$(mut, addCString, "svesm4");
 	}
     #endif
     #ifdef HWCAP2_SVE_B16B16
 	if (hwcap2 & HWCAP2_SVE_B16B16) {
-		$(mut, add, _String("sve_b16b16"));
+		$(mut, addCString, "sve_b16b16");
 	}
     #endif
     #ifdef HWCAP2_SVE_EBF16
 	if (hwcap2 & HWCAP2_SVE_EBF16) {
-		$(mut, add, _String("sve_ebf16"));
+		$(mut, addCString, "sve_ebf16");
 	}
     #endif
     #ifdef HWCAP2_WFXT
 	if (hwcap2 & HWCAP2_WFXT) {
-		$(mut, add, _String("wfxt"));
+		$(mut, addCString, "wfxt");
 	}
     #endif
     #ifdef HWCAP2_SME_I16I64
 	if (hwcap2 & HWCAP2_SME_I16I64) {
-		$(mut, add, _String("sme_i16i64"));
+		$(mut, addCString, "sme_i16i64");
 	}
     #endif
     #ifdef HWCAP2_SME_F64F64
 	if (hwcap2 & HWCAP2_SME_F64F64) {
-		$(mut, add, _String("sme_f64f64"));
+		$(mut, addCString, "sme_f64f64");
 	}
     #endif
     #ifdef HWCAP2_SME_I8I32
 	if (hwcap2 & HWCAP2_SME_I8I32) {
-		$(mut, add, _String("sme_i8i32"));
+		$(mut, addCString, "sme_i8i32");
 	}
     #endif
     #ifdef HWCAP2_SME_F16F32
 	if (hwcap2 & HWCAP2_SME_F16F32) {
-		$(mut, add, _String("sme_f16f32"));
+		$(mut, addCString, "sme_f16f32");
 	}
     #endif
     #ifdef HWCAP2_SME_B16F32
 	if (hwcap2 & HWCAP2_SME_B16F32) {
-		$(mut, add, _String("sme_b16f32"));
+		$(mut, addCString, "sme_b16f32");
 	}
     #endif
     #ifdef HWCAP2_SME_F32F32
 	if (hwcap2 & HWCAP2_SME_F32F32) {
-		$(mut, add, _String("sme_f32f32"));
+		$(mut, addCString, "sme_f32f32");
 	}
     #endif
     #ifdef HWCAP2_SME_I16I32
 	if (hwcap2 & HWCAP2_SME_I16I32) {
-		$(mut, add, _String("sme_i16i32"));
+		$(mut, addCString, "sme_i16i32");
 	}
     #endif
     #ifdef HWCAP2_SME_BI32I32
 	if (hwcap2 & HWCAP2_SME_BI32I32) {
-		$(mut, add, _String("sme_bi32i32"));
+		$(mut, addCString, "sme_bi32i32");
 	}
     #endif
     #ifdef HWCAP2_SME_B16B16
 	if (hwcap2 & HWCAP2_SME_B16B16) {
-		$(mut, add, _String("sme_b16b16"));
+		$(mut, addCString, "sme_b16b16");
 	}
     #endif
     #ifdef HWCAP2_SME_F16F16
 	if (hwcap2 & HWCAP2_SME_F16F16) {
-		$(mut, add, _String("sme_f16f16"));
+		$(mut, addCString, "sme_f16f16");
 	}
     #endif
-  #else
-	// TODO: aarch32 features
-    #if defined(__ARM_NEON__) || defined(__ARM_NEON) || defined(WITH_SIMD)
-	$(mut, add, _String("neon"));
-	self->has128bitVectors = true;
-	self->has128bitCacheBypass = true;
+#elif defined(__arm__)
+//-----------------------------
+// arm32 hardware capabilities:
+//-----------------------------
+    #ifdef HWCAP_26BIT
+	if (hwcap & HWCAP_26BIT) {
+		$(mut, addCString, "26bit");
+	}
     #endif
-  #endif
-#else
-    	// This is for non-Linux platforms i.e. Mac aarch64 and Windows ARM.
-    	// TODO Use sysctl to get full list of CPU features on MacOS.
-    #if defined(__ARM_NEON__) || defined(__ARM_NEON) || defined(WITH_SIMD)
-	$(mut, add, _String("neon"));
-	self->has128bitVectors = true;
-	self->has128bitCacheBypass = true;
+    #ifdef HWCAP_ASIMDBF16
+	if (hwcap & HWCAP_ASIMDBF16) {
+		$(mut, addCString, "asimdbf16");
+	}
     #endif
+    #ifdef HWCAP_ASIMDDP
+	if (hwcap & HWCAP_ASIMDDP) {
+		$(mut, addCString, "asimddp");
+		self->has128bitVectors = true;
+	}
+    #endif
+    #ifdef HWCAP_ASIMDFHM
+	if (hwcap & HWCAP_ASIMDFHM) {
+		$(mut, addCString, "asimdfhm");
+		self->has128bitVectors = true;
+	}
+    #endif
+    #ifdef HWCAP_ASIMDHP
+	if (hwcap & HWCAP_ASIMDHP) {
+		$(mut, addCString, "asimdhp");
+		self->has128bitVectors = true;
+	}
+    #endif
+    #ifdef HWCAP_CRUNCH
+	if (hwcap & HWCAP_CRUNCH) {
+		$(mut, addCString, "crunch");
+	}
+    #endif
+    #ifdef HWCAP_EDSP
+	if (hwcap & HWCAP_EDSP) {
+		$(mut, addCString, "edsp");
+	}
+    #endif
+    #ifdef HWCAP_EVTSTRM
+	if (hwcap & HWCAP_EVTSTRM) {
+		$(mut, addCString, "evtstrm");
+	}
+    #endif
+    #ifdef HWCAP_FAST_MULT
+	if (hwcap & HWCAP_FAST_MULT) {
+		$(mut, addCString, "fast_mult");
+	}
+    #endif
+    #ifdef HWCAP_FPA
+	if (hwcap & HWCAP_FPA) {
+		$(mut, addCString, "fpa");
+	}
+    #endif
+    #ifdef HWCAP_FPHP
+	if (hwcap & HWCAP_FPHP) {
+		$(mut, addCString, "fphp");
+	}
+    #endif
+    #ifdef HWCAP_HALF
+	if (hwcap & HWCAP_HALF) {
+		$(mut, addCString, "half");
+	}
+    #endif
+    #ifdef HWCAP_I8MM
+	if (hwcap & HWCAP_I8MM) {
+		$(mut, addCString, "i8mm");
+	}
+    #endif
+    #ifdef HWCAP_IDIV
+	if (hwcap & HWCAP_IDIV) {
+		$(mut, addCString, "idiv");
+	}
+    #endif
+    #ifdef HWCAP_IDIVA
+	if (hwcap & HWCAP_IDIVA) {
+		$(mut, addCString, "idiva");
+	}
+    #endif
+    #ifdef HWCAP_IDIVT
+	if (hwcap & HWCAP_IDIVT) {
+		$(mut, addCString, "idivt");
+	}
+    #endif
+    #ifdef HWCAP_IWMMXT
+	if (hwcap & HWCAP_IWMMXT) {
+		$(mut, addCString, "iwmmxt");
+	}
+    #endif
+    #ifdef HWCAP_JAVA
+	if (hwcap & HWCAP_JAVA) {
+		$(mut, addCString, "java");
+	}
+    #endif
+    #ifdef HWCAP_LPAE
+	if (hwcap & HWCAP_LPAE) {
+		$(mut, addCString, "lpae");
+	}
+    #endif
+    #ifdef HWCAP_NEON
+	if (hwcap & HWCAP_NEON) {
+		$(mut, addCString, "neon");
+		self->has128bitVectors = true;
+		// NOTE: Non-temporal stores are an aarch64 feature, not arm32.
+	}
+    #endif
+    #ifdef HWCAP_SWP
+	if (hwcap & HWCAP_SWP) {
+		$(mut, addCString, "swp");
+	}
+    #endif
+    #ifdef HWCAP_THUMB
+	if (hwcap & HWCAP_THUMB) {
+		$(mut, addCString, "thumb");
+	}
+    #endif
+    #ifdef HWCAP_THUMBEE
+	if (hwcap & HWCAP_THUMBEE) {
+		$(mut, addCString, "thumbee");
+	}
+    #endif
+    #ifdef HWCAP_TLS
+	if (hwcap & HWCAP_TLS) {
+		$(mut, addCString, "tls");
+	}
+    #endif
+    #ifdef HWCAP_VFP
+	if (hwcap & HWCAP_VFP) {
+		$(mut, addCString, "vfp");
+	}
+    #endif
+    #ifdef HWCAP_VFPD32
+	if (hwcap & HWCAP_VFPD32) {
+		$(mut, addCString, "vfpd32");
+	}
+    #endif
+    #ifdef HWCAP_VFPv3
+	if (hwcap & HWCAP_VFPv3) {
+		$(mut, addCString, "vfpv3");
+	}
+    #endif
+    #ifdef HWCAP_VFPv3D16
+	if (hwcap & HWCAP_VFPv3D16) {
+		$(mut, addCString, "vfpv3d16");
+	}
+    #endif
+    #ifdef HWCAP_VFPv4
+	if (hwcap & HWCAP_VFPv4) {
+		$(mut, addCString, "vfpv4");
+	}
+    #endif
+    #ifdef HWCAP2_AES
+	if (hwcap2 & HWCAP2_AES) {
+		$(mut, addCString, "aes");
+	}
+    #endif
+    #ifdef HWCAP2_CRC32
+	if (hwcap2 & HWCAP2_CRC32) {
+		$(mut, addCString, "crc32");
+	}
+    #endif
+    #ifdef HWCAP2_PMULL
+	if (hwcap2 & HWCAP2_PMULL) {
+		$(mut, addCString, "pmull");
+	}
+    #endif
+    #ifdef HWCAP2_SB
+	if (hwcap2 & HWCAP2_SB) {
+		$(mut, addCString, "sb");
+	}
+    #endif
+    #ifdef HWCAP2_SHA1
+	if (hwcap2 & HWCAP2_SHA1) {
+		$(mut, addCString, "sha1");
+	}
+    #endif
+    #ifdef HWCAP2_SHA2
+	if (hwcap2 & HWCAP2_SHA2) {
+		$(mut, addCString, "sha2");
+	}
+    #endif
+    #ifdef HWCAP2_SSBS
+	if (hwcap2 & HWCAP2_SSBS) {
+		$(mut, addCString, "ssbs");
+	}
+    #endif
+#endif // arm32
 #endif // Linux
+
+#if defined(__APPLE__) && defined(__aarch64__)
+    // MacOS
+    // TODO: Detect Apple Silicon hardware capabilities.
+    #if defined(__ARM_NEON__) || defined(__ARM_NEON) || defined(WITH_SIMD)
+	$(mut, addCString, "neon");
+	self->has128bitVectors = true;
+	self->has128bitCacheBypass = true;
+    #endif
+#endif // macOS
 
 	return mut;
 }

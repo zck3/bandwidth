@@ -36,6 +36,7 @@
 #include "OOC/CPUPowerPC.h"
 #include "OOC/CPULoong.h"
 #include "OOC/Hardware.h"
+#include "OOC/Table.h"
 #include "OOC/colors.h"
 
 #include "BenchmarkX86.h"
@@ -77,38 +78,33 @@ static CPU *cpu = NULL;
 //----------------------------------------------------------------------------
 void usage ()
 {
-	puts ("Usage: bandwidth (options)");
-	puts ("The output graph is in bandwidth.bmp.");
-	puts ("Options include:");
-	puts ("  --size WIDTHxHEIGHT");
-	puts ("  --title string");
-	puts ("  --csv file");
-	puts ("  --slow / -s");
-	puts ("  --fast / -f");
-	puts ("  --faster / -r");
-	puts ("  --fastest / -F");
-	puts ("  --main-memory-only / -m");
-#ifdef x86
-	puts ("  --nosse2 / -2");
-	puts ("  --nosse4 / -4");
-	puts ("  --noavx / -X");
-	puts ("  --noavx512 / -5");
-#endif
-	puts ("  --noread / -R");
-	puts ("  --nowrite / -W");
-	puts ("  --norandom / -D");
-	puts ("  --nocopy / -C");
-	puts ("  --nonontemporal / -T");
-	puts ("  --nograph / -G");
-	puts ("  --nomemtest");
-	puts ("  --longmemtest");
-	puts ("  --noregister");
-	puts ("  --unlimited");
-	puts ("  --reverse");
-	puts ("  --invert");
-	puts ("  --rotate");
-	puts ("  --noviewer");
-	puts ("  --nice");
+	Table *table = new(Table);
+	$(table, setColumnNames, Array_with (_String("Options for:"), _String("bandwidth "RELEASE), NULL));
+	$(table, append, Array_with (_String("--size/-z WIDTHxHEIGHT"), _String("Set the output image size"), NULL));
+	$(table, append, Array_with (_String("--title/-t STRING"), _String("Set the graph title"), NULL));
+	$(table, append, Array_with (_String("--csv/-c FILE"), _String("Send output to CSV file"), NULL));
+	$(table, append, Array_with (_String("--slow/-s"), _String("Slow run to smoothen graph"), NULL));
+	$(table, append, Array_with (_String("--fast/-f"), _String("Fast run"), NULL));
+	$(table, append, Array_with (_String("--faster/-r"), _String("Faster run"), NULL));
+	$(table, append, Array_with (_String("--fastest/-F"), _String("Fastest run"), NULL));
+	$(table, append, Array_with (_String("--main-memory/-m"), _String("Only benchmark system RAM"), NULL));
+	$(table, append, Array_with (_String("--noread/-R"), _String("Skip memory reads"), NULL));
+	$(table, append, Array_with (_String("--nowrite/-W"), _String("Skip memory writes"), NULL));
+	$(table, append, Array_with (_String("--nocopy/-C"), _String("Skip memory copies"), NULL));
+	$(table, append, Array_with (_String("--norandom/-D"), _String("Skip random memory accesses"), NULL));
+	$(table, append, Array_with (_String("--notemp/-T"), _String("Skip nontemporal accesses"), NULL));
+	$(table, append, Array_with (_String("--noregister/-E"), _String("Skip register benchmarking"), NULL));
+	$(table, append, Array_with (_String("--no128/-1"), _String("Skip 128-bit vector operations"), NULL));
+	$(table, append, Array_with (_String("--no256/-2"), _String("Skip 256-bit vector operations"), NULL));
+	$(table, append, Array_with (_String("--no512/-5"), _String("Skip 512-bit vector operations"), NULL));
+	$(table, append, Array_with (_String("--nice/-n"), _String("Pause to reduce CPU temperature"), NULL));
+	$(table, append, Array_with (_String("--nograph/-G"), _String("Don't generate graph"), NULL));
+	$(table, append, Array_with (_String("--noviewer/-V"), _String("Don't launch image viewer"), NULL));
+	$(table, append, Array_with (_String("--unlimited/-u"), _String("Go beyond 128MB"), NULL));
+	$(table, append, Array_with (_String("--reverse/-e"), _String("Reverse order of execution"), NULL));
+	$(table, append, Array_with (_String("--invert/-i"), _String("Invert graph colors"), NULL));
+	$(table, prettyPrint, NULL, false);
+
 	exit (-1);
 }
 
@@ -123,7 +119,7 @@ main (int argc, char **argv)
 	}
 
 	console = new(Console);
-	$(console, puts, "This is bandwidth version " RELEASE);
+	$(console, puts, "This is bandwidth " RELEASE);
 	$(console, puts, "Copyright (C) 2005-2024, 2026 by Zack T Smith.");
 	$(console, newline);
 	$(console, puts, "This software is covered by the GNU Public License.");
@@ -132,12 +128,9 @@ main (int argc, char **argv)
 	$(console, newline);
 	$(console, flush);
 
-	ooc_bzero (&options, sizeof(ProgramOptions));
+	memset (&options, 0, sizeof(ProgramOptions));
 
-// Mode to be nice and to keep CPU temperature low, since Mac x86 laptops tend to overheat.
-#if defined(__APPLE__) && !defined(__aarch64__)
-	options.nice_mode = true;
-#endif
+	options.nice_mode = false; // This tries to keep CPU temperature low.
 
 	options.graphWidth = DEFAULT_GRAPH_WIDTH;
 	options.graphHeight = DEFAULT_GRAPH_HEIGHT;
@@ -192,13 +185,11 @@ main (int argc, char **argv)
 
 		{"nice", no_argument, NULL, 'n'},
 		{"slow", no_argument, NULL, 's'},
-		{"longmemtest", no_argument, NULL, 'l'},
 		{"reverse", no_argument, NULL, 'e'},
-		{"rotate", no_argument, NULL, 'o'},
 		{"invert", no_argument, NULL, 'i'},
 		{"unlimited", no_argument, NULL, 'u'},
 		{"multithreaded", no_argument, NULL, 'M'},
-		{"main-memory-only", no_argument, NULL, 'm'},
+		{"main-memory", no_argument, NULL, 'm'},
 		{"fast", no_argument, NULL, 'f'},
 		{"faster", no_argument, NULL, 'r'},
 		{"fastest", no_argument, NULL, 'F'},
@@ -209,20 +200,17 @@ main (int argc, char **argv)
 		{"noread", no_argument, NULL, 'R'},
 		{"nowrite", no_argument, NULL, 'W'},
 		{"nocopy", no_argument, NULL, 'C'},
-		{"nonontemporal", no_argument, NULL, 'T'},
+		{"notemp", no_argument, NULL, 'T'},
 		{"nograph", no_argument, NULL, 'G'},
-		{"nomemtest", no_argument, NULL, 'N'},
-		{"nosse2", no_argument, NULL, '2'},
-		{"nosse4", no_argument, NULL, '4'},
-		{"noavx", no_argument, NULL, 'X'},
-		{"noavx512", no_argument, NULL, '5'},
+		{"no128", no_argument, NULL, '1'},
+		{"no256", no_argument, NULL, '2'},
+		{"no512", no_argument, NULL, '5'},
 		{"help", no_argument, NULL, 'h'},
 		{NULL, 0, NULL, 0}
 	};
 
-	int opt;
-	int width, height;
-	while (-1 != (opt = getopt_long(argc, argv, "t:z:c:245ACDEFGMRTVWXdefhilmnorsu", getopt_long_options, NULL))) {
+	int opt = 0, width = 0, height = 0;
+	while (-1 != (opt = getopt_long(argc, argv, "t:z:c:nseiuMmfrFdEVDRWCTG125h", getopt_long_options, NULL))) {
 		switch (opt) {
 			case 'c':
 				options.outputMode |= OUTPUT_MODE_CSV;
@@ -241,6 +229,9 @@ main (int argc, char **argv)
 					}
 				}
 				break;
+			case 's': 
+				options.usec_per_test = 20000000; /* 20 seconds */ 
+				break;
 			case 'f': 
 				options.usec_per_test = 1000000; // 1 second per test.
 				break;
@@ -250,10 +241,14 @@ main (int argc, char **argv)
 			case 'F': 
 				options.usec_per_test = 50000; // 0.05 second per test.
 				break;
+			case 'd': 
+				options.usec_per_test = 10000; // 0.01 second per test.
+				options.diagnostic_mode = true; 
+				break;
 			case 'u':
-				if (sizeof(long) == 8) {
-					options.limit_at_128MB = false;
-				}
+#ifdef IS_64BIT
+				options.limit_at_128MB = false;
+#endif
 				break;
 			case 'M':
 				options.multithreaded = true;
@@ -261,25 +256,23 @@ main (int argc, char **argv)
 			case 'm':
 				options.only_main_memory = true;
 				break;
-			case '2': // No SSE2
+			case '1': // No 128-bit vectors
 				options.perform_128bit_tests = false;
 				options.perform_128bit_nontemporal_tests = false;
+				break;
+			case '2': // No 256-bit vectors
 				options.perform_256bit_tests = false;
+				break;
+			case '5': // No 512-bit vectors e.g. AVX-512
 				options.perform_512bit_tests = false;
 				break;
-			case '4': // No SSE4
-				options.perform_128bit_nontemporal_tests = false;
-				options.perform_256bit_tests = false;
-				options.perform_512bit_tests = false;
+			case 'G': 
+				options.outputMode &= ~OUTPUT_MODE_GRAPH; 
+				options.launch_viewer = false; 
 				break;
-			case 'X': // No AVX
-				options.perform_256bit_tests = false;
-				options.perform_512bit_tests = false;
+			case 'V': 
+				options.launch_viewer = false; 
 				break;
-			case '5': // No AVX152
-				options.perform_512bit_tests = false;
-				break;
-			case 'V': options.launch_viewer = false; break;
 			case 'R': options.perform_read_tests = false; break;
 			case 'W': options.perform_write_tests = false; break;
 			case 'D': options.perform_random_tests = false; break;
@@ -293,17 +286,12 @@ main (int argc, char **argv)
 			case 'E':
 				options.perform_register_and_stack_tests = false;
 				break;
-			case 'n': options.nice_mode = true; break;
-			case 'd': 
-				options.usec_per_test = 10000;
-				options.diagnostic_mode = true; 
+			case 'n': 
+				options.nice_mode = true; 
 				break;
-			case 's': options.usec_per_test = 20000000; /* 20 seconds */ break;
 			case 'i': options.do_invert_graph = true; break;
-			case 'o': options.do_rotate_graph = true; break;
 			case 'e': options.reverse_chunk_size_order = true; break;
 			case 'h': usage (); break;
-			case 'G': options.outputMode &= ~OUTPUT_MODE_GRAPH; break;
 			default:
 				usage();
 				break;
@@ -331,7 +319,27 @@ main (int argc, char **argv)
 	} 
 
 	benchmarks->usec_per_test = options.usec_per_test;
-	runTests (cpu, title);
+
+#if defined(__x86_64__) || defined(__i386__)
+	// Combine CPU capabilities with command line options to determine
+	// what tests will be run.
+	//
+	if (((CPUX86*)cpu)->hasSSE2 && options.perform_128bit_tests) {
+		benchmarks->use_sse2 = true;
+	}
+	if (((CPUX86*)cpu)->hasSSE4 && options.perform_128bit_tests) {
+		benchmarks->use_sse4 = true;
+	}
+	if (((CPUX86*)cpu)->hasAVX && options.perform_256bit_tests) {
+		benchmarks->use_avx = true;
+	}
+	if (((CPUX86*)cpu)->hasAVX512 && options.perform_512bit_tests) {
+		benchmarks->use_avx512 = true;
+	}
+#endif
+
+
+	runTests ((Benchmark*) benchmarks, cpu, title);
 
         if ((options.outputMode & OUTPUT_MODE_GRAPH) && options.launch_viewer) {
 #ifdef __APPLE__

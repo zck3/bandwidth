@@ -20,19 +20,26 @@
 # The author may be reached at 3 at zs3 dot me.
 #=============================================================================
 
-# Version 0.12 for Raspberry Pi, Android and Apple Silicon
+# Version 0.13 for Raspberry Pi, Android and Apple Silicon
 
 .arch armv8-a
 
+.macro inc reg
+  adds \reg, \reg, 1
+.endm
+.macro dec reg
+  subs \reg, \reg, 1
+.endm
+
 # For Linux:
 .global Writer
-.global WriterVector
+.global WriterVector128
 .global RandomWriter
-.global RandomWriterVector
+.global RandomWriterVector128
 .global Reader
-.global ReaderVector
+.global ReaderVector128
 .global RandomReader
-.global RandomReaderVector
+.global RandomReaderVector128
 .global RegisterToRegister
 .global VectorToVector128
 .global StackReader
@@ -40,19 +47,27 @@
 .global IncrementRegisters
 .global IncrementStack
 .global CopyWithMainRegisters
-.global CopyWithVector128Registers
+.global CopyVector128
 .global Reader_nontemporal
 .global Writer_nontemporal
+.global Register8ToVector128
+.global Register16ToVector128
+.global Register32ToVector128
+.global Register64ToVector128
+.global Vector128ToRegister8
+.global Vector128ToRegister16
+.global Vector128ToRegister32
+.global Vector128ToRegister64
 
 # For MacOS:
 .global _Writer
-.global _WriterVector
+.global _WriterVector128
 .global _RandomWriter
-.global _RandomWriterVector
+.global _RandomWriterVector128
 .global _Reader
-.global _ReaderVector
+.global _ReaderVector128
 .global _RandomReader
-.global _RandomReaderVector
+.global _RandomReaderVector128
 .global _RegisterToRegister
 .global _VectorToVector128
 .global _StackReader
@@ -60,9 +75,23 @@
 .global _IncrementRegisters
 .global _IncrementStack
 .global _CopyWithMainRegisters
-.global _CopyWithVector128Registers
+.global _CopyVector128
 .global _Reader_nontemporal
 .global _Writer_nontemporal
+.global _Register8ToVector128
+.global _Register16ToVector128
+.global _Register32ToVector128
+.global _Register64ToVector128
+.global _Vector128ToRegister8
+.global _Vector128ToRegister16
+.global _Vector128ToRegister16
+.global _Vector128ToRegister16
+
+# Unused:
+.global VectorToVector256
+.global VectorToVector512
+.global _VectorToVector256
+.global _VectorToVector512
 
 .text
 
@@ -116,7 +145,7 @@ _Writer:
 	subs	x1, x1, 256
 	bne	.L1
 
-	subs	x2, x2, 1
+	dec	x2
 	bne	.L0
 
 	ldp	x5, x6, [sp], 16
@@ -176,7 +205,7 @@ _Writer_nontemporal:
 	subs	x1, x1, 256
 	bne	.Lstnp1
 
-	subs	x2, x2, 1
+	dec	x2
 	bne	.Lstnp0
 
 	ldp	x5, x6, [sp], 16
@@ -185,7 +214,7 @@ _Writer_nontemporal:
 	ret
 
 #-----------------------------------------------------------------------------
-# Name: 	WriterVector
+# Name: 	WriterVector128
 # Purpose:	Performs sequential write into memory, as fast as possible.
 # Params:
 #	x0 = address
@@ -194,8 +223,8 @@ _Writer_nontemporal:
 # 	x3 = value to write
 #-----------------------------------------------------------------------------
 .align 4
-WriterVector:
-_WriterVector:
+WriterVector128:
+_WriterVector128:
 	lsr	x1, x1, 5
 	lsl	x1, x1, 5
 
@@ -221,7 +250,7 @@ _WriterVector:
 	subs	x1, x1, 256
 	bne	.L1v
 
-	subs	x2, x2, 1
+	dec 	x2
 	bne	.L0v
 
 	dmb	st
@@ -366,7 +395,7 @@ _Reader_nontemporal:
 	ret
 
 #-----------------------------------------------------------------------------
-# Name: 	ReaderVector
+# Name: 	ReaderVector128
 # Purpose:	Performs sequential reads from memory, as fast as possible.
 # Params:
 #	x0 = address
@@ -374,8 +403,8 @@ _Reader_nontemporal:
 #	x2 = count
 #-----------------------------------------------------------------------------
 .align 4
-ReaderVector:
-_ReaderVector:
+ReaderVector128:
+_ReaderVector128:
 	stp	x5, x6, [sp, -16]!
 
 	lsr	x1, x1, 5
@@ -403,7 +432,7 @@ _ReaderVector:
 	subs	x1, x1, 256
 	bne	.L3v
 
-	subs	x2, x2, 1
+	dec	x2
 	bne	.L2v
 
 	ldp	x5, x6, [sp], 16
@@ -469,14 +498,14 @@ _RandomWriter:
 	cmp	x5, x1
 	bne	.L5
 
-	subs	x2, x2, 1
+	dec	x2
 	bne	.L4
 
 	dmb	st
 	ret
 
 #-----------------------------------------------------------------------------
-# Name: 	RandomWriterVector
+# Name: 	RandomWriterVector128
 # Purpose:	Performs random write into memory, as fast as possible.
 # Params:
 # 	x0 = pointer to array of chunk pointers
@@ -485,8 +514,8 @@ _RandomWriter:
 # 	x3 = value to write
 #-----------------------------------------------------------------------------
 .align 4
-RandomWriterVector:
-_RandomWriterVector:
+RandomWriterVector128:
+_RandomWriterVector128:
 	stp	x4, x5, [sp, -16]!
 
 .L4v:
@@ -518,7 +547,7 @@ _RandomWriterVector:
 	cmp	x5, x1
 	bne	.L5v
 
-	subs	x2, x2, 1
+	dec	x2
 	bne	.L4v
 
 	ldp	x4, x5, [sp], 16
@@ -584,7 +613,7 @@ _RandomReader:
 	cmp	x5, x1
 	bne	.L7
 
-	subs	x2, x2, 1
+	dec	x2
 	bne	.L6
 
 	ldp	x4, x5, [sp], 16
@@ -593,7 +622,7 @@ _RandomReader:
 	ret
 
 #-----------------------------------------------------------------------------
-# Name: 	RandomReaderVector
+# Name: 	RandomReaderVector128
 # Purpose:	Performs random reads from memory, as fast as possible.
 # Params:
 # 	x0 = pointer to array of chunk pointers
@@ -601,8 +630,8 @@ _RandomReader:
 # 	x2 = # loops to do
 #-----------------------------------------------------------------------------
 .align 4
-RandomReaderVector:
-_RandomReaderVector:
+RandomReaderVector128:
+_RandomReaderVector128:
 	stp	x4, x5, [sp, -16]!
 	str	q0, [sp, -16]!
 
@@ -635,7 +664,7 @@ _RandomReaderVector:
 	cmp	x5, x1
 	bne	.L7v
 
-	subs	x2, x2, 1
+	dec	x2
 	bne	.L6v
 
 	ldr	q0, [sp], 16
@@ -722,9 +751,8 @@ _RegisterToRegister:
 	mov	x1, x8
 	mov	x1, x9
 
-	subs	x0, x0, 1
+	dec	x0
 	bne	.L8
-
 	ret
 
 #-----------------------------------------------------------------------------
@@ -777,9 +805,8 @@ _VectorToVector128:
 	mov	v30.16b, v3.16b
 	mov	v3.16b, v2.16b
 
-	subs	x0, x0, 1
+	dec	x0
 	bne	.L8v
-
 	ret
 
 #-----------------------------------------------------------------------------
@@ -962,7 +989,7 @@ _StackWriter:
 	str	x1, [sp, 48]
 	str	x1, [sp, 56]
 
-	subs	x0, x0, 1
+	dec	x0
 	bne	.L10
 
 	add	sp, sp, 64
@@ -1018,7 +1045,7 @@ _IncrementRegisters:
 	sub	x7, x7, 1
 	sub	x8, x8, 1
 
-	subs	x0, x0, 1
+	dec	x0
 	bne	.Li1
 
 	ret
@@ -1135,7 +1162,7 @@ _IncrementStack:
 	str	x7, [sp, 48]
 	str	x8, [sp, 56]
 
-	subs	x0, x0, 1
+	dec	x0
 	bne	.Lis1
 
 	add	sp, sp, 64
@@ -1188,14 +1215,14 @@ _CopyWithMainRegisters:
 	subs	x2, x2, 128
 	bne	.Lcr1
 
-	subs	x3, x3, 1
+	dec	x3
 	bne	.Lcr0
 
 	dmb	st
 	ret
 
 #-----------------------------------------------------------------------------
-# Name: 	CopyWithVector128Registers
+# Name: 	CopyVector128
 # Purpose:	Performs memory copy, as fast as possible.
 # Params:
 # 	x0 = pointer to destination array 
@@ -1204,8 +1231,8 @@ _CopyWithMainRegisters:
 # 	x3 = # loops to do
 #-----------------------------------------------------------------------------
 .align 4
-CopyWithVector128Registers:
-_CopyWithVector128Registers:
+CopyVector128:
+_CopyVector128:
 	mov	x12, x0
 	mov	x13, x1
 	mov	x4, x2
@@ -1239,9 +1266,695 @@ _CopyWithVector128Registers:
 	subs	x2, x2, 256
 	bne	.Lcv128b
 
-	subs	x3, x3, 1
+	dec	x3
 	bne	.Lcv128a
 
 	dmb	st
 	ret
 
+#------------------------------------------------------------------------------
+# Name:		Vector128ToRegister8
+# Purpose:	Writes 8-bit values from vector registers into main registers.
+# Params:	x0 = loops
+#------------------------------------------------------------------------------
+.align 4
+Vector128ToRegister8:
+_Vector128ToRegister8:
+.Lv128r8:
+	umov	w1, v0.b[0]
+	umov	w2, v0.b[1]
+	umov	w3, v0.b[2]
+	umov	w4, v0.b[3]
+	umov	w5, v0.b[4]
+	umov	w6, v0.b[5]
+	umov	w7, v0.b[6]
+	umov	w3, v0.b[7]
+
+	umov	w1, v0.b[8]
+	umov	w2, v0.b[9]
+	umov	w3, v0.b[10]
+	umov	w4, v0.b[11]
+	umov	w5, v0.b[12]
+	umov	w6, v0.b[13]
+	umov	w7, v0.b[14]
+	umov	w3, v0.b[15]
+
+	umov	w1, v0.b[0]
+	umov	w2, v0.b[1]
+	umov	w3, v0.b[2]
+	umov	w4, v0.b[3]
+	umov	w5, v0.b[4]
+	umov	w6, v0.b[5]
+	umov	w7, v0.b[6]
+	umov	w3, v0.b[7]
+
+	umov	w1, v0.b[8]
+	umov	w2, v0.b[9]
+	umov	w3, v0.b[10]
+	umov	w4, v0.b[11]
+	umov	w5, v0.b[12]
+	umov	w6, v0.b[13]
+	umov	w7, v0.b[14]
+	umov	w3, v0.b[15]
+
+	umov	w1, v0.b[0]
+	umov	w2, v0.b[1]
+	umov	w3, v0.b[2]
+	umov	w4, v0.b[3]
+	umov	w5, v0.b[4]
+	umov	w6, v0.b[5]
+	umov	w7, v0.b[6]
+	umov	w3, v0.b[7]
+
+	umov	w1, v0.b[8]
+	umov	w2, v0.b[9]
+	umov	w3, v0.b[10]
+	umov	w4, v0.b[11]
+	umov	w5, v0.b[12]
+	umov	w6, v0.b[13]
+	umov	w7, v0.b[14]
+	umov	w3, v0.b[15]
+
+	umov	w1, v0.b[0]
+	umov	w2, v0.b[1]
+	umov	w3, v0.b[2]
+	umov	w4, v0.b[3]
+	umov	w5, v0.b[4]
+	umov	w6, v0.b[5]
+	umov	w7, v0.b[6]
+	umov	w3, v0.b[7]
+
+	umov	w1, v0.b[8]
+	umov	w2, v0.b[9]
+	umov	w3, v0.b[10]
+	umov	w4, v0.b[11]
+	umov	w5, v0.b[12]
+	umov	w6, v0.b[13]
+	umov	w7, v0.b[14]
+	umov	w3, v0.b[15]
+
+	dec	x0
+	bne	.Lv128r8
+	ret
+
+#------------------------------------------------------------------------------
+# Name:		Vector128ToRegister16
+# Purpose:	Writes 16-bit values from vector registers into main registers.
+# Params:	x0 = loops
+#------------------------------------------------------------------------------
+.align 4
+Vector128ToRegister16:
+_Vector128ToRegister16:
+.Lv128r16:
+	umov	w1, v0.h[0]
+	umov	w2, v2.h[1]
+	umov	w3, v4.h[2]
+	umov	w4, v6.h[3]
+	umov	w5, v8.h[4]
+	umov	w6, v10.h[5]
+	umov	w7, v12.h[6]
+	umov	w3, v14.h[7]
+
+	umov	w1, v0.h[0]
+	umov	w2, v2.h[1]
+	umov	w3, v4.h[2]
+	umov	w4, v6.h[3]
+	umov	w5, v8.h[4]
+	umov	w6, v10.h[5]
+	umov	w7, v12.h[6]
+	umov	w3, v14.h[7]
+
+	umov	w1, v0.h[0]
+	umov	w2, v2.h[1]
+	umov	w3, v4.h[2]
+	umov	w4, v6.h[3]
+	umov	w5, v8.h[4]
+	umov	w6, v10.h[5]
+	umov	w7, v12.h[6]
+	umov	w3, v14.h[7]
+
+	umov	w1, v0.h[0]
+	umov	w2, v2.h[1]
+	umov	w3, v4.h[2]
+	umov	w4, v6.h[3]
+	umov	w5, v8.h[4]
+	umov	w6, v10.h[5]
+	umov	w7, v12.h[6]
+	umov	w3, v14.h[7]
+
+	umov	w1, v0.h[0]
+	umov	w2, v2.h[1]
+	umov	w3, v4.h[2]
+	umov	w4, v6.h[3]
+	umov	w5, v8.h[4]
+	umov	w6, v10.h[5]
+	umov	w7, v12.h[6]
+	umov	w3, v14.h[7]
+
+	umov	w1, v0.h[0]
+	umov	w2, v2.h[1]
+	umov	w3, v4.h[2]
+	umov	w4, v6.h[3]
+	umov	w5, v8.h[4]
+	umov	w6, v10.h[5]
+	umov	w7, v12.h[6]
+	umov	w3, v14.h[7]
+
+	umov	w1, v0.h[0]
+	umov	w2, v2.h[1]
+	umov	w3, v4.h[2]
+	umov	w4, v6.h[3]
+	umov	w5, v8.h[4]
+	umov	w6, v10.h[5]
+	umov	w7, v12.h[6]
+	umov	w3, v14.h[7]
+
+	umov	w1, v0.h[0]
+	umov	w2, v2.h[1]
+	umov	w3, v4.h[2]
+	umov	w4, v6.h[3]
+	umov	w5, v8.h[4]
+	umov	w6, v10.h[5]
+	umov	w7, v12.h[6]
+	umov	w3, v14.h[7]
+
+	dec	x0
+	bne	.Lv128r16
+	ret
+
+#------------------------------------------------------------------------------
+# Name:		Vector128ToRegister32
+# Purpose:	Writes 32-bit values from vector registers into main registers.
+# Params:	x0 = loops
+#------------------------------------------------------------------------------
+.align 4
+Vector128ToRegister32:
+_Vector128ToRegister32:
+.Lv128r32:
+	umov	w1, v0.s[0]
+	umov	w2, v1.s[1]
+	umov	w3, v2.s[2]
+	umov	w4, v3.s[3]
+	umov	w5, v4.s[0]
+	umov	w6, v5.s[1]
+	umov	w7, v6.s[2]
+	umov	w3, v7.s[3]
+
+	umov	w1, v0.s[0]
+	umov	w2, v1.s[1]
+	umov	w3, v2.s[2]
+	umov	w4, v3.s[3]
+	umov	w5, v4.s[0]
+	umov	w6, v5.s[1]
+	umov	w7, v6.s[2]
+	umov	w3, v7.s[3]
+
+	umov	w1, v0.s[0]
+	umov	w2, v1.s[1]
+	umov	w3, v2.s[2]
+	umov	w4, v3.s[3]
+	umov	w5, v4.s[0]
+	umov	w6, v5.s[1]
+	umov	w7, v6.s[2]
+	umov	w3, v7.s[3]
+
+	umov	w1, v0.s[0]
+	umov	w2, v1.s[1]
+	umov	w3, v2.s[2]
+	umov	w4, v3.s[3]
+	umov	w5, v4.s[0]
+	umov	w6, v5.s[1]
+	umov	w7, v6.s[2]
+	umov	w3, v7.s[3]
+
+	umov	w1, v0.s[0]
+	umov	w2, v1.s[1]
+	umov	w3, v2.s[2]
+	umov	w4, v3.s[3]
+	umov	w5, v4.s[0]
+	umov	w6, v5.s[1]
+	umov	w7, v6.s[2]
+	umov	w3, v7.s[3]
+
+	umov	w1, v0.s[0]
+	umov	w2, v1.s[1]
+	umov	w3, v2.s[2]
+	umov	w4, v3.s[3]
+	umov	w5, v4.s[0]
+	umov	w6, v5.s[1]
+	umov	w7, v6.s[2]
+	umov	w3, v7.s[3]
+
+	umov	w1, v0.s[0]
+	umov	w2, v1.s[1]
+	umov	w3, v2.s[2]
+	umov	w4, v3.s[3]
+	umov	w5, v4.s[0]
+	umov	w6, v5.s[1]
+	umov	w7, v6.s[2]
+	umov	w3, v7.s[3]
+
+	umov	w1, v0.s[0]
+	umov	w2, v1.s[1]
+	umov	w3, v2.s[2]
+	umov	w4, v3.s[3]
+	umov	w5, v4.s[0]
+	umov	w6, v5.s[1]
+	umov	w7, v6.s[2]
+	umov	w3, v7.s[3]
+
+	dec	x0
+	bne	.Lv128r32
+	ret
+
+#------------------------------------------------------------------------------
+# Name:		Vector128ToRegister64
+# Purpose:	Writes 64-bit values from vector registers into main registers.
+# Params:	x0 = loops
+#------------------------------------------------------------------------------
+.align 4
+Vector128ToRegister64:
+_Vector128ToRegister64:
+.Lv128r64:
+	umov	x1, v0.d[0]
+	umov	x2, v1.d[1]
+	umov	x3, v2.d[0]
+	umov	x4, v3.d[1]
+	umov	x5, v4.d[0]
+	umov	x6, v5.d[1]
+	umov	x7, v6.d[0]
+	umov	x3, v7.d[1]
+
+	umov	x1, v0.d[0]
+	umov	x2, v1.d[1]
+	umov	x3, v2.d[0]
+	umov	x4, v3.d[1]
+	umov	x5, v4.d[0]
+	umov	x6, v5.d[1]
+	umov	x7, v6.d[0]
+	umov	x3, v7.d[1]
+
+	umov	x1, v0.d[0]
+	umov	x2, v1.d[1]
+	umov	x3, v2.d[0]
+	umov	x4, v3.d[1]
+	umov	x5, v4.d[0]
+	umov	x6, v5.d[1]
+	umov	x7, v6.d[0]
+	umov	x3, v7.d[1]
+
+	umov	x1, v0.d[0]
+	umov	x2, v1.d[1]
+	umov	x3, v2.d[0]
+	umov	x4, v3.d[1]
+	umov	x5, v4.d[0]
+	umov	x6, v5.d[1]
+	umov	x7, v6.d[0]
+	umov	x3, v7.d[1]
+
+	umov	x1, v0.d[0]
+	umov	x2, v1.d[1]
+	umov	x3, v2.d[0]
+	umov	x4, v3.d[1]
+	umov	x5, v4.d[0]
+	umov	x6, v5.d[1]
+	umov	x7, v6.d[0]
+	umov	x3, v7.d[1]
+
+	umov	x1, v0.d[0]
+	umov	x2, v1.d[1]
+	umov	x3, v2.d[0]
+	umov	x4, v3.d[1]
+	umov	x5, v4.d[0]
+	umov	x6, v5.d[1]
+	umov	x7, v6.d[0]
+	umov	x3, v7.d[1]
+
+	umov	x1, v0.d[0]
+	umov	x2, v1.d[1]
+	umov	x3, v2.d[0]
+	umov	x4, v3.d[1]
+	umov	x5, v4.d[0]
+	umov	x6, v5.d[1]
+	umov	x7, v6.d[0]
+	umov	x3, v7.d[1]
+
+	umov	x1, v0.d[0]
+	umov	x2, v1.d[1]
+	umov	x3, v2.d[0]
+	umov	x4, v3.d[1]
+	umov	x5, v4.d[0]
+	umov	x6, v5.d[1]
+	umov	x7, v6.d[0]
+	umov	x3, v7.d[1]
+
+	dec	x0
+	bne	.Lv128r64
+	ret
+
+#------------------------------------------------------------------------------
+# Name:		Register8ToVector128
+# Purpose:	Writes 8-bit values to vector registers from main registers.
+# Params:	x0 = loops
+#------------------------------------------------------------------------------
+.align 4
+Register8ToVector128:
+_Register8ToVector128:
+.Lr8v128:
+	mov	v1.b[0], w1
+	mov	v2.b[1], w2
+	mov	v3.b[2], w3
+	mov	v1.b[3], w4
+	mov	v2.b[4], w5
+	mov	v3.b[5], w6
+	mov	v0.b[6], w7
+	mov	v0.b[7], w8
+
+	mov	v0.b[8], w2
+	mov	v1.b[9], w4
+	mov	v2.b[10], w8
+	mov	v3.b[11], w10
+	mov	v3.b[12], w12
+	mov	v2.b[13], w14
+	mov	v1.b[14], w16
+	mov	v0.b[15], w18
+
+	mov	v1.b[0], w1
+	mov	v2.b[1], w2
+	mov	v3.b[2], w3
+	mov	v1.b[3], w4
+	mov	v2.b[4], w5
+	mov	v3.b[5], w6
+	mov	v0.b[6], w7
+	mov	v0.b[7], w8
+
+	mov	v0.b[8], w2
+	mov	v1.b[9], w4
+	mov	v2.b[10], w8
+	mov	v3.b[11], w10
+	mov	v3.b[12], w12
+	mov	v2.b[13], w14
+	mov	v1.b[14], w16
+	mov	v0.b[15], w18
+
+	mov	v1.b[0], w1
+	mov	v2.b[1], w2
+	mov	v3.b[2], w3
+	mov	v1.b[3], w4
+	mov	v2.b[4], w5
+	mov	v3.b[5], w6
+	mov	v0.b[6], w7
+	mov	v0.b[7], w8
+
+	mov	v0.b[8], w2
+	mov	v1.b[9], w4
+	mov	v2.b[10], w8
+	mov	v3.b[11], w10
+	mov	v3.b[12], w12
+	mov	v2.b[13], w14
+	mov	v1.b[14], w16
+	mov	v0.b[15], w18
+
+	mov	v1.b[0], w1
+	mov	v2.b[1], w2
+	mov	v3.b[2], w3
+	mov	v1.b[3], w4
+	mov	v2.b[4], w5
+	mov	v3.b[5], w6
+	mov	v0.b[6], w7
+	mov	v0.b[7], w8
+
+	mov	v0.b[8], w2
+	mov	v1.b[9], w4
+	mov	v2.b[10], w8
+	mov	v3.b[11], w10
+	mov	v3.b[12], w12
+	mov	v2.b[13], w14
+	mov	v1.b[14], w16
+	mov	v0.b[15], w18
+
+	dec	x0
+	bne	.Lr8v128
+	ret
+
+#------------------------------------------------------------------------------
+# Name:		Register16ToVector128
+# Purpose:	Writes 16-bit values to vector registers from main registers.
+# Params:	x0 = loops
+#------------------------------------------------------------------------------
+.align 4
+Register16ToVector128:
+_Register16ToVector128:
+.Lr16v128:
+	mov	v1.h[0], w1
+	mov	v2.h[1], w2
+	mov	v3.h[2], w3
+	mov	v1.h[3], w4
+	mov	v2.h[4], w5
+	mov	v3.h[5], w6
+	mov	v0.h[6], w7
+	mov	v0.h[7], w8
+
+	mov	v1.h[0], w1
+	mov	v2.h[1], w2
+	mov	v3.h[2], w3
+	mov	v1.h[3], w4
+	mov	v2.h[4], w5
+	mov	v3.h[5], w6
+	mov	v0.h[6], w7
+	mov	v0.h[7], w8
+
+	mov	v1.h[0], w1
+	mov	v2.h[1], w2
+	mov	v3.h[2], w3
+	mov	v1.h[3], w4
+	mov	v2.h[4], w5
+	mov	v3.h[5], w6
+	mov	v0.h[6], w7
+	mov	v0.h[7], w8
+
+	mov	v1.h[0], w1
+	mov	v2.h[1], w2
+	mov	v3.h[2], w3
+	mov	v1.h[3], w4
+	mov	v2.h[4], w5
+	mov	v3.h[5], w6
+	mov	v0.h[6], w7
+	mov	v0.h[7], w8
+
+	mov	v1.h[0], w1
+	mov	v2.h[1], w2
+	mov	v3.h[2], w3
+	mov	v1.h[3], w4
+	mov	v2.h[4], w5
+	mov	v3.h[5], w6
+	mov	v0.h[6], w7
+	mov	v0.h[7], w8
+
+	mov	v1.h[0], w1
+	mov	v2.h[1], w2
+	mov	v3.h[2], w3
+	mov	v1.h[3], w4
+	mov	v2.h[4], w5
+	mov	v3.h[5], w6
+	mov	v0.h[6], w7
+	mov	v0.h[7], w8
+
+	mov	v1.h[0], w1
+	mov	v2.h[1], w2
+	mov	v3.h[2], w3
+	mov	v1.h[3], w4
+	mov	v2.h[4], w5
+	mov	v3.h[5], w6
+	mov	v0.h[6], w7
+	mov	v0.h[7], w8
+
+	mov	v1.h[0], w1
+	mov	v2.h[1], w2
+	mov	v3.h[2], w3
+	mov	v1.h[3], w4
+	mov	v2.h[4], w5
+	mov	v3.h[5], w6
+	mov	v0.h[6], w7
+	mov	v0.h[7], w8
+
+	dec	x0
+	bne	.Lr16v128
+	ret
+
+#------------------------------------------------------------------------------
+# Name:		Register32ToVector128
+# Purpose:	Writes 32-bit values to vector registers from main registers.
+# Params:	x0 = loops
+#------------------------------------------------------------------------------
+.align 4
+Register32ToVector128:
+_Register32ToVector128:
+.Lr32v128:
+	mov	v1.s[0], w1
+	mov	v2.s[1], w2
+	mov	v3.s[2], w3
+	mov	v1.s[3], w4
+	mov	v2.s[0], w5
+	mov	v3.s[1], w6
+	mov	v4.s[2], w7
+	mov	v5.s[3], w8
+
+	mov	v1.s[0], w1
+	mov	v2.s[1], w2
+	mov	v3.s[2], w3
+	mov	v1.s[3], w4
+	mov	v2.s[0], w5
+	mov	v3.s[1], w6
+	mov	v4.s[2], w7
+	mov	v5.s[3], w8
+
+	mov	v1.s[0], w1
+	mov	v2.s[1], w2
+	mov	v3.s[2], w3
+	mov	v1.s[3], w4
+	mov	v2.s[0], w5
+	mov	v3.s[1], w6
+	mov	v4.s[2], w7
+	mov	v5.s[3], w8
+
+	mov	v1.s[0], w1
+	mov	v2.s[1], w2
+	mov	v3.s[2], w3
+	mov	v1.s[3], w4
+	mov	v2.s[0], w5
+	mov	v3.s[1], w6
+	mov	v4.s[2], w7
+	mov	v5.s[3], w8
+
+	mov	v1.s[0], w1
+	mov	v2.s[1], w2
+	mov	v3.s[2], w3
+	mov	v1.s[3], w4
+	mov	v2.s[0], w5
+	mov	v3.s[1], w6
+	mov	v4.s[2], w7
+	mov	v5.s[3], w8
+
+	mov	v1.s[0], w1
+	mov	v2.s[1], w2
+	mov	v3.s[2], w3
+	mov	v1.s[3], w4
+	mov	v2.s[0], w5
+	mov	v3.s[1], w6
+	mov	v4.s[2], w7
+	mov	v5.s[3], w8
+
+	mov	v1.s[0], w1
+	mov	v2.s[1], w2
+	mov	v3.s[2], w3
+	mov	v1.s[3], w4
+	mov	v2.s[0], w5
+	mov	v3.s[1], w6
+	mov	v4.s[2], w7
+	mov	v5.s[3], w8
+
+	mov	v1.s[0], w1
+	mov	v2.s[1], w2
+	mov	v3.s[2], w3
+	mov	v1.s[3], w4
+	mov	v2.s[0], w5
+	mov	v3.s[1], w6
+	mov	v4.s[2], w7
+	mov	v5.s[3], w8
+
+	dec	x0
+	bne	.Lr32v128
+	ret
+
+#------------------------------------------------------------------------------
+# Name:		Register64ToVector128
+# Purpose:	Writes 64-bit values to vector registers from main registers.
+# Params:	x0 = loops
+#------------------------------------------------------------------------------
+.align 4
+Register64ToVector128:
+_Register64ToVector128:
+.Lr64v128:
+	mov	v1.d[0], x1
+	mov	v2.d[1], x2
+	mov	v3.d[0], x3
+	mov	v1.d[1], x4
+	mov	v2.d[0], x5
+	mov	v3.d[1], x6
+	mov	v4.d[0], x7
+	mov	v5.d[1], x8
+
+	mov	v6.d[0], x9
+	mov	v6.d[1], x10
+	mov	v7.d[0], x11
+	mov	v7.d[1], x12
+	mov	v8.d[0], x13
+	mov	v8.d[1], x14
+	mov	v9.d[0], x15
+	mov	v9.d[1], x16
+
+	mov	v1.d[0], x1
+	mov	v2.d[1], x2
+	mov	v3.d[0], x3
+	mov	v1.d[1], x4
+	mov	v2.d[0], x5
+	mov	v3.d[1], x6
+	mov	v4.d[0], x7
+	mov	v5.d[1], x8
+
+	mov	v6.d[0], x9
+	mov	v6.d[1], x10
+	mov	v7.d[0], x11
+	mov	v7.d[1], x12
+	mov	v8.d[0], x13
+	mov	v8.d[1], x14
+	mov	v9.d[0], x15
+	mov	v9.d[1], x16
+
+	mov	v1.d[0], x1
+	mov	v2.d[1], x2
+	mov	v3.d[0], x3
+	mov	v1.d[1], x4
+	mov	v2.d[0], x5
+	mov	v3.d[1], x6
+	mov	v4.d[0], x7
+	mov	v5.d[1], x8
+
+	mov	v6.d[0], x9
+	mov	v6.d[1], x10
+	mov	v7.d[0], x11
+	mov	v7.d[1], x12
+	mov	v8.d[0], x13
+	mov	v8.d[1], x14
+	mov	v9.d[0], x15
+	mov	v9.d[1], x16
+
+	mov	v1.d[0], x1
+	mov	v2.d[1], x2
+	mov	v3.d[0], x3
+	mov	v1.d[1], x4
+	mov	v2.d[0], x5
+	mov	v3.d[1], x6
+	mov	v4.d[0], x7
+	mov	v5.d[1], x8
+
+	mov	v6.d[0], x9
+	mov	v6.d[1], x10
+	mov	v7.d[0], x11
+	mov	v7.d[1], x12
+	mov	v8.d[0], x13
+	mov	v8.d[1], x14
+	mov	v9.d[0], x15
+	mov	v9.d[1], x16
+
+	dec	x0
+	bne	.Lr64v128
+	ret
+
+# Unused:
+VectorToVector256:
+VectorToVector512:
+_VectorToVector256:
+_VectorToVector512:
+	ret

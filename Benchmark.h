@@ -46,6 +46,10 @@
 #define N_VREG_TO_VREG_PER_LOOP 32LU
 #define VREGISTER_TRANSFERS_COUNT 9977LU
 
+#define N_VREG_TO_REG_LOOPS 1023LU
+#define N_VREG_TO_REG_PER_LOOP 64LU
+#define VECTOR_TO_REGISTER_TRANSFERS_COUNT 9977LU
+
 #define N_VECTOR_INSERTS_EXTRACTS_PER_LOOP 64LU
 
 #define N_INC_OUTER_LOOPS 17LU
@@ -54,8 +58,8 @@
 
 typedef enum {
 	SIZE_MAIN_REGISTER,	// 32 or 64 bits
-	SIZE_VECTOR_128,	// NEON, SSE
-	SIZE_VECTOR_256,	// AVX
+	SIZE_VECTOR_128,	// NEON, SSE, Loong64 LSX
+	SIZE_VECTOR_256,	// AVX, Loong64 LASX
 	SIZE_VECTOR_512,	// AVX512
 	SIZE_MAIN_REGISTER_NONTEMPORAL,	// SSE2, aarch64 LDNP/STNP
 	SIZE_VECTOR_128_NONTEMPORAL,	// SSE2/SSE4
@@ -81,7 +85,8 @@ typedef uint32_t StuckBitStorageType;
 	size_t deferredFreeChunkIndex; \
 	void *deferredFreeChunks[MAX_DEFERRED_FREE_CHUNKS]; \
 	size_t deferredFreeChunkSizes[MAX_DEFERRED_FREE_CHUNKS]; \
-	unsigned long usec_per_test;
+	unsigned long usec_per_test; \
+	bool vectorToFromRegisterRoutinesAvailable;
 
 #define DECLARE_BENCHMARK_METHODS(TYPE_POINTER) \
 	void (*printSize) (TYPE_POINTER, size_t chunk_size); \
@@ -90,19 +95,19 @@ typedef uint32_t StuckBitStorageType;
 	long (*write) (TYPE_POINTER, unsigned long size, BenchmarkMode mode, bool random); \
 	long (*copy) (TYPE_POINTER, unsigned long size, BenchmarkMode mode); \
 	long (*registerToRegisterTest) (TYPE_POINTER);\
-	long (*registerToVectorTest) (TYPE_POINTER);\
-	long (*vectorToRegisterTest) (TYPE_POINTER);\
+	long (*registerToVectorMove) (TYPE_POINTER);\
+	long (*vectorToRegisterMove) (TYPE_POINTER);\
 	long (*vectorToVectorTest128) (TYPE_POINTER);\
 	long (*vectorToVectorTest256) (TYPE_POINTER);\
 	long (*vectorToVectorTest512) (TYPE_POINTER);\
-	long (*vectorToRegister8) (TYPE_POINTER);\
-	long (*vectorToRegister16) (TYPE_POINTER);\
-	long (*vectorToRegister32) (TYPE_POINTER);\
-	long (*vectorToRegister64) (TYPE_POINTER);\
-	long (*registerToVector8) (TYPE_POINTER);\
-	long (*registerToVector16) (TYPE_POINTER);\
-	long (*registerToVector32) (TYPE_POINTER);\
-	long (*registerToVector64) (TYPE_POINTER);\
+	long (*vector128ToRegister8) (TYPE_POINTER);\
+	long (*vector128ToRegister16) (TYPE_POINTER);\
+	long (*vector128ToRegister32) (TYPE_POINTER);\
+	long (*vector128ToRegister64) (TYPE_POINTER);\
+	long (*register8ToVector128) (TYPE_POINTER);\
+	long (*register16ToVector128) (TYPE_POINTER);\
+	long (*register32ToVector128) (TYPE_POINTER);\
+	long (*register64ToVector128) (TYPE_POINTER);\
 	long (*stackRead) (TYPE_POINTER);\
 	long (*stackWrite) (TYPE_POINTER);\
 	long (*incrementRegisters) (TYPE_POINTER);\

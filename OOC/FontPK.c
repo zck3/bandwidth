@@ -18,9 +18,6 @@
   The author may be reached at 3 at zs3 dot me.
  *===========================================================================*/
 
-#include <stdio.h>
-#include <string.h>
-#include <stdlib.h>
 #include <ctype.h>
 #include <sys/stat.h>
 #include <time.h>

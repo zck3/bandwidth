@@ -18,6 +18,8 @@
   The author may be reached at 3 at zs3 dot me.
  *===========================================================================*/
 
+#define _GNU_SOURCE // Needs to be here to expose sched_getcpu().
+
 #include "CPU.h"
 #include "String.h"
 #include "FileSystem.h"
@@ -30,6 +32,7 @@
 #include <stdbool.h>
 
 #if defined(__linux__) 
+#include <sched.h>
 #include <sys/utsname.h>
 #include <sys/sysinfo.h>
 #include <sys/auxv.h>
@@ -38,6 +41,10 @@
 #if defined(__CYGWIN__)
 #include <sys/utsname.h>
 #include <sys/sysinfo.h>
+#endif
+
+#if defined(_WIN32)
+#include <windows.h>
 #endif
 
 #ifdef __APPLE__
@@ -225,6 +232,20 @@ static bool CPU_hasVectorUnit (CPU* restrict self)
 	return self->has128bitVectors 
 	    || self->has256bitVectors
 	    || self->has512bitVectors;
+}
+
+static int CPU_currentCore (CPU* restrict self)
+{
+#ifdef __linux__
+	int cpu = sched_getcpu ();
+	if (cpu < 0) {
+		return -1;
+	}
+	return cpu;
+
+#elif defined(_WIN32)
+	return GetCurrentProcessorNumber();
+#endif
 }
 
 static unsigned CPU_nCores (CPU* restrict self)
@@ -691,6 +712,7 @@ CPUClass* CPUClass_init (CPUClass *class)
 	SET_METHOD_POINTER(CPU,make);
 	SET_METHOD_POINTER(CPU,model);
 	SET_METHOD_POINTER(CPU,nCores);
+	SET_METHOD_POINTER(CPU,currentCore);
 	SET_METHOD_POINTER(CPU,features);
 	SET_METHOD_POINTER(CPU,registerSize);
 	SET_METHOD_POINTER(CPU,instructionSet);

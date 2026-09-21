@@ -18,10 +18,7 @@
   The author may be reached at 3 at zs3 dot me.
  *===========================================================================*/
 
-#include <stdio.h>
-#include <stdlib.h>
 #include <stdarg.h>
-#include <string.h>
 #include <errno.h>
 
 #if defined(__ANDROID__) && !defined(__TERMUX__)
@@ -31,6 +28,7 @@
 #define LOG_TAG "ObjectOrientedC"
 #endif
 
+#include "ObjectOriented.h"
 #include "Log.h"
 
 #define kMaxLineLength (2048)

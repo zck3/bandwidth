@@ -323,6 +323,66 @@ static long Benchmark_vectorToVectorTest128 (Benchmark *self)
 	return 0;
 }
 
+static long Benchmark_vectorToVectorTest256 (Benchmark *self)
+{
+        if (!self) {
+                return 0;
+	}
+        verifyCorrectClassOrSubclass(self,Benchmark);
+
+        time_t t0 = DateTime_getMicrosecondTime ();
+	
+	$(console, printf, "Vector register to vector register transfers (256-bit): ");
+	$(console, flush);
+
+	int i;
+	for (i=0; i < N_VREG_TO_VREG_LOOPS; i++) {
+		VectorToVector256 (VREGISTER_TRANSFERS_COUNT);
+	}
+	long diff = DateTime_getMicrosecondTime () - t0;
+	
+	long double d = N_VREG_TO_VREG_LOOPS;
+	d *= VREGISTER_TRANSFERS_COUNT;
+	d *= N_VREG_TO_VREG_PER_LOOP;
+	d /= diff;
+	d *= 1000000; // usec->sec
+	d /= 1000000000; // billions/sec
+	$(console, printf, "%.2Lf billion/second\n", d);
+	$(console, flush);
+
+	return 0;
+}
+
+static long Benchmark_vectorToVectorTest512 (Benchmark *self)
+{
+        if (!self) {
+                return 0;
+	}
+        verifyCorrectClassOrSubclass(self,Benchmark);
+
+        time_t t0 = DateTime_getMicrosecondTime ();
+	
+	$(console, printf, "Vector register to vector register transfers (512-bit): ");
+	$(console, flush);
+
+	int i;
+	for (i=0; i < N_VREG_TO_VREG_LOOPS; i++) {
+		VectorToVector512 (VREGISTER_TRANSFERS_COUNT);
+	}
+	long diff = DateTime_getMicrosecondTime () - t0;
+	
+	long double d = N_VREG_TO_VREG_LOOPS;
+	d *= VREGISTER_TRANSFERS_COUNT;
+	d *= N_VREG_TO_VREG_PER_LOOP;
+	d /= diff;
+	d *= 1000000; // usec->sec
+	d /= 1000000000; // billions/sec
+	$(console, printf, "%.2Lf billion/second\n", d);
+	$(console, flush);
+
+	return 0;
+}
+
 static void Benchmark_freeDeferredChunks (Benchmark* self)
 {
 	if (!self) {
@@ -503,6 +563,281 @@ static MemoryCorrectnessTestResult Benchmark_memoryRowHammerTest (Benchmark* sel
 	return MemoryCorrectnessTestResultUnsupported;
 }
 
+static long Benchmark_vector128ToRegister8 (Benchmark *self)
+{
+#if defined(__x86_64__) || defined(__i386__)
+	if (isMemberOfClass(self, BenchmarkX86)) {
+		BenchmarkX86 *benchmarks = (BenchmarkX86*) self;
+		if (!benchmarks->use_sse4) {
+			return 0;
+		}
+	}
+#endif
+
+	$(console, printf, "Vector 8-bit datum to main register transfers: ");
+	$(console, flush);
+
+	long long total_count = 0;
+	unsigned long diff = 0;
+	unsigned long t0 = DateTime_getMicrosecondTime ();
+	
+	while (diff < self->usec_per_test)
+	{
+		Vector128ToRegister8 (VECTOR_TO_REGISTER_TRANSFERS_COUNT);
+		total_count += VECTOR_TO_REGISTER_TRANSFERS_COUNT;
+
+		diff = DateTime_getMicrosecondTime () - t0;
+	}
+
+	long double d = total_count;
+	d *= N_VECTOR_INSERTS_EXTRACTS_PER_LOOP;
+	d /= diff;
+	d *= 1000000; // usec->sec
+	d /= 1000000000; // billions/sec
+	$(console, printf, "%.2Lf billion/second\n", d);
+	$(console, flush);
+
+	return 0;
+}
+
+static long Benchmark_vector128ToRegister16 (Benchmark *self)
+{
+	$(console, printf, "Vector 16-bit datum to main register transfers: ");
+	$(console, flush);
+
+	long long total_count = 0;
+	unsigned long diff = 0;
+	unsigned long t0 = DateTime_getMicrosecondTime ();
+	
+	while (diff < self->usec_per_test)
+	{
+		Vector128ToRegister16 (VECTOR_TO_REGISTER_TRANSFERS_COUNT);
+		total_count += VECTOR_TO_REGISTER_TRANSFERS_COUNT;
+
+		diff = DateTime_getMicrosecondTime () - t0;
+	}
+
+	long double d = total_count;
+	d *= N_VECTOR_INSERTS_EXTRACTS_PER_LOOP;
+	d /= diff;
+	d *= 1000000; // usec->sec
+	d /= 1000000000; // billions/sec
+	$(console, printf, "%.2Lf billion/second\n", d);
+	$(console, flush);
+	return 0;
+}
+
+static long Benchmark_vector128ToRegister32 (Benchmark *self)
+{
+#if defined(__x86_64__) || defined(__i386__)
+	if (isMemberOfClass(self, BenchmarkX86)) {
+		BenchmarkX86 *benchmarks = (BenchmarkX86*) self;
+		if (!benchmarks->use_sse4) {
+			return 0;
+		}
+	}
+#endif
+
+	$(console, printf, "Vector 32-bit datum to main register transfers: ");
+	$(console, flush);
+
+	long long total_count = 0;
+	unsigned long diff = 0;
+	unsigned long t0 = DateTime_getMicrosecondTime ();
+	
+	while (diff < self->usec_per_test)
+	{
+		Vector128ToRegister32 (VECTOR_TO_REGISTER_TRANSFERS_COUNT);
+		total_count += VECTOR_TO_REGISTER_TRANSFERS_COUNT;
+
+		diff = DateTime_getMicrosecondTime () - t0;
+	}
+
+	long double d = total_count;
+	d *= N_VECTOR_INSERTS_EXTRACTS_PER_LOOP;
+	d /= diff;
+	d *= 1000000; // usec->sec
+	d /= 1000000000; // billions/sec
+	$(console, printf, "%.2Lf billion/second\n", d);
+	$(console, flush);
+
+	return 0;
+}
+
+static long Benchmark_vector128ToRegister64 (Benchmark *self)
+{
+#if defined(__x86_64__) || defined(__i386__)
+	if (isMemberOfClass(self, BenchmarkX86)) {
+		BenchmarkX86 *benchmarks = (BenchmarkX86*) self;
+		if (!benchmarks->use_sse4) {
+			return 0;
+		}
+	}
+#endif
+
+	$(console, printf, "Vector 64-bit datum to main register transfers: ");
+	$(console, flush);
+
+	long long total_count = 0;
+	unsigned long diff = 0;
+	unsigned long t0 = DateTime_getMicrosecondTime ();
+	
+	while (diff < self->usec_per_test)
+	{
+		Vector128ToRegister64 (VECTOR_TO_REGISTER_TRANSFERS_COUNT);
+		total_count += VECTOR_TO_REGISTER_TRANSFERS_COUNT;
+
+		diff = DateTime_getMicrosecondTime () - t0;
+	}
+
+	long double d = total_count;
+	d *= N_VECTOR_INSERTS_EXTRACTS_PER_LOOP;
+	d /= diff;
+	d *= 1000000; // usec->sec
+	d /= 1000000000; // billions/sec
+	$(console, printf, "%.2Lf billion/second\n", d);
+	$(console, flush);
+
+	return 0;
+}
+
+static long Benchmark_register8ToVector128 (Benchmark *self)
+{
+#if defined(__x86_64__) || defined(__i386__)
+	if (isMemberOfClass(self, BenchmarkX86)) {
+		BenchmarkX86 *benchmarks = (BenchmarkX86*) self;
+		if (!benchmarks->use_sse4) {
+			return 0;
+		}
+	}
+#endif
+
+	$(console, printf, "Main register 8-bit datum to vector register transfers: ");
+	$(console, flush);
+
+	long long total_count = 0;
+	unsigned long diff = 0;
+	unsigned long t0 = DateTime_getMicrosecondTime ();
+	
+	while (diff < self->usec_per_test)
+	{
+		Register8ToVector128 (VREGISTER_TRANSFERS_COUNT);
+		total_count += VREGISTER_TRANSFERS_COUNT;
+
+		diff = DateTime_getMicrosecondTime () - t0;
+	}
+
+	long double d = total_count;
+	d *= N_VECTOR_INSERTS_EXTRACTS_PER_LOOP;
+	d /= diff;
+	d *= 1000000; // usec->sec
+	d /= 1000000000; // billions/sec
+	$(console, printf, "%.2Lf billion/second\n", d);
+	$(console, flush);
+
+	return 0;
+}
+
+static long Benchmark_register16ToVector128 (Benchmark *self)
+{
+	$(console, printf, "Main register 16-bit datum to vector register transfers: ");
+	$(console, flush);
+
+	long long total_count = 0;
+	unsigned long diff = 0;
+	unsigned long t0 = DateTime_getMicrosecondTime ();
+	
+	while (diff < self->usec_per_test)
+	{
+		Register16ToVector128 (VREGISTER_TRANSFERS_COUNT);
+		total_count += VREGISTER_TRANSFERS_COUNT;
+
+		diff = DateTime_getMicrosecondTime () - t0;
+	}
+
+	long double d = total_count;
+	d *= N_VECTOR_INSERTS_EXTRACTS_PER_LOOP;
+	d /= diff;
+	d *= 1000000; // usec->sec
+	d /= 1000000000; // billions/sec
+	$(console, printf, "%.2Lf billion/second\n", d);
+	$(console, flush);
+	return 0;
+}
+
+static long Benchmark_register32ToVector128 (Benchmark *self)
+{
+#if defined(__x86_64__) || defined(__i386__)
+	if (isMemberOfClass(self, BenchmarkX86)) {
+		BenchmarkX86 *benchmarks = (BenchmarkX86*) self;
+		if (!benchmarks->use_sse4) {
+			return 0;
+		}
+	}
+#endif
+
+	$(console, printf, "Main register 32-bit datum to vector register transfers: ");
+	$(console, flush);
+
+	long long total_count = 0;
+	unsigned long diff = 0;
+	unsigned long t0 = DateTime_getMicrosecondTime ();
+	
+	while (diff < self->usec_per_test)
+	{
+		Register32ToVector128 (VREGISTER_TRANSFERS_COUNT);
+		total_count += VREGISTER_TRANSFERS_COUNT;
+
+		diff = DateTime_getMicrosecondTime () - t0;
+	}
+
+	long double d = total_count;
+	d *= N_VECTOR_INSERTS_EXTRACTS_PER_LOOP;
+	d /= diff;
+	d *= 1000000; // usec->sec
+	d /= 1000000000; // billions/sec
+	$(console, printf, "%.2Lf billion/second\n", d);
+	$(console, flush);
+	return 0;
+}
+
+static long Benchmark_register64ToVector128 (Benchmark *self)
+{
+#if defined(__x86_64__) || defined(__i386__)
+	if (isMemberOfClass(self, BenchmarkX86)) {
+		BenchmarkX86 *benchmarks = (BenchmarkX86*) self;
+		if (!benchmarks->use_sse4) {
+			return 0;
+		}
+	}
+#endif
+
+	$(console, printf, "Main register 64-bit datum to vector register transfers: ");
+	$(console, flush);
+
+	long long total_count = 0;
+	unsigned long diff = 0;
+	unsigned long t0 = DateTime_getMicrosecondTime ();
+	
+	while (diff < self->usec_per_test)
+	{
+		Register64ToVector128 (VREGISTER_TRANSFERS_COUNT);
+		total_count += VREGISTER_TRANSFERS_COUNT;
+
+		diff = DateTime_getMicrosecondTime () - t0;
+	}
+
+	long double d = total_count;
+	d *= N_VECTOR_INSERTS_EXTRACTS_PER_LOOP;
+	d /= diff;
+	d *= 1000000; // usec->sec
+	d /= 1000000000; // billions/sec
+	$(console, printf, "%.2Lf billion/second\n", d);
+	$(console, flush);
+
+	return 0;
+}
+
 BenchmarkClass* BenchmarkClass_init (BenchmarkClass* class)
 {
 	SET_SUPERCLASS(Object);
@@ -523,22 +858,22 @@ BenchmarkClass* BenchmarkClass_init (BenchmarkClass* class)
 	SET_METHOD_POINTER(Benchmark,incrementStack);
 	SET_METHOD_POINTER(Benchmark,registerToRegisterTest);
 	SET_METHOD_POINTER(Benchmark,vectorToVectorTest128);
+	SET_METHOD_POINTER(Benchmark,vectorToVectorTest256);
+	SET_METHOD_POINTER(Benchmark,vectorToVectorTest512);
+	SET_METHOD_POINTER(Benchmark,vector128ToRegister8);
+	SET_METHOD_POINTER(Benchmark,vector128ToRegister16);
+	SET_METHOD_POINTER(Benchmark,vector128ToRegister32);
+	SET_METHOD_POINTER(Benchmark,vector128ToRegister64);
+	SET_METHOD_POINTER(Benchmark,register8ToVector128);
+	SET_METHOD_POINTER(Benchmark,register16ToVector128);
+	SET_METHOD_POINTER(Benchmark,register32ToVector128);
+	SET_METHOD_POINTER(Benchmark,register64ToVector128);
 
 	SET_ABSTRACT_METHOD_POINTER(read);
 	SET_ABSTRACT_METHOD_POINTER(write);
 	SET_ABSTRACT_METHOD_POINTER(copy);
-	SET_ABSTRACT_METHOD_POINTER(registerToVectorTest);
-	SET_ABSTRACT_METHOD_POINTER(vectorToRegisterTest);
-	SET_ABSTRACT_METHOD_POINTER(vectorToVectorTest256);
-	SET_ABSTRACT_METHOD_POINTER(vectorToVectorTest512);
-	SET_ABSTRACT_METHOD_POINTER(vectorToRegister8);
-	SET_ABSTRACT_METHOD_POINTER(vectorToRegister16);
-	SET_ABSTRACT_METHOD_POINTER(vectorToRegister32);
-	SET_ABSTRACT_METHOD_POINTER(vectorToRegister64);
-	SET_ABSTRACT_METHOD_POINTER(registerToVector8);
-	SET_ABSTRACT_METHOD_POINTER(registerToVector16);
-	SET_ABSTRACT_METHOD_POINTER(registerToVector32);
-	SET_ABSTRACT_METHOD_POINTER(registerToVector64);
+	SET_ABSTRACT_METHOD_POINTER(registerToVectorMove);
+	SET_ABSTRACT_METHOD_POINTER(vectorToRegisterMove);
 
 	VALIDATE_CLASS_STRUCT(_BenchmarkClass);
 
@@ -554,6 +889,7 @@ Benchmark *Benchmark_init (Benchmark *self)
         self->is_a = _BenchmarkClass;
 
 	self->deferredFreeChunkIndex = 0;
+	self->vectorToFromRegisterRoutinesAvailable = false;
 	ooc_bzero (self->deferredFreeChunks, sizeof(self->deferredFreeChunks));
 	ooc_bzero (self->deferredFreeChunkSizes, sizeof(self->deferredFreeChunkSizes));
 

@@ -186,7 +186,7 @@ static long BenchmarkRISCV_write (BenchmarkRISCV *self, unsigned long size, Benc
 		case SIZE_MAIN_REGISTER:
 			if (random) {
 				unsigned long nChunks = size / 256;
-				RandomWriter (chunk_ptrs, nChunks, loops, value);
+				RandomWriter ((void**) chunk_ptrs, nChunks, loops, value);
 			}
 			else {
 				Writer (chunk, size, loops, value);
@@ -342,7 +342,7 @@ static long BenchmarkRISCV_read (BenchmarkRISCV *self, unsigned long size, Bench
 		switch (mode) {
 		case SIZE_MAIN_REGISTER:
 			if (random) {
-				RandomReader (chunk_ptrs, size/256, loops);
+				RandomReader ((void**) chunk_ptrs, size/256, loops);
 			} else {
 				Reader (chunk, size, loops);
 			}
@@ -484,18 +484,18 @@ BenchmarkRISCVClass* BenchmarkRISCVClass_init (BenchmarkRISCVClass *class)
 	SET_METHOD_POINTER(BenchmarkRISCV,write);
 	SET_METHOD_POINTER(BenchmarkRISCV,copy);
 
-	SET_ABSTRACT_METHOD_POINTER(registerToVectorTest);
-	SET_ABSTRACT_METHOD_POINTER(vectorToRegisterTest);
 	SET_ABSTRACT_METHOD_POINTER(vectorToVectorTest128);
 	SET_ABSTRACT_METHOD_POINTER(vectorToVectorTest256);
-	SET_ABSTRACT_METHOD_POINTER(vectorToRegister8);
-	SET_ABSTRACT_METHOD_POINTER(vectorToRegister16);
-	SET_ABSTRACT_METHOD_POINTER(vectorToRegister32);
-	SET_ABSTRACT_METHOD_POINTER(vectorToRegister64);
-	SET_ABSTRACT_METHOD_POINTER(registerToVector8);
-	SET_ABSTRACT_METHOD_POINTER(registerToVector16);
-	SET_ABSTRACT_METHOD_POINTER(registerToVector32);
-	SET_ABSTRACT_METHOD_POINTER(registerToVector64);
+	SET_ABSTRACT_METHOD_POINTER(registerToVectorMove);
+	SET_ABSTRACT_METHOD_POINTER(vectorToRegisterMove);
+	SET_ABSTRACT_METHOD_POINTER(vector128ToRegister8);
+	SET_ABSTRACT_METHOD_POINTER(vector128ToRegister16);
+	SET_ABSTRACT_METHOD_POINTER(vector128ToRegister32);
+	SET_ABSTRACT_METHOD_POINTER(vector128ToRegister64);
+	SET_ABSTRACT_METHOD_POINTER(register8ToVector128);
+	SET_ABSTRACT_METHOD_POINTER(register16ToVector128);
+	SET_ABSTRACT_METHOD_POINTER(register32ToVector128);
+	SET_ABSTRACT_METHOD_POINTER(register64ToVector128);
 	
         VALIDATE_CLASS_STRUCT(_BenchmarkRISCVClass);
 	return _BenchmarkRISCVClass;

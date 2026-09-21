@@ -21,12 +21,16 @@
 #ifndef _OBJECTORIENTED_H
 #define _OBJECTORIENTED_H
 
+// Ensure the basics are available to every OOC class & program.
+#define _GNU_SOURCE
+#include <stdio.h>
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
+#include <string.h>
 
+#include "defs.h"
 #include "config.h"
-#include "Char.h"
 
 //-----------------------------------------------------------------------------
 // CHANGES
@@ -59,8 +63,13 @@
 //	Fixed header file & framework issues with OpenGL & GLUT on MacOS.
 //	Added 'restrict' keyword for better compiler optimization.
 //	Fixed memory leak discovered with Valgrind.
+// 0.40 - Fixed bug with Set_print.
+//	- Added add_CString to MutableSet.
+//	- Added currentCore to CPU.
+//	- Moved definitions & change log from ObjectOriented.h to defs.h.
+//	- Added Table class.
 //-----------------------------------------------------------------------------
-#define OOC_RELEASE "0.39"
+#define OOC_RELEASE "0.40"
 
 #if __WORDSIZE == 64 
  #define IS_64BIT

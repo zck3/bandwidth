@@ -22,9 +22,9 @@ all:	Makefile-config libOOC.a
 Makefile-config:
 	./configure
 
-OOC_SRC= ObjectOriented.c Object.c Image.c Image_shrink.c MutableImage.c Double.c Int.c Array.c MutableArray.c SimpleGraphing.c String.c MutableString.c Font.c Console.c DateTime.c FontBuiltin.c FontPK.c cmr5.c cmr6.c cmr9.c cmr12.c Log.c Data.c MutableData.c Utility.c GraphicsTypes.c Stack.c RectStack.c OS.c Hardware.c CPU.c Dictionary.c MutableDictionary.c Set.c MutableSet.c Model3D.c URL.c FontFreetype.c List.c Display.c Window.c View.c Controller.c Label.c Button.c ImageView.c ProgressBar.c TextField.c FileSystem.c TextView.c Char.c CPUX86.c CPUARM.c CPURISCV.c Pair.c CPUPowerPC.c CPULoong.c
+OOC_SRC= ObjectOriented.c Object.c Image.c Image_shrink.c MutableImage.c Double.c Int.c Array.c MutableArray.c SimpleGraphing.c String.c MutableString.c Font.c Console.c DateTime.c FontBuiltin.c FontPK.c cmr5.c cmr6.c cmr9.c cmr12.c Log.c Data.c MutableData.c Utility.c GraphicsTypes.c Stack.c RectStack.c OS.c Hardware.c CPU.c Dictionary.c MutableDictionary.c Set.c MutableSet.c Model3D.c URL.c FontFreetype.c List.c Display.c Window.c View.c Controller.c Label.c Button.c ImageView.c ProgressBar.c TextField.c FileSystem.c TextView.c Char.c CPUX86.c CPUARM.c CPURISCV.c Pair.c CPUPowerPC.c CPULoong.c Table.c
 
-OOC_OBJ= ObjectOriented.o Object.o Image.o Image_shrink.o MutableImage.o Double.o Int.o Array.o MutableArray.o SimpleGraphing.o String.o MutableString.o Font.o Console.o DateTime.o FontBuiltin.o FontPK.o cmr5.o cmr6.o cmr9.o cmr12.o Log.o Data.o MutableData.o Utility.o GraphicsTypes.o Stack.o RectStack.o OS.o Hardware.o CPU.o Dictionary.o MutableDictionary.o Set.o MutableSet.o Model3D.o URL.o FontFreetype.o List.o Display.o Window.o View.o Controller.o Label.o Button.o ImageView.o ProgressBar.o TextField.o FileSystem.o TextView.o Char.o CPUX86.o CPUARM.o CPURISCV.o Pair.o CPUPowerPC.o CPULoong.o
+OOC_OBJ= ObjectOriented.o Object.o Image.o Image_shrink.o MutableImage.o Double.o Int.o Array.o MutableArray.o SimpleGraphing.o String.o MutableString.o Font.o Console.o DateTime.o FontBuiltin.o FontPK.o cmr5.o cmr6.o cmr9.o cmr12.o Log.o Data.o MutableData.o Utility.o GraphicsTypes.o Stack.o RectStack.o OS.o Hardware.o CPU.o Dictionary.o MutableDictionary.o Set.o MutableSet.o Model3D.o URL.o FontFreetype.o List.o Display.o Window.o View.o Controller.o Label.o Button.o ImageView.o ProgressBar.o TextField.o FileSystem.o TextView.o Char.o CPUX86.o CPUARM.o CPURISCV.o Pair.o CPUPowerPC.o CPULoong.o Table.o
 
 ASM_OBJ=
 AS=nasm -f elf64
@@ -141,15 +141,23 @@ test_list:	test_list.c libOOC.a
 	@${CC} ${CFLAGS} -DTESTING Testing.c test_list.c -o test_list libOOC.a ${LIBS} 
 	@./test_list && echo PASSED List test 
 
-test_gui:	test_gui.c libOOC.a
+test_gui:	all 
+	@make test_gui_second_stage
+
+test_gui_second_stage:	test_gui.c
+	# In the second stage, make reloads Makefile-config to get the correct linker flags.
 	@${CC} ${CFLAGS} test_gui.c -o test_gui libOOC.a ${LIBS} ${GL} 
 	@./test_gui && echo PASSED GUI test 
 
-test_opengl:	test_opengl.c libOOC.a
+test_opengl:	all
+	@make test_opengl_second_stage
+
+test_opengl_second_stage:	test_opengl.c 
+	# In the second stage, make reloads Makefile-config to get the correct linker flags.
 	@${CC} ${CFLAGS} test_opengl.c -o test_opengl libOOC.a ${LIBS} ${GL} 
 	@./test_opengl && echo PASSED OpenGL test 
 
-test_filesystem:	test_filesystem.c libOOC.a
+test_filesystem:	all test_filesystem.c libOOC.a
 	@${CC} ${CFLAGS} -DTESTING Testing.c test_filesystem.c -o test_filesystem libOOC.a ${LIBS} 
 	@./test_filesystem && echo PASSED FileSystem test 
 

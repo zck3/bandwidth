@@ -31,6 +31,7 @@
 	MutableSet* (*features) (TYPE_POINTER); \
 	unsigned (*registerSize) (TYPE_POINTER); \
 	String* (*instructionSet) (TYPE_POINTER); \
+	int (*currentCore) (TYPE_POINTER); \
 	unsigned (*nCores) (TYPE_POINTER); \
 	bool (*hasVectorUnit) (TYPE_POINTER); \
 	unsigned (*levelNCacheSize) (TYPE_POINTER, unsigned, unsigned, bool); \

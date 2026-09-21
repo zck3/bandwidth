@@ -37,31 +37,6 @@ MutableString *getSystemInfo (CPU *cpu, Hardware *hardware)
 	MutableSet *features = $(cpu, features);
 	MutableString *graphTitle = new(MutableString);
 
-#if defined(__x86_64__) || defined(__i386__)
-	String *sse4String = _String("sse41");
-	if ($(features, contains, sse4String)) {
-		benchmarks->use_sse4 = true;
-	}
-	release(sse4String);
-
-	if (options.perform_direct_tests) {
-		String *string;
-#ifdef IS_64BIT
-		string = _String("movdir64b");
-#else
-		string = _String("movdiri");
-#endif
-		if ($(features, contains, string)) {
-			benchmarks->use_direct_transfers = true;
-		}
-		release(string);
-	}
-
-	benchmarks->use_sse2 = options.perform_128bit_tests;
-	benchmarks->use_avx = options.perform_256bit_tests;
-	benchmarks->use_avx512 = options.perform_512bit_tests;
-#endif
-
 	//------------------------------------------------------------
 	// Attempt to obtain information about the system.
 	//

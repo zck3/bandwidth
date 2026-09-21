@@ -18,15 +18,10 @@
   The author may be reached at 3 at zs3 dot me.
  *===========================================================================*/
 
-#include <stdio.h>
-#include <stdlib.h>
-#include <stdbool.h>
-
 #include "Image.h"
 #include "Image_shrink.h"
 #include "Utility.h"
 #include "Log.h"
-//#include "config.h"
 
 #ifdef HAVE_JPEGLIB
 #include <setjmp.h>

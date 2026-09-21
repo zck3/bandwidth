@@ -77,7 +77,7 @@ static String* CPUPowerPC_model (CPUPowerPC* restrict self)
 	verifyCorrectClassOrSubclass(self,CPU);
 
 #if defined(__linux__) 
-	char *result = execute_and_return_first_line ("grep '^cpu[ \t]*' /proc/cpuinfo | sed 's/^.*://' | sed 's/^[ ]*//' ");
+	char *result = execute_and_return_first_line ("grep -i '^model name[ \t]*' /proc/cpuinfo | sed 's/^.*://' | sed 's/^[ ]*//' ");
 	if (result && *result) {
 		return String_withCString (result);
 	}
@@ -103,204 +103,206 @@ static MutableSet* CPUPowerPC_features (CPUPowerPC* restrict self)
 
 #ifdef PPC_FEATURE_32
 	if (hwcap & PPC_FEATURE_32) {
-		$(mut, add, _String("32"));
+		$(mut, addCString, "32");
 	}
 #endif
 #ifdef PPC_FEATURE_64
 	if (hwcap & PPC_FEATURE_64) {
-		$(mut, add, _String("64"));
+		$(mut, addCString, "64");
 	}
 #endif
 #ifdef PPC_FEATURE_601_INSTR
 	if (hwcap & PPC_FEATURE_601_INSTR) {
-		$(mut, add, _String("601_instr"));
+		$(mut, addCString, "601_instr");
 	}
 #endif
 #ifdef PPC_FEATURE_HAS_ALTIVEC
 	if (hwcap & PPC_FEATURE_HAS_ALTIVEC) {
-		$(mut, add, _String("has_altivec"));
+		$(mut, addCString, "has_altivec");
+		self->has128bitVectors = true; // 32 128-bit vector registers
 	}
 #endif
 #ifdef PPC_FEATURE_HAS_FPU
 	if (hwcap & PPC_FEATURE_HAS_FPU) {
-		$(mut, add, _String("has_fpu"));
+		$(mut, addCString, "has_fpu");
 	}
 #endif
 #ifdef PPC_FEATURE_HAS_MMU
 	if (hwcap & PPC_FEATURE_HAS_MMU) {
-		$(mut, add, _String("has_mmu"));
+		$(mut, addCString, "has_mmu");
 	}
 #endif
 #ifdef PPC_FEATURE_HAS_4xxMAC
 	if (hwcap & PPC_FEATURE_HAS_4xxMAC) {
-		$(mut, add, _String("has_4xxmac"));
+		$(mut, addCString, "has_4xxmac");
 	}
 #endif
 #ifdef PPC_FEATURE_UNIFIED_CACHE
 	if (hwcap & PPC_FEATURE_UNIFIED_CACHE) {
-		$(mut, add, _String("unified_cache"));
+		$(mut, addCString, "unified_cache");
 	}
 #endif
 #ifdef PPC_FEATURE_HAS_SPE
 	if (hwcap & PPC_FEATURE_HAS_SPE) {
-		$(mut, add, _String("has_spe"));
+		$(mut, addCString, "has_spe");
 	}
 #endif
 #ifdef PPC_FEATURE_HAS_EFP_SINGLE
 	if (hwcap & PPC_FEATURE_HAS_EFP_SINGLE) {
-		$(mut, add, _String("has_efp_single"));
+		$(mut, addCString, "has_efp_single");
 	}
 #endif
 #ifdef PPC_FEATURE_HAS_EFP_DOUBLE
 	if (hwcap & PPC_FEATURE_HAS_EFP_DOUBLE) {
-		$(mut, add, _String("has_efp_double"));
+		$(mut, addCString, "has_efp_double");
 	}
 #endif
 #ifdef PPC_FEATURE_NO_TB
 	if (hwcap & PPC_FEATURE_NO_TB) {
-		$(mut, add, _String("no_tb"));
+		$(mut, addCString, "no_tb");
 	}
 #endif
 #ifdef PPC_FEATURE_POWER4
 	if (hwcap & PPC_FEATURE_POWER4) {
-		$(mut, add, _String("power4"));
+		$(mut, addCString, "power4");
 	}
 #endif
 #ifdef PPC_FEATURE_POWER5
 	if (hwcap & PPC_FEATURE_POWER5) {
-		$(mut, add, _String("power5"));
+		$(mut, addCString, "power5");
 	}
 #endif
 #ifdef PPC_FEATURE_POWER5_PLUS
 	if (hwcap & PPC_FEATURE_POWER5_PLUS) {
-		$(mut, add, _String("power5_plus"));
+		$(mut, addCString, "power5_plus");
 	}
 #endif
 #ifdef PPC_FEATURE_CELL
 	if (hwcap & PPC_FEATURE_CELL) {
-		$(mut, add, _String("cell"));
+		$(mut, addCString, "cell");
 	}
 #endif
 #ifdef PPC_FEATURE_BOOKE
 	if (hwcap & PPC_FEATURE_BOOKE) {
-		$(mut, add, _String("booke"));
+		$(mut, addCString, "booke");
 	}
 #endif
 #ifdef PPC_FEATURE_SMT
 	if (hwcap & PPC_FEATURE_SMT) {
-		$(mut, add, _String("smt"));
+		$(mut, addCString, "smt");
 	}
 #endif
 #ifdef PPC_FEATURE_ICACHE_SNOOP
 	if (hwcap & PPC_FEATURE_ICACHE_SNOOP) {
-		$(mut, add, _String("icache_snoop"));
+		$(mut, addCString, "icache_snoop");
 	}
 #endif
 #ifdef PPC_FEATURE_ARCH_2_05
 	if (hwcap & PPC_FEATURE_ARCH_2_05) {
-		$(mut, add, _String("arch_2_05"));
+		$(mut, addCString, "arch_2_05");
 	}
 #endif
 #ifdef PPC_FEATURE_PA6T
 	if (hwcap & PPC_FEATURE_PA6T) {
-		$(mut, add, _String("pa6t"));
+		$(mut, addCString, "pa6t");
 	}
 #endif
 #ifdef PPC_FEATURE_HAS_DFP
 	if (hwcap & PPC_FEATURE_HAS_DFP) {
-		$(mut, add, _String("has_dfp"));
+		$(mut, addCString, "has_dfp");
 	}
 #endif
 #ifdef PPC_FEATURE_POWER6_EXT
 	if (hwcap & PPC_FEATURE_POWER6_EXT) {
-		$(mut, add, _String("power6_ext"));
+		$(mut, addCString, "power6_ext");
 	}
 #endif
 #ifdef PPC_FEATURE_ARCH_2_06
 	if (hwcap & PPC_FEATURE_ARCH_2_06) {
-		$(mut, add, _String("arch_2_06"));
+		$(mut, addCString, "arch_2_06");
 	}
 #endif
 #ifdef PPC_FEATURE_HAS_VSX
 	if (hwcap & PPC_FEATURE_HAS_VSX) {
-		$(mut, add, _String("has_vsx"));
+		$(mut, addCString, "has_vsx");
+		self->has128bitVectors = true; // 64 128-bit vector registers
 	}
 #endif
 
 	unsigned long hwcap2 = getauxval(AT_HWCAP2);
 #ifdef PPC_FEATURE2_ARCH_2_07
 	if (hwcap2 & PPC_FEATURE2_ARCH_2_07) {
-		$(mut, add, _String("arch_2_07"));
+		$(mut, addCString, "arch_2_07");
 	}
 #endif
 #ifdef PPC_FEATURE2_HTM
 	if (hwcap2 & PPC_FEATURE2_HTM) {
-		$(mut, add, _String("htm"));
+		$(mut, addCString, "htm");
 	}
 #endif
 #ifdef PPC_FEATURE2_DSCR
 	if (hwcap2 & PPC_FEATURE2_DSCR) {
-		$(mut, add, _String("dscr"));
+		$(mut, addCString, "dscr");
 	}
 #endif
 #ifdef PPC_FEATURE2_EBB
 	if (hwcap2 & PPC_FEATURE2_EBB) {
-		$(mut, add, _String("ebb"));
+		$(mut, addCString, "ebb");
 	}
 #endif
 #ifdef PPC_FEATURE2_ISEL
 	if (hwcap2 & PPC_FEATURE2_ISEL) {
-		$(mut, add, _String("isel"));
+		$(mut, addCString, "isel");
 	}
 #endif
 #ifdef PPC_FEATURE2_TAR
 	if (hwcap2 & PPC_FEATURE2_TAR) {
-		$(mut, add, _String("tar"));
+		$(mut, addCString, "tar");
 	}
 #endif
 #ifdef PPC_FEATURE2_VEC_CRYPTO
 	if (hwcap2 & PPC_FEATURE2_VEC_CRYPTO) {
-		$(mut, add, _String("vec_crypto"));
+		$(mut, addCString, "vec_crypto");
 	}
 #endif
 #ifdef PPC_FEATURE2_HTM_NOSC
 	if (hwcap2 & PPC_FEATURE2_HTM_NOSC) {
-		$(mut, add, _String("htm_nosc"));
+		$(mut, addCString, "htm_nosc");
 	}
 #endif
 #ifdef PPC_FEATURE2_ARCH_3_00
 	if (hwcap2 & PPC_FEATURE2_ARCH_3_00) {
-		$(mut, add, _String("arch_3_00"));
+		$(mut, addCString, "arch_3_00");
 	}
 #endif
 #ifdef PPC_FEATURE2_HAS_IEEE128
 	if (hwcap2 & PPC_FEATURE2_HAS_IEEE128) {
-		$(mut, add, _String("has_ieee128"));
+		$(mut, addCString, "has_ieee128");
 	}
 #endif
 #ifdef PPC_FEATURE2_DARN
 	if (hwcap2 & PPC_FEATURE2_DARN) {
-		$(mut, add, _String("darn"));
+		$(mut, addCString, "darn");
 	}
 #endif
 #ifdef PPC_FEATURE2_SCV
 	if (hwcap2 & PPC_FEATURE2_SCV) {
-		$(mut, add, _String("scv"));
+		$(mut, addCString, "scv");
 	}
 #endif
 #ifdef PPC_FEATURE2_HTM_NO_SUSPEND
 	if (hwcap2 & PPC_FEATURE2_HTM_NO_SUSPEND) {
-		$(mut, add, _String("htm_no_suspend"));
+		$(mut, addCString, "htm_no_suspend");
 	}
 #endif
 #ifdef PPC_FEATURE2_ARCH_3_1
 	if (hwcap2 & PPC_FEATURE2_ARCH_3_1) {
-		$(mut, add, _String("arch_3_1"));
+		$(mut, addCString, "arch_3_1");
 	}
 #endif
 #ifdef PPC_FEATURE2_MMA
 	if (hwcap2 & PPC_FEATURE2_MMA) {
-		$(mut, add, _String("mma"));
+		$(mut, addCString, "mma");
 	}
 #endif
 #endif

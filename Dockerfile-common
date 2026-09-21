@@ -1,0 +1,27 @@
+
+ENV TERM=xterm
+
+RUN apt update
+RUN apt install -y dialog
+
+RUN TERM=xterm apt install -y \
+  bc \
+  build-essential \
+  file \
+  gcc \
+  gdb \
+  gzip \
+  less \
+  libncurses6 \
+  man \
+  nasm \
+  sysvbanner \
+  tar \
+  vim \
+  wget \
+  zip unzip 
+
+WORKDIR /app
+
+COPY . .
+CMD [ "sh", "-c", "A=`uname -m` && banner $A && make clean && make && bash"]

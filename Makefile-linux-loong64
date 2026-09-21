@@ -29,8 +29,12 @@ include Makefile-config
 
 ASMSRC=routines-loong64.asm
 ASMOBJ=routines-loong64.o
+ASMVECTORSRC=routines-loong64-vector.asm
+ASMVECTOROBJ=routines-loong64-vector.o
+
 bandwidth64: Benchmark.c BenchmarkLoong.c ${SRC} ${ASMSRC} libOOC.a
 	${AS} ${ASMSRC} -o ${ASMOBJ}
+	${AS} ${ASMVECTORSRC} -o ${ASMVECTOROBJ}
 	${CC} ${CFLAGS} -c -I ./OOC Benchmark.c BenchmarkLoong.c
-	${CC} ${ASMOBJ} Benchmark.o BenchmarkLoong.o ${SRC} ${CFLAGS} -o bandwidth64 ${LIB}
+	${CC} ${ASMOBJ} ${ASMVECTOROBJ} Benchmark.o BenchmarkLoong.o ${SRC} ${CFLAGS} -o bandwidth64 ${LIB}
 

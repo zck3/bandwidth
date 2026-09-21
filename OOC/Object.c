@@ -18,9 +18,6 @@
   The author may be reached at 3 at zs3 dot me.
  *===========================================================================*/
 
-#include <stdio.h>
-#include <stdlib.h>
-
 #include "Object.h"
 
 ObjectClass *_ObjectClass = NULL;

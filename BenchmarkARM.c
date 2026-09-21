@@ -200,7 +200,7 @@ static long BenchmarkARM_write (BenchmarkARM *self, unsigned long size, Benchmar
 		switch (mode) {
 		case SIZE_MAIN_REGISTER:
 			if (random)
-				RandomWriter (chunk_ptrs, size/256, loops, value);
+				RandomWriter ((void**) chunk_ptrs, size/256, loops, value);
 			else {
 				Writer (chunk, size, loops, value);
 			}
@@ -208,9 +208,9 @@ static long BenchmarkARM_write (BenchmarkARM *self, unsigned long size, Benchmar
 
 		case SIZE_VECTOR_128:
 			if (random)
-				RandomWriterVector (chunk_ptrs, size/256, loops, value);
+				RandomWriterVector128 ((void**) chunk_ptrs, size/256, loops, value);
 			else
-                        	WriterVector (chunk, size, loops, value);
+                        	WriterVector128 (chunk, size, loops, value);
 			break;
 
 		case SIZE_MAIN_REGISTER_NONTEMPORAL:
@@ -382,7 +382,7 @@ static long BenchmarkARM_read (BenchmarkARM *self, unsigned long size, Benchmark
 		switch (mode) {
 		case SIZE_MAIN_REGISTER:
 			if (random) {
-				RandomReader (chunk_ptrs, size/256, loops);
+				RandomReader ((void**) chunk_ptrs, size/256, loops);
 			} else {
 				Reader (chunk, size, loops);
 			}
@@ -390,9 +390,9 @@ static long BenchmarkARM_read (BenchmarkARM *self, unsigned long size, Benchmark
 
 		case SIZE_VECTOR_128:
 			if (random)
-				RandomReaderVector (chunk_ptrs, size/256, loops);
+				RandomReaderVector128 ((void**) chunk_ptrs, size/256, loops);
 			else
-				ReaderVector (chunk, size, loops);
+				ReaderVector128 (chunk, size, loops);
 			break;
 		
 		case SIZE_MAIN_REGISTER_NONTEMPORAL:
@@ -433,7 +433,6 @@ static long BenchmarkARM_copy (BenchmarkARM *self, unsigned long size, Benchmark
 	if (size == CHECK_WHETHER_SUPPORTED) {
 		switch (mode) {
 		case SIZE_MAIN_REGISTER:
-			return TEST_SUPPORTED;
 		case SIZE_VECTOR_128:
 			return TEST_SUPPORTED;
 		default:
@@ -510,7 +509,7 @@ static long BenchmarkARM_copy (BenchmarkARM *self, unsigned long size, Benchmark
 			CopyWithMainRegisters (chunk_dest, chunk_src, size, loops);
 		}
 		else if (mode == SIZE_VECTOR_128) {
-			CopyWithVector128Registers (chunk_dest, chunk_src, size, loops);
+			CopyVector128 (chunk_dest, chunk_src, size, loops);
 		}
 
 		diff = DateTime_getMicrosecondTime () - t0;
@@ -538,7 +537,8 @@ static MemoryCorrectnessTestResult BenchmarkARM_memoryRowHammerTest (BenchmarkAR
 #if !defined(IS_64BIT) || !defined(__GNUC__)
 	return MemoryCorrectnessTestResultUnsupported;
 #else
-	// 0 cycles means main() is checking whether the test is supported.
+
+	// 0 cycles means the caller is checking whether the test is supported.
 	if (!nCycles) {
 		return MemoryCorrectnessTestResultSupported;
 	}
@@ -605,17 +605,9 @@ BenchmarkARMClass* BenchmarkARMClass_init (BenchmarkARMClass *class)
 	SET_METHOD_POINTER(BenchmarkARM,copy);
 	SET_METHOD_POINTER(BenchmarkARM,memoryRowHammerTest);
 
-	SET_ABSTRACT_METHOD_POINTER(registerToVectorTest);
-	SET_ABSTRACT_METHOD_POINTER(vectorToRegisterTest);
+	SET_ABSTRACT_METHOD_POINTER(registerToVectorMove);
+	SET_ABSTRACT_METHOD_POINTER(vectorToRegisterMove);
 	SET_ABSTRACT_METHOD_POINTER(vectorToVectorTest256);
-	SET_ABSTRACT_METHOD_POINTER(vectorToRegister8);
-	SET_ABSTRACT_METHOD_POINTER(vectorToRegister16);
-	SET_ABSTRACT_METHOD_POINTER(vectorToRegister32);
-	SET_ABSTRACT_METHOD_POINTER(vectorToRegister64);
-	SET_ABSTRACT_METHOD_POINTER(registerToVector8);
-	SET_ABSTRACT_METHOD_POINTER(registerToVector16);
-	SET_ABSTRACT_METHOD_POINTER(registerToVector32);
-	SET_ABSTRACT_METHOD_POINTER(registerToVector64);
 	
         VALIDATE_CLASS_STRUCT(_BenchmarkARMClass);
 	return _BenchmarkARMClass;
@@ -628,6 +620,7 @@ BenchmarkARM *BenchmarkARM_init (BenchmarkARM *self)
         Benchmark_init ((Benchmark*) self);
 
         self->is_a = _BenchmarkARMClass;
+	self->vectorToFromRegisterRoutinesAvailable = true;
 
         return self;
 }

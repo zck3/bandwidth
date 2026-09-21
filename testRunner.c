@@ -191,10 +191,6 @@ void dataBeginSection (const char *name, uint32_t parameter)
 	}
 	//==========
 
-	if (options.nice_mode) {
-		sleep (NICE_DURATION);
-	}
-
 	if (options.outputMode & OUTPUT_MODE_GRAPH) {
 		if (!graph) {
 			error (__FUNCTION__, "Graphing not initialized.");
@@ -277,9 +273,37 @@ void dataAddDatum (long x, long y)
 	}
 }
 
-void runTests (CPU *cpu, MutableString *title)
+void enforce_nice_mode (CPU *cpu)
 {
-	if (!cpu || !title) {
+	if (!options.nice_mode) {
+		return;
+	}
+
+#define TARGET_TEMP (70.f)
+	// If we can read the core temperature, let's sleep until it goes below 70C.
+	int core = $(cpu, currentCore);
+	if (core >= 0) {
+		float temp = $(cpu, temperature, core);
+		if (temp > 0.f) {
+			$(console, printf, "\nCurrent core %d temperature: %.2fC\n", core, temp);
+#define MAX_SLEEPS (20)
+			unsigned n_sleeps = 0;
+			while (temp > TARGET_TEMP) {
+				sleep (2);
+				n_sleeps++;
+				if (n_sleeps >= MAX_SLEEPS) {
+					$(console, printf, "Unable to reach target CPU temp of %.2fC\n", TARGET_TEMP);
+					break;
+				}
+				$(console, printf, "Current core %d temperature: %.2fC\n", core, temp);
+			}
+		}
+	}
+}
+
+void runTests (Benchmark *benchmarks, CPU *cpu, MutableString *title)
+{
+	if (!benchmarks || !cpu || !title) {
 		return;
 	}
 
@@ -327,6 +351,7 @@ void runTests (CPU *cpu, MutableString *title)
 	}
 
 	if (options.diagnostic_mode) {
+		// Limit to small chunk sizes.
                 unsigned L1i = $(cpu, levelNCacheSize, 0, 1, false);
 		chunkMaximumSize = L1i * 1024 ?: 16384;
 	}
@@ -338,6 +363,7 @@ void runTests (CPU *cpu, MutableString *title)
 	//
 	bool supported = TEST_SUPPORTED == $(benchmarks, read, CHECK_WHETHER_SUPPORTED, SIZE_MAIN_REGISTER, false);
 	if (supported && options.perform_read_tests) {
+		enforce_nice_mode (cpu);
 		$(console, newline);
 #ifdef IS_64BIT
 		dataBeginSection ("Sequential 64-bit reads", RGB_BLUE);
@@ -355,10 +381,12 @@ void runTests (CPU *cpu, MutableString *title)
 	}
 
 	//------------------------------------------------------------
-	// 128-bit sequential reads using Intel SSE2 or ARM NEON.
+	// 128-bit sequential reads using e.g. Intel SSE2 or ARM NEON.
 	//
-	supported = TEST_SUPPORTED == $(benchmarks, read, CHECK_WHETHER_SUPPORTED, SIZE_VECTOR_128, false);
+	supported = TEST_SUPPORTED == $(benchmarks, read, CHECK_WHETHER_SUPPORTED, SIZE_VECTOR_128, false)
+		&& $(cpu, has128bitVectors);
 	if (supported && options.perform_read_tests && options.perform_128bit_tests) {
+		enforce_nice_mode (cpu);
 		dataBeginSection ("Sequential 128-bit reads", RGB_LIGHTBLUE);
 
 		$(console, newline);
@@ -373,10 +401,12 @@ void runTests (CPU *cpu, MutableString *title)
 	}
 
 	//------------------------------------------------------------
-	// 256-bit sequential reads using AVX.
+	// 256-bit sequential reads using e.g. AVX.
 	//
-	supported = TEST_SUPPORTED == $(benchmarks, read, CHECK_WHETHER_SUPPORTED, SIZE_VECTOR_256, false);
+	supported = TEST_SUPPORTED == $(benchmarks, read, CHECK_WHETHER_SUPPORTED, SIZE_VECTOR_256, false)
+		&& $(cpu, has256bitVectors);
 	if (supported && options.perform_read_tests && options.perform_256bit_tests) {
+		enforce_nice_mode (cpu);
 		dataBeginSection ("Sequential 256-bit reads", RGB_NAVYBLUE);
 
 		$(console, newline);
@@ -393,19 +423,19 @@ void runTests (CPU *cpu, MutableString *title)
 	//------------------------------------------------------------
 	// 512-bit sequential reads using AVX512.
 	//
-	supported = TEST_SUPPORTED == $(benchmarks, read, CHECK_WHETHER_SUPPORTED, SIZE_VECTOR_512, false);
+	supported = TEST_SUPPORTED == $(benchmarks, read, CHECK_WHETHER_SUPPORTED, SIZE_VECTOR_512, false)
+		&& $(cpu, has512bitVectors);
 	if (supported && options.perform_read_tests && options.perform_512bit_tests) {
-		if ($(cpu, has512bitVectors)) {
-			dataBeginSection ("Sequential 512-bit reads (dashed)", RGB_NAVYBLUE | DASHED);
+		enforce_nice_mode (cpu);
+		dataBeginSection ("Sequential 512-bit reads (dashed)", RGB_NAVYBLUE | DASHED);
 
-			$(console, newline);
+		$(console, newline);
 
-			unsigned i = 0;
-			while ((chunk_size = chunk_sizes [i++]) && i < N_CHUNK_SIZES) {
-				if (chunk_size >= chunkMinimumSize && chunk_size <= chunkMaximumSize) {
-					long amount = $(benchmarks, read, chunk_size, SIZE_VECTOR_512, false);
-					dataAddDatum (chunk_size, amount);
-				}
+		unsigned i = 0;
+		while ((chunk_size = chunk_sizes [i++]) && i < N_CHUNK_SIZES) {
+			if (chunk_size >= chunkMinimumSize && chunk_size <= chunkMaximumSize) {
+				long amount = $(benchmarks, read, chunk_size, SIZE_VECTOR_512, false);
+				dataAddDatum (chunk_size, amount);
 			}
 		}
 	}
@@ -415,6 +445,7 @@ void runTests (CPU *cpu, MutableString *title)
 	//
 	supported = TEST_SUPPORTED == $(benchmarks, read, CHECK_WHETHER_SUPPORTED, SIZE_MAIN_REGISTER_NONTEMPORAL, false);
 	if (supported && options.perform_read_tests && options.perform_mainregister_nontemporal_tests) {
+		enforce_nice_mode (cpu);
 #ifdef IS_64BIT
 		dataBeginSection ("Sequential 64-bit nontemporal reads", RGB_STEELBLUE);
 #else
@@ -433,10 +464,12 @@ void runTests (CPU *cpu, MutableString *title)
 	}
 
 	//------------------------------------------------------------
-	// 128-bit nontemporal sequential reads using SSE4.
+	// 128-bit nontemporal sequential reads e.g. using SSE4.
 	//
-	supported = TEST_SUPPORTED == $(benchmarks, read, CHECK_WHETHER_SUPPORTED, SIZE_VECTOR_128_NONTEMPORAL, false);
+	supported = TEST_SUPPORTED == $(benchmarks, read, CHECK_WHETHER_SUPPORTED, SIZE_VECTOR_128_NONTEMPORAL, false)
+		&& $(cpu, has128bitVectors);
 	if (supported && options.perform_read_tests && options.perform_128bit_nontemporal_tests) {
+		enforce_nice_mode (cpu);
 		dataBeginSection ("Sequential 128-bit nontemporal reads", RGB_LIGHTTEAL); 
 
 		$(console, newline);
@@ -451,10 +484,12 @@ void runTests (CPU *cpu, MutableString *title)
 	}
 
 	//------------------------------------------------------------
-	// 256-bit nontemporal sequential reads using AVX512.
+	// 256-bit nontemporal sequential reads e.g. using AVX512.
 	//
-	supported = TEST_SUPPORTED == $(benchmarks, read, CHECK_WHETHER_SUPPORTED, SIZE_VECTOR_256_NONTEMPORAL, false);
+	supported = TEST_SUPPORTED == $(benchmarks, read, CHECK_WHETHER_SUPPORTED, SIZE_VECTOR_256_NONTEMPORAL, false)
+		&& $(cpu, has256bitVectors);
 	if (supported && options.perform_read_tests && options.perform_256bit_nontemporal_tests) {
+		enforce_nice_mode (cpu);
 		dataBeginSection ("Sequential 256-bit nontemporal reads", RGB_DARKCYAN); 
 
 		$(console, newline);
@@ -469,10 +504,12 @@ void runTests (CPU *cpu, MutableString *title)
 	}
 
 	//------------------------------------------------------------
-	// 512-bit nontemporal sequential reads using AVX512.
+	// 512-bit nontemporal sequential reads e.g. using AVX512.
 	//
-	supported = TEST_SUPPORTED == $(benchmarks, read, CHECK_WHETHER_SUPPORTED, SIZE_VECTOR_512_NONTEMPORAL, false);
+	supported = TEST_SUPPORTED == $(benchmarks, read, CHECK_WHETHER_SUPPORTED, SIZE_VECTOR_512_NONTEMPORAL, false)
+		&& $(cpu, has512bitVectors);
 	if (supported && options.perform_read_tests && options.perform_512bit_nontemporal_tests) {
+		enforce_nice_mode (cpu);
 		dataBeginSection ("Sequential 512-bit nontemporal reads (dashed)", RGB_DARKCYAN | DASHED); 
 
 		$(console, newline);
@@ -491,6 +528,7 @@ void runTests (CPU *cpu, MutableString *title)
 	//
 	supported = TEST_SUPPORTED == $(benchmarks, write, CHECK_WHETHER_SUPPORTED, SIZE_MAIN_REGISTER, false);
 	if (supported && options.perform_write_tests) {
+		enforce_nice_mode (cpu);
 #ifdef IS_64BIT
 		dataBeginSection ("Sequential 64-bit writes", RGB_MEDIUMGREEN);
 #else
@@ -511,8 +549,10 @@ void runTests (CPU *cpu, MutableString *title)
 	//------------------------------------------------------------
 	// 128-bit sequential writes using SSE2 or NEON 128.
 	//
-	supported = TEST_SUPPORTED == $(benchmarks, write, CHECK_WHETHER_SUPPORTED, SIZE_VECTOR_128, false);
+	supported = TEST_SUPPORTED == $(benchmarks, write, CHECK_WHETHER_SUPPORTED, SIZE_VECTOR_128, false)
+		&& $(cpu, has128bitVectors);
 	if (supported && options.perform_write_tests && options.perform_128bit_tests) {
+		enforce_nice_mode (cpu);
 		dataBeginSection ("Sequential 128-bit writes", RGB_LIGHTGREEN);
 
 		$(console, newline);
@@ -529,8 +569,10 @@ void runTests (CPU *cpu, MutableString *title)
 	//------------------------------------------------------------
 	// 256-bit sequential writes using AVX.
 	//
-	supported = TEST_SUPPORTED == $(benchmarks, write, CHECK_WHETHER_SUPPORTED, SIZE_VECTOR_256, false);
+	supported = TEST_SUPPORTED == $(benchmarks, write, CHECK_WHETHER_SUPPORTED, SIZE_VECTOR_256, false)
+		&& $(cpu, has256bitVectors);
 	if (supported && options.perform_write_tests && options.perform_256bit_tests) {
+		enforce_nice_mode (cpu);
 		dataBeginSection ("Sequential 256-bit writes", RGB_DARKGREEN);
 
 		$(console, newline);
@@ -547,8 +589,10 @@ void runTests (CPU *cpu, MutableString *title)
 	//------------------------------------------------------------
 	// 512-bit sequential writes using AVX512.
 	//
-	supported = TEST_SUPPORTED == $(benchmarks, write, CHECK_WHETHER_SUPPORTED, SIZE_VECTOR_512, false);
+	supported = TEST_SUPPORTED == $(benchmarks, write, CHECK_WHETHER_SUPPORTED, SIZE_VECTOR_512, false)
+		&& $(cpu, has512bitVectors);
 	if (supported && options.perform_write_tests && options.perform_512bit_tests) {
+		enforce_nice_mode (cpu);
 		if ($(cpu, has512bitVectors)) {
 			dataBeginSection ("Sequential 512-bit writes (dashed)", RGB_DARKGREEN | DASHED);
 
@@ -569,6 +613,7 @@ void runTests (CPU *cpu, MutableString *title)
 	//
 	supported = TEST_SUPPORTED == $(benchmarks, write, CHECK_WHETHER_SUPPORTED, SIZE_MAIN_REGISTER_NONTEMPORAL, false);
 	if (supported && options.perform_write_tests && options.perform_mainregister_nontemporal_tests) {
+		enforce_nice_mode (cpu);
 #ifdef IS_64BIT
 		dataBeginSection ("Sequential 64-bit nontemporal writes", RGB_BROWN);
 #else
@@ -589,8 +634,10 @@ void runTests (CPU *cpu, MutableString *title)
 	//------------------------------------------------------------
 	// 128-bit sequential nontemporal writes using SSE4.
 	//
-	supported = TEST_SUPPORTED == $(benchmarks, write, CHECK_WHETHER_SUPPORTED, SIZE_VECTOR_128_NONTEMPORAL, false);
+	supported = TEST_SUPPORTED == $(benchmarks, write, CHECK_WHETHER_SUPPORTED, SIZE_VECTOR_128_NONTEMPORAL, false)
+		&& $(cpu, has128bitVectors);
 	if (supported && options.perform_write_tests && options.perform_128bit_nontemporal_tests) {
+		enforce_nice_mode (cpu);
 		dataBeginSection ("Sequential 128-bit nontemporal writes", RGB_LIGHTBROWN);
 
 		$(console, newline);
@@ -607,8 +654,10 @@ void runTests (CPU *cpu, MutableString *title)
 	//------------------------------------------------------------
 	// 256-bit sequential writes with nontemporal hint.
 	//
-	supported = TEST_SUPPORTED == $(benchmarks, write, CHECK_WHETHER_SUPPORTED, SIZE_VECTOR_256_NONTEMPORAL, false);
+	supported = TEST_SUPPORTED == $(benchmarks, write, CHECK_WHETHER_SUPPORTED, SIZE_VECTOR_256_NONTEMPORAL, false)
+		&& $(cpu, has256bitVectors);
 	if (supported && options.perform_write_tests && options.perform_256bit_nontemporal_tests) {
+		enforce_nice_mode (cpu);
 		dataBeginSection ("Sequential 256-bit nontemporal writes", RGB_DARKBROWN);
 
 		$(console, newline);
@@ -623,10 +672,12 @@ void runTests (CPU *cpu, MutableString *title)
 	}
 
 	//------------------------------------------------------------
-	// 512-bit sequential nontemporal writes using AVX-512.
+	// 512-bit sequential nontemporal writes e.g. using AVX-512.
 	//
-	supported = TEST_SUPPORTED == $(benchmarks, write, CHECK_WHETHER_SUPPORTED, SIZE_VECTOR_512_NONTEMPORAL, false);
+	supported = TEST_SUPPORTED == $(benchmarks, write, CHECK_WHETHER_SUPPORTED, SIZE_VECTOR_512_NONTEMPORAL, false)
+		&& $(cpu, has512bitVectors);
 	if (supported && options.perform_write_tests && options.perform_512bit_nontemporal_tests) {
+		enforce_nice_mode (cpu);
 		dataBeginSection ("Sequential 512-bit nontemporal writes (dashed)", RGB_DARKBROWN | DASHED);
 
 		$(console, newline);
@@ -645,6 +696,7 @@ void runTests (CPU *cpu, MutableString *title)
 	//
 	supported = TEST_SUPPORTED == $(benchmarks, read, CHECK_WHETHER_SUPPORTED, SIZE_MAIN_REGISTER, true);
 	if (supported && options.perform_read_tests && options.perform_random_tests) {
+		enforce_nice_mode (cpu);
 		$(console, newline);
 #ifdef IS_64BIT
 		dataBeginSection ("Random 64-bit reads", RGB_RED);
@@ -665,8 +717,10 @@ void runTests (CPU *cpu, MutableString *title)
 	//------------------------------------------------------------
 	// 128-bit random reads using NEON or SSE2.
 	//
-	supported = TEST_SUPPORTED == $(benchmarks, read, CHECK_WHETHER_SUPPORTED, SIZE_VECTOR_128, true);
+	supported = TEST_SUPPORTED == $(benchmarks, read, CHECK_WHETHER_SUPPORTED, SIZE_VECTOR_128, true)
+		&& $(cpu, has128bitVectors);
 	if (supported && options.perform_read_tests && options.perform_random_tests && options.perform_128bit_tests) {
+		enforce_nice_mode (cpu);
 		dataBeginSection ("Random 128-bit reads", RGB_LIGHTRED);
 
 		$(console, newline);
@@ -684,8 +738,10 @@ void runTests (CPU *cpu, MutableString *title)
 	//------------------------------------------------------------
 	// 256-bit random reads using AVX.
 	//
-	supported = TEST_SUPPORTED == $(benchmarks, read, CHECK_WHETHER_SUPPORTED, SIZE_VECTOR_256, true);
+	supported = TEST_SUPPORTED == $(benchmarks, read, CHECK_WHETHER_SUPPORTED, SIZE_VECTOR_256, true)
+		&& $(cpu, has256bitVectors);
 	if (supported && options.perform_read_tests && options.perform_random_tests && options.perform_256bit_tests) {
+		enforce_nice_mode (cpu);
 		dataBeginSection ("Random 256-bit reads", 0xc00000);
 
 		$(console, newline);
@@ -703,8 +759,10 @@ void runTests (CPU *cpu, MutableString *title)
 	//------------------------------------------------------------
 	// 128-bit random nontemporal reads, using SSE4.
 	//
-	supported = TEST_SUPPORTED == $(benchmarks, read, CHECK_WHETHER_SUPPORTED, SIZE_VECTOR_128_NONTEMPORAL, true);
+	supported = TEST_SUPPORTED == $(benchmarks, read, CHECK_WHETHER_SUPPORTED, SIZE_VECTOR_128_NONTEMPORAL, true)
+		&& $(cpu, has128bitVectors);
 	if (supported && options.perform_read_tests && options.perform_random_tests && options.perform_128bit_nontemporal_tests) {
+		enforce_nice_mode (cpu);
 		dataBeginSection ("Random 128-bit nontemporal reads", RGB_PURPLE);
 
 		$(console, newline);
@@ -722,8 +780,10 @@ void runTests (CPU *cpu, MutableString *title)
 	//------------------------------------------------------------
 	// 256-bit random nontemporal reads, using AVX.
 	//
-	supported = TEST_SUPPORTED == $(benchmarks, read, CHECK_WHETHER_SUPPORTED, SIZE_VECTOR_256_NONTEMPORAL, true);
+	supported = TEST_SUPPORTED == $(benchmarks, read, CHECK_WHETHER_SUPPORTED, SIZE_VECTOR_256_NONTEMPORAL, true) 
+		&& $(cpu, has256bitVectors);
 	if (supported && options.perform_read_tests && options.perform_random_tests && options.perform_256bit_nontemporal_tests) {
+		enforce_nice_mode (cpu);
 		dataBeginSection ("Random 256-bit nontemporal reads", RGB_LIGHTPURPLE);
 
 		$(console, newline);
@@ -743,6 +803,7 @@ void runTests (CPU *cpu, MutableString *title)
 	//
 	supported = TEST_SUPPORTED == $(benchmarks, write, CHECK_WHETHER_SUPPORTED, SIZE_MAIN_REGISTER, true);
 	if (supported && options.perform_write_tests && options.perform_random_tests) {
+		enforce_nice_mode (cpu);
 #ifdef IS_64BIT
 		dataBeginSection ("Random 64-bit writes", RGB_ORANGE);
 #else
@@ -764,8 +825,10 @@ void runTests (CPU *cpu, MutableString *title)
 	//------------------------------------------------------------
 	// 128-bit random writes using SSE2 or NEON 128-bit.
 	//
-	supported = TEST_SUPPORTED == $(benchmarks, write, CHECK_WHETHER_SUPPORTED, SIZE_VECTOR_128, true);
+	supported = TEST_SUPPORTED == $(benchmarks, write, CHECK_WHETHER_SUPPORTED, SIZE_VECTOR_128, true)
+		&& $(cpu, has128bitVectors);
 	if (supported && options.perform_write_tests && options.perform_random_tests && options.perform_128bit_tests) {
+		enforce_nice_mode (cpu);
 		dataBeginSection ("Random 128-bit writes", RGB_LIGHTORANGE);
 
 		$(console, newline);
@@ -781,10 +844,12 @@ void runTests (CPU *cpu, MutableString *title)
 	}
 
 	//------------------------------------------------------------
-	// 256-byte randomized writes using AVX.
+	// 256-byte randomized writes using e.g. AVX or Loong64 LASX.
 	//
-	supported = TEST_SUPPORTED == $(benchmarks, write, CHECK_WHETHER_SUPPORTED, SIZE_VECTOR_256, true);
+	supported = TEST_SUPPORTED == $(benchmarks, write, CHECK_WHETHER_SUPPORTED, SIZE_VECTOR_256, true)
+		&& $(cpu, has256bitVectors);
 	if (supported && options.perform_write_tests && options.perform_random_tests && options.perform_256bit_tests) {
+		enforce_nice_mode (cpu);
 		dataBeginSection ("Random 256-bit writes", RGB_DARKORANGE);
 
 		$(console, newline);
@@ -802,8 +867,10 @@ void runTests (CPU *cpu, MutableString *title)
 	//------------------------------------------------------------
 	// 128-bit random nontemporal writes, using SSE4.
 	//
-	supported = TEST_SUPPORTED == $(benchmarks, write, CHECK_WHETHER_SUPPORTED, SIZE_VECTOR_128_NONTEMPORAL, true);
+	supported = TEST_SUPPORTED == $(benchmarks, write, CHECK_WHETHER_SUPPORTED, SIZE_VECTOR_128_NONTEMPORAL, true)
+		&& $(cpu, has128bitVectors);
 	if (supported && options.perform_write_tests && options.perform_random_tests && options.perform_128bit_nontemporal_tests) {
+		enforce_nice_mode (cpu);
 		dataBeginSection ("Random 128-bit nontemporal writes", RGB_DARKPURPLE);
 
 		$(console, newline);
@@ -821,8 +888,10 @@ void runTests (CPU *cpu, MutableString *title)
 	//------------------------------------------------------------
 	// 256-bit random nontemporal writes, using SSE4.
 	//
-	supported = TEST_SUPPORTED == $(benchmarks, write, CHECK_WHETHER_SUPPORTED, SIZE_VECTOR_256_NONTEMPORAL, true);
+	supported = TEST_SUPPORTED == $(benchmarks, write, CHECK_WHETHER_SUPPORTED, SIZE_VECTOR_256_NONTEMPORAL, true) 
+		&& $(cpu, has256bitVectors);
 	if (supported && options.perform_write_tests && options.perform_random_tests && options.perform_256bit_nontemporal_tests) {
+		enforce_nice_mode (cpu);
 		dataBeginSection ("Random 256-bit nontemporal writes", RGB_PINK);
 
 		$(console, newline);
@@ -842,6 +911,7 @@ void runTests (CPU *cpu, MutableString *title)
 	//
 	supported = TEST_SUPPORTED == $(benchmarks, copy, CHECK_WHETHER_SUPPORTED, SIZE_MAIN_REGISTER);
 	if (supported && options.perform_copy_tests) {
+		enforce_nice_mode (cpu);
 #ifdef IS_64BIT
 		dataBeginSection ("Sequential 64-bit copy", RGB_BLACK);
 #else
@@ -862,10 +932,11 @@ void runTests (CPU *cpu, MutableString *title)
 	//------------------------------------------------------------
 	// 128-bit sequential copy using SSE2 or NEON.
 	//
-	supported = TEST_SUPPORTED == $(benchmarks, copy, CHECK_WHETHER_SUPPORTED, SIZE_VECTOR_128);
-	if (supported && options.perform_copy_tests && options.perform_128bit_tests)
-	    
+	supported = TEST_SUPPORTED == $(benchmarks, copy, CHECK_WHETHER_SUPPORTED, SIZE_VECTOR_128)
+		&& $(cpu, has128bitVectors);
+	if (supported && options.perform_copy_tests && options.perform_128bit_tests && $(cpu, has128bitVectors))
 	{
+		enforce_nice_mode (cpu);
 		dataBeginSection ("Sequential 128-bit copy", RGB_DARKGRAY);
 
 		$(console, newline);
@@ -882,8 +953,10 @@ void runTests (CPU *cpu, MutableString *title)
 	//------------------------------------------------------------
 	// 256-bit sequential copy using AVX.
 	//
-	supported = TEST_SUPPORTED == $(benchmarks, copy, CHECK_WHETHER_SUPPORTED, SIZE_VECTOR_256);
+	supported = TEST_SUPPORTED == $(benchmarks, copy, CHECK_WHETHER_SUPPORTED, SIZE_VECTOR_256) 
+		&& $(cpu, has256bitVectors);
 	if (supported && options.perform_copy_tests && options.perform_256bit_tests) {
+		enforce_nice_mode (cpu);
 		dataBeginSection ("Sequential 256-bit copy", RGB_GRAY);
 
 		$(console, newline);
@@ -900,8 +973,10 @@ void runTests (CPU *cpu, MutableString *title)
 	//------------------------------------------------------------
 	// 512-bit sequential copy using AVX512.
 	//
-	supported = TEST_SUPPORTED == $(benchmarks, copy, CHECK_WHETHER_SUPPORTED, SIZE_VECTOR_512);
+	supported = TEST_SUPPORTED == $(benchmarks, copy, CHECK_WHETHER_SUPPORTED, SIZE_VECTOR_512) && $(cpu, has512bitVectors)
+		&& $(cpu, has512bitVectors);
 	if (supported && options.perform_copy_tests && options.perform_512bit_tests) {
+		enforce_nice_mode (cpu);
 		dataBeginSection ("Sequential 512-bit copy (dashed)", RGB_GRAY | DASHED);
 
 		$(console, newline);
@@ -919,6 +994,8 @@ void runTests (CPU *cpu, MutableString *title)
 	// Perform register and stack memory copy/increment tests.
 	//
 	if (options.perform_register_and_stack_tests) {
+		enforce_nice_mode (cpu);
+
 		//------------------------------------------------------------
 		// Register to register.
 		//
@@ -926,14 +1003,30 @@ void runTests (CPU *cpu, MutableString *title)
 		$(benchmarks, registerToRegisterTest);
 
 		if (options.perform_128bit_tests) {
-			$(benchmarks, vectorToRegisterTest);
-			$(benchmarks, vectorToRegister8);
-			$(benchmarks, vectorToRegister16);
-			$(benchmarks, vectorToRegister32);
-			$(benchmarks, registerToVectorTest);
-			$(benchmarks, registerToVector8);
-			$(benchmarks, registerToVector16);
-			$(benchmarks, registerToVector32);
+			if (benchmarks->vectorToFromRegisterRoutinesAvailable) {
+#if defined(__arm__) && !defined(__aarch64__)
+				// Special case for arm32 due to its limitations.
+				$(benchmarks, vector128ToRegister32);
+				$(benchmarks, register8ToVector128);
+				$(benchmarks, register16ToVector128);
+				$(benchmarks, register32ToVector128);
+#else
+				$(benchmarks, vector128ToRegister8);
+				$(benchmarks, vector128ToRegister16);
+				$(benchmarks, vector128ToRegister32);
+#ifdef IS_64BIT
+				$(benchmarks, vector128ToRegister64);
+#endif
+				$(benchmarks, register8ToVector128);
+				$(benchmarks, register16ToVector128);
+				$(benchmarks, register32ToVector128);
+#ifdef IS_64BIT
+				$(benchmarks, register64ToVector128);
+#endif
+#endif
+			}
+			$(benchmarks, registerToVectorMove);
+			$(benchmarks, vectorToRegisterMove);
 			$(benchmarks, vectorToVectorTest128);
 		}
 		if (options.perform_256bit_tests) {

@@ -20,22 +20,17 @@
 
 // This code is derived from my FrugalWidgets project.
 
-#include "config.h"
-
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
-#include <ctype.h>
-#include <sys/types.h>
-#include <dirent.h>
-#include <unistd.h> // usleep
-#include <time.h> // time
-
 #include "DateTime.h"
 #include "Display.h"
 #include "Window.h"
 #include "Log.h"
 #include "FileSystem.h"
+
+#include <ctype.h>
+#include <sys/types.h>
+#include <dirent.h>
+#include <unistd.h> // usleep
+#include <time.h> // time
 
 #if defined(HAVE_OPENGL) 
  #define GL_SILENCE_DEPRECATION

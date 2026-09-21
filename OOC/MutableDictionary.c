@@ -21,10 +21,6 @@
 #include "MutableDictionary.h"
 #include "Log.h"
 
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
-
 MutableDictionaryClass *_MutableDictionaryClass = NULL;
 
 #ifdef UNUSED

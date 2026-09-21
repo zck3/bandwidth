@@ -59,24 +59,24 @@
 	.type	StackWriter, @function
 
 # Unused:
-	.globl 	WriterVector
-	.globl 	ReaderVector
-	.globl 	RandomReaderVector
-	.globl 	RandomWriterVector
-	.globl 	Register16ToVector
-	.globl 	Register32ToVector
-	.globl 	Register64ToVector
-	.globl 	Register8ToVector
+	.globl 	WriterVector128
+	.globl 	ReaderVector128
+	.globl 	RandomReaderVector128
+	.globl 	RandomWriterVector128
+	.globl 	Register16ToVector128
+	.globl 	Register32ToVector128
+	.globl 	Register64ToVector128
+	.globl 	Register8ToVector128
 	.globl 	RegisterToRegister
-	.globl 	RegisterToVector
-	.globl 	Vector16ToRegister
-	.globl 	Vector32ToRegister
-	.globl 	Vector64ToRegister
-	.globl 	Vector8ToRegister
-	.globl 	VectorToRegister
-	.globl 	VectorToVector
+	.globl 	RegisterToVectorMove
+	.globl 	VectorToRegisterMove
+	.globl 	Vector128ToRegister16
+	.globl 	Vector128ToRegister32
+	.globl 	Vector128ToRegister64
+	.globl 	Vector128ToRegister8
 	.globl 	VectorToVector128
 	.globl 	VectorToVector256
+	.globl	VectorToVector512
 
 #-----------------------------------------------------------------------------
 # Name: 	Writer
@@ -832,22 +832,20 @@ _CopyWithMainRegisters:
 
 	blr
 
-WriterVector:
-ReaderVector:
-RandomReaderVector:
-RandomWriterVector:
-Register16ToVector:
-Register32ToVector:
-Register64ToVector:
-Register8ToVector:
-RegisterToVector:
-Vector16ToRegister:
-Vector32ToRegister:
-Vector64ToRegister:
-Vector8ToRegister:
-VectorToRegister:
-VectorToVector:
+WriterVector128:
+ReaderVector128:
+RandomReaderVector128:
+RandomWriterVector128:
+Register16ToVector128:
+Register32ToVector128:
+Register64ToVector128:
+Register8ToVector128:
+Vector128ToRegister16:
+Vector128ToRegister32:
+Vector128ToRegister64:
+Vector128ToRegister8:
 VectorToVector128:
 VectorToVector256:
+VectorToVector512:
 	blr
 

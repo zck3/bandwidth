@@ -34,9 +34,6 @@
 #include "Utility.h"
 #include "Log.h"
 
-#include <stdio.h>
-#include <stdint.h>
-#include <string.h>
 #include <ctype.h>
 
 #ifdef HAVE_FREETYPE2

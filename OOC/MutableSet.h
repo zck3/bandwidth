@@ -28,6 +28,7 @@
 
 #define DECLARE_MUTABLESET_METHODS(TYPE_POINTER) \
 	void (*add) (TYPE_POINTER, Any*);\
+	void (*addCString) (TYPE_POINTER, const char*);\
 	void (*remove) (TYPE_POINTER, Any*);\
 	void (*removeAll) (TYPE_POINTER);\
 	void (*unionWith) (TYPE_POINTER, Set*);\

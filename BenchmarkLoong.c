@@ -31,6 +31,8 @@
 #include "Console.h"
 #include "routines.h"
 
+// This only supports LoongArch64.
+
 BenchmarkLoongClass* _BenchmarkLoongClass = NULL;
 
 extern Console* console;
@@ -69,6 +71,8 @@ static long BenchmarkLoong_write (BenchmarkLoong *self, unsigned long size, Benc
 	if (size == CHECK_WHETHER_SUPPORTED) {
 		switch (mode) {
 		case SIZE_MAIN_REGISTER:
+		case SIZE_VECTOR_128:
+		case SIZE_VECTOR_256:
 			return TEST_SUPPORTED;
 		default:
 			return TEST_UNSUPPORTED;
@@ -153,14 +157,9 @@ static long BenchmarkLoong_write (BenchmarkLoong *self, unsigned long size, Benc
 		$(console, printf, "Sequential write ");
 
 	switch (mode) {
-	case SIZE_MAIN_REGISTER:
-#ifdef IS_64BIT
-		$(console, printf, "(64-bit), size = ");
-#else
-		$(console, printf, "(32-bit), size = ");
-#endif
-		break;
-	
+	case SIZE_MAIN_REGISTER: $(console, printf, "(64-bit), size = "); break;
+	case SIZE_VECTOR_128: $(console, printf, "(128-bit), size = "); break;
+	case SIZE_VECTOR_256: $(console, printf, "(256-bit), size = "); break;
 	default:
 		break;
 	}
@@ -184,10 +183,25 @@ static long BenchmarkLoong_write (BenchmarkLoong *self, unsigned long size, Benc
 		case SIZE_MAIN_REGISTER:
 			if (random) {
 				unsigned long nChunks = size / 256;
-				RandomWriter (chunk_ptrs, nChunks, loops, value);
-			}
-			else {
+				RandomWriter ((void**) chunk_ptrs, nChunks, loops, value);
+			} else {
 				Writer (chunk, size, loops, value);
+			}
+			break;
+		case SIZE_VECTOR_128:
+			if (random) {
+				unsigned long nChunks = size / 256;
+				RandomWriterVector128 ((void**) chunk_ptrs, nChunks, loops, value);
+			} else {
+				WriterVector128 (chunk, size, loops, value);
+			}
+			break;
+		case SIZE_VECTOR_256:
+			if (random) {
+				unsigned long nChunks = size / 256;
+				RandomWriterVector256 ((void**) chunk_ptrs, nChunks, loops, value);
+			} else {
+				WriterVector256 (chunk, size, loops, value);
 			}
 			break;
 
@@ -224,6 +238,8 @@ static long BenchmarkLoong_read (BenchmarkLoong *self, unsigned long size, Bench
 	if (size == CHECK_WHETHER_SUPPORTED) {
 		switch (mode) {
 		case SIZE_MAIN_REGISTER:
+		case SIZE_VECTOR_128:
+		case SIZE_VECTOR_256:
 			return TEST_SUPPORTED;
 		default:
 			return TEST_UNSUPPORTED;
@@ -299,14 +315,9 @@ static long BenchmarkLoong_read (BenchmarkLoong *self, unsigned long size, Bench
 		$(console, printf, "Sequential read ");
 
 	switch (mode) {
-	case SIZE_MAIN_REGISTER:
-#ifdef IS_64BIT
-		$(console, printf, "(64-bit), size = ");
-#else
-		$(console, printf, "(32-bit), size = ");
-#endif
-		break;
-	
+	case SIZE_MAIN_REGISTER: $(console, printf, "(64-bit), size = "); break;
+	case SIZE_VECTOR_128: $(console, printf, "(128-bit), size = "); break;
+	case SIZE_VECTOR_256: $(console, printf, "(256-bit), size = "); break;
 	default:
 		break;
 	}
@@ -333,9 +344,23 @@ static long BenchmarkLoong_read (BenchmarkLoong *self, unsigned long size, Bench
 		switch (mode) {
 		case SIZE_MAIN_REGISTER:
 			if (random) {
-				RandomReader (chunk_ptrs, size/256, loops);
+				RandomReader ((void**) chunk_ptrs, size/256, loops);
 			} else {
 				Reader (chunk, size, loops);
+			}
+			break;
+		case SIZE_VECTOR_128:
+			if (random) {
+				RandomReaderVector128 ((void**)chunk_ptrs, size/256, loops);
+			} else {
+				ReaderVector128 (chunk, size, loops);
+			}
+			break;
+		case SIZE_VECTOR_256:
+			if (random) {
+				RandomReaderVector256 ((void**)chunk_ptrs, size/256, loops);
+			} else {
+				ReaderVector256 (chunk, size, loops);
 			}
 			break;
 
@@ -371,6 +396,8 @@ static long BenchmarkLoong_copy (BenchmarkLoong *self, unsigned long size, Bench
 	if (size == CHECK_WHETHER_SUPPORTED) {
 		switch (mode) {
 		case SIZE_MAIN_REGISTER:
+		case SIZE_VECTOR_128:
+		case SIZE_VECTOR_256:
 			return TEST_SUPPORTED;
 		default:
 			return TEST_UNSUPPORTED;
@@ -417,9 +444,14 @@ static long BenchmarkLoong_copy (BenchmarkLoong *self, unsigned long size, Bench
 	//-------------------------------------------------
 	$(console, printf, "Sequential copy ");
 
-	if (mode == SIZE_MAIN_REGISTER) {
-		$(console, printf, "(64-bit), size = ");
+	switch (mode) {
+	case SIZE_MAIN_REGISTER: $(console, printf, "(64-bit), size = "); break;
+	case SIZE_VECTOR_128: $(console, printf, "(128-bit), size = "); break;
+	case SIZE_VECTOR_256: $(console, printf, "(256-bit), size = "); break;
+	default:
+		break;
 	}
+
 
 	$(self, printSize, size);
 	$(console, printf, ", ");
@@ -439,8 +471,12 @@ static long BenchmarkLoong_copy (BenchmarkLoong *self, unsigned long size, Bench
 
 		if (mode == SIZE_MAIN_REGISTER ) {
 			CopyWithMainRegisters (chunk_dest, chunk_src, size, loops);
-		} else {
-			// Unsupported copy mode.
+		}
+		else if (mode == SIZE_VECTOR_128) {
+			CopyVector128 (chunk_dest, chunk_src, size, loops);
+		}
+		else if (mode == SIZE_VECTOR_256) {
+			CopyVector256 (chunk_dest, chunk_src, size, loops);
 		}
 
 		diff = DateTime_getMicrosecondTime () - t0;
@@ -470,18 +506,8 @@ BenchmarkLoongClass* BenchmarkLoongClass_init (BenchmarkLoongClass *class)
 	SET_METHOD_POINTER(BenchmarkLoong,write);
 	SET_METHOD_POINTER(BenchmarkLoong,copy);
 
-	SET_ABSTRACT_METHOD_POINTER(registerToVectorTest);
-	SET_ABSTRACT_METHOD_POINTER(vectorToRegisterTest);
-	SET_ABSTRACT_METHOD_POINTER(vectorToVectorTest128);
-	SET_ABSTRACT_METHOD_POINTER(vectorToVectorTest256);
-	SET_ABSTRACT_METHOD_POINTER(vectorToRegister8);
-	SET_ABSTRACT_METHOD_POINTER(vectorToRegister16);
-	SET_ABSTRACT_METHOD_POINTER(vectorToRegister32);
-	SET_ABSTRACT_METHOD_POINTER(vectorToRegister64);
-	SET_ABSTRACT_METHOD_POINTER(registerToVector8);
-	SET_ABSTRACT_METHOD_POINTER(registerToVector16);
-	SET_ABSTRACT_METHOD_POINTER(registerToVector32);
-	SET_ABSTRACT_METHOD_POINTER(registerToVector64);
+	SET_ABSTRACT_METHOD_POINTER(registerToVectorMove);
+	SET_ABSTRACT_METHOD_POINTER(vectorToRegisterMove);
 	
         VALIDATE_CLASS_STRUCT(_BenchmarkLoongClass);
 	return _BenchmarkLoongClass;
@@ -494,6 +520,7 @@ BenchmarkLoong *BenchmarkLoong_init (BenchmarkLoong *self)
         Benchmark_init ((Benchmark*) self);
 
         self->is_a = _BenchmarkLoongClass;
+	self->vectorToFromRegisterRoutinesAvailable = true;
 
         return self;
 }
