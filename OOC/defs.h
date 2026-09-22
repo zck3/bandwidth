@@ -60,6 +60,7 @@
 //	- Added Table class.
 //	- Two-stage make for test_opengl and test_gui.
 //	- Simplified #includes.
+// 0.41	- Various fixes for macOS including #includes and ./configure.
 //-----------------------------------------------------------------------------
 
 #if __WORDSIZE == 64 && !defined(IS_64BIT)

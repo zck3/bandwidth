@@ -308,7 +308,11 @@ static void MutableArray_append (MutableArray* restrict self, Any *object_)
 	size_t count = self->count;
 	if (count >= self->size) {
 		size_t newSize = self->size * 2;
+#ifdef __linux__
 		Object **ary = reallocarray (self->array, newSize, sizeof(Object*));
+#else
+		Object **ary = realloc (self->array, newSize * sizeof(Object*));
+#endif
 		if (ary) {
 			self->array = ary;
 			self->size = newSize;

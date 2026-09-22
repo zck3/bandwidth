@@ -24,18 +24,23 @@
 
 #include <stdlib.h>
 
-#ifdef HAVE_OPENGL
-  #define GL_SILENCE_DEPRECATION
-  #define GL_GLEXT_PROTOTYPES
-  #include <GL/gl.h>
-  //#include <GL/glu.h>
-  #include <GL/glext.h>
-//    #ifdef __APPLE__
-//      #include <GLUT/glut.h>
-//    #else
-//      #include <GL/glut.h>
-//    #endif
-//  #endif
+#if defined(HAVE_OPENGL) 
+ #define GL_SILENCE_DEPRECATION
+ #define GL_GLEXT_PROTOTYPES
+ #ifndef __APPLE__
+   #include <GL/gl.h>
+   #include <GL/glu.h>
+   #include <GL/glext.h>
+   #if defined(HAVE_GLUT)
+     #include <GL/glut.h>
+     #include <GL/freeglut_ext.h>
+   #endif
+ #else
+   #include <OpenGL/gl.h>
+   #include <OpenGL/glu.h>
+   #include <OpenGL/glext.h>
+   #include <GLUT/glut.h>
+ #endif
 #endif
 
 static unsigned createTexture ()

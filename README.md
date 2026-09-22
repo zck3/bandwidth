@@ -36,18 +36,19 @@ specific causes of better or worse performance.
 
 ## How to build `bandwidth`
 
-Just type `make`.
+Run `./configure`, then `make`.
 
-This will automatically invoke the `configure` script as well as
-build my Object-Oriented C (`OOC`) library.
+This will automatically build my Object-Oriented C (`OOC`) library,
+on which `bandwidth` depends.
 
-It will also select the appropriate Makefile for your OS and CPU architecture.
+The primary Makefile also automatically select the appropriate 
+Makefile for your OS and CPU.
 
 ## Change log
 
 * Release 1.16:
 	* Added PowerPC64 support, both little-endian and big-endian.
-	* Added initial LoongArch64 support.
+	* Added LoongArch64 support.
 * Release 1.15:
 	* Refactoring and bugfixing. Added --main-memory-only (-m).
 * Release 1.14:

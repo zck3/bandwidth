@@ -115,6 +115,8 @@
 //	- Improved program usage information.
 //	- Refactoring and pruning.
 //	- OOC improvements.
+// 1.16.4
+//	- Various fixes for macOS.
 //-----------------------------------------------------------------------------
 
 #ifndef _DEFS_H
@@ -130,7 +132,7 @@
 #include "BenchmarkPPC.h"
 #include "BenchmarkLoong.h"
 
-#define RELEASE "1.16.3"
+#define RELEASE "1.16.4"
 #define RESULTS_IMAGE_FILENAME "bandwidth.bmp"
 
 #define NICE_DURATION (4)

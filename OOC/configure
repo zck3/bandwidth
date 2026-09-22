@@ -129,9 +129,9 @@ if [[ $have_gl -eq 1 ]]; then
 		fi
 	else
 		echo "#include <stdio.h>" > $TMPFILE
-		echo "#include <GL/gl.h>" >> $TMPFILE
-		echo "#include <GL/glu.h>" >> $TMPFILE
-		echo "#include <GL/glext.h>" >> $TMPFILE
+		echo "#include <OpenGL/gl.h>" >> $TMPFILE
+		echo "#include <OpenGL/glu.h>" >> $TMPFILE
+		echo "#include <OpenGL/glext.h>" >> $TMPFILE
 		echo "#include <GLUT/glut.h>" >> $TMPFILE
 		echo "int main(){ glClear(0); glutMainLoop(); return 0;}" >> $TMPFILE
 		if gcc -I/usr/include -I/usr/local/include -I$OSXINC -L$OSXLIB $TMPFILE -framework GLUT -framework OpenGL 2>/dev/null; then

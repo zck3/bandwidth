@@ -84,8 +84,8 @@
 .global _Register64ToVector128
 .global _Vector128ToRegister8
 .global _Vector128ToRegister16
-.global _Vector128ToRegister16
-.global _Vector128ToRegister16
+.global _Vector128ToRegister32
+.global _Vector128ToRegister64
 
 # Unused:
 .global VectorToVector256

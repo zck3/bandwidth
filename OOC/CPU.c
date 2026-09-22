@@ -242,9 +242,13 @@ static int CPU_currentCore (CPU* restrict self)
 		return -1;
 	}
 	return cpu;
-
 #elif defined(_WIN32)
 	return GetCurrentProcessorNumber();
+#else
+	uint64_t mpidr;
+	asm volatile("mrs %0, mpidr_el1" : "=r" (mpidr));
+	uint32_t core_id = mpidr & 0xFF; 
+	return core_id;
 #endif
 }
 

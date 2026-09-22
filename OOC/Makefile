@@ -142,20 +142,18 @@ test_list:	test_list.c libOOC.a
 	@./test_list && echo PASSED List test 
 
 test_gui:	all 
-	@make test_gui_second_stage
+	make test_gui_second_stage
 
 test_gui_second_stage:	test_gui.c
-	# In the second stage, make reloads Makefile-config to get the correct linker flags.
-	@${CC} ${CFLAGS} test_gui.c -o test_gui libOOC.a ${LIBS} ${GL} 
-	@./test_gui && echo PASSED GUI test 
+	${CC} ${CFLAGS} test_gui.c -o test_gui libOOC.a ${LIBS} ${GL} 
+	./test_gui && echo PASSED GUI test 
 
 test_opengl:	all
-	@make test_opengl_second_stage
+	make test_opengl_second_stage
 
 test_opengl_second_stage:	test_opengl.c 
-	# In the second stage, make reloads Makefile-config to get the correct linker flags.
-	@${CC} ${CFLAGS} test_opengl.c -o test_opengl libOOC.a ${LIBS} ${GL} 
-	@./test_opengl && echo PASSED OpenGL test 
+	${CC} ${CFLAGS} test_opengl.c -o test_opengl libOOC.a ${LIBS} ${GL} 
+	./test_opengl && echo PASSED OpenGL test 
 
 test_filesystem:	all test_filesystem.c libOOC.a
 	@${CC} ${CFLAGS} -DTESTING Testing.c test_filesystem.c -o test_filesystem libOOC.a ${LIBS} 
