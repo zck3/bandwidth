@@ -86,7 +86,8 @@ typedef uint32_t StuckBitStorageType;
 	void *deferredFreeChunks[MAX_DEFERRED_FREE_CHUNKS]; \
 	size_t deferredFreeChunkSizes[MAX_DEFERRED_FREE_CHUNKS]; \
 	unsigned long usec_per_test; \
-	bool vectorToFromRegisterRoutinesAvailable;
+	bool vectorToFromRegisterRoutinesAvailable; \
+	bool quietMode;
 
 #define DECLARE_BENCHMARK_METHODS(TYPE_POINTER) \
 	void (*printSize) (TYPE_POINTER, size_t chunk_size); \

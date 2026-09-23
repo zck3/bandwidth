@@ -18,10 +18,11 @@
   The author may be reached at 3 at zs3 dot me.
  *===========================================================================*/
 
+#include "DateTime.h"
+
 #include <time.h>
 #include <sys/time.h>
-
-#include "DateTime.h"
+#include <string.h>	// memset
 
 static const int days_per_month[12] = {
         31, 28, 31, 30, 31, 30,

@@ -19,12 +19,6 @@
   The author may be reached at 3 at zs3 dot me.
  *===========================================================================*/
 
-#include <stdio.h>
-#include <stdint.h>
-#include <stdlib.h>
-#include <sys/mman.h>
-#include <malloc.h>
-
 #include "defs.h"
 #include "ObjectOriented.h"
 #include "Object.h"
@@ -34,9 +28,10 @@
 #include "Log.h"
 #include "routines.h"
 
-BenchmarkX86Class* _BenchmarkX86Class = NULL;
+#include <sys/mman.h>
+#include <malloc.h>
 
-extern Console* console;
+BenchmarkX86Class* _BenchmarkX86Class = NULL;
 
 //============================================================================
 // Tests.
@@ -159,7 +154,6 @@ static long BenchmarkX86_write (BenchmarkX86 *self, unsigned long size, Benchmar
 
 	//-------------------------------------------------
 	unsigned char *chunk;
-	unsigned char *chunk0;
 	unsigned long loops;
 	unsigned long long total_count=0;
 #ifdef IS_64BIT
@@ -170,28 +164,10 @@ static long BenchmarkX86_write (BenchmarkX86 *self, unsigned long size, Benchmar
 	unsigned long diff=0, t0;
 	unsigned long **chunk_ptrs = NULL;
 
-	chunk0 = malloc (size+128);
-	if (!chunk0) {
+	chunk = aligned_alloc (64, size);
+	if (!chunk) {
 		error (__FUNCTION__, "Out of memory");
 	}
-	
-	chunk = chunk0;
-	if (mode != SIZE_VECTOR_512 && mode != SIZE_VECTOR_512_NONTEMPORAL) {
-		unsigned long tmp = (unsigned long) chunk;
-		if (tmp & 31) {
-			tmp -= (tmp & 31);
-			tmp += 32;
-			chunk = (unsigned char*) tmp;
-		}
-	} else {
-		unsigned long tmp = (unsigned long) chunk;
-		if (tmp & 63) {
-			tmp -= (tmp & 63);
-			tmp += 64;
-			chunk = (unsigned char*) tmp;
-		}
-	}
-
 	unsigned long nChunks = size/256;
 
 	//----------------------------------------
@@ -199,8 +175,9 @@ static long BenchmarkX86_write (BenchmarkX86 *self, unsigned long size, Benchmar
 	//
 	if (random) {
 		chunk_ptrs = (unsigned long**) malloc (sizeof (unsigned long*) * nChunks);
-		if (!chunk_ptrs)
+		if (!chunk_ptrs) {
 			error (__FUNCTION__, "Out of memory.");
+		}
 
 		//-----------------------------------------
 		// Store pointers to all chunks in an array.
@@ -227,52 +204,54 @@ static long BenchmarkX86_write (BenchmarkX86 *self, unsigned long size, Benchmar
 	}
 
 	//-------------------------------------------------
-	if (random)
-		$(console, printf, "Random write ");
-	else
-		$(console, printf, "Sequential write ");
+	if (!self->quietMode) {
+		if (random)
+			$(console, printf, "Random write ");
+		else
+			$(console, printf, "Sequential write ");
 
-	switch (mode) {
-	case SIZE_VECTOR_128:
-		$(console, printf, "(128-bit), size = ");
-		break;
-	case SIZE_VECTOR_256:
-		$(console, printf, "(256-bit), size = ");
-		break;
-	case SIZE_VECTOR_512:
-		$(console, printf, "(512-bit), size = ");
-		break;
-	case SIZE_VECTOR_128_NONTEMPORAL:
-                $(console, printf, "nontemporal (128-bit), size = ");
-		break;
-	case SIZE_VECTOR_256_NONTEMPORAL:
-                $(console, printf, "nontemporal (256-bit), size = ");
-		break;
-	case SIZE_VECTOR_512_NONTEMPORAL:
-                $(console, printf, "nontemporal (512-bit), size = ");
-		break;
-	case SIZE_MAIN_REGISTER:
+		switch (mode) {
+		case SIZE_VECTOR_128:
+			$(console, printf, "(128-bit), size = ");
+			break;
+		case SIZE_VECTOR_256:
+			$(console, printf, "(256-bit), size = ");
+			break;
+		case SIZE_VECTOR_512:
+			$(console, printf, "(512-bit), size = ");
+			break;
+		case SIZE_VECTOR_128_NONTEMPORAL:
+			$(console, printf, "nontemporal (128-bit), size = ");
+			break;
+		case SIZE_VECTOR_256_NONTEMPORAL:
+			$(console, printf, "nontemporal (256-bit), size = ");
+			break;
+		case SIZE_VECTOR_512_NONTEMPORAL:
+			$(console, printf, "nontemporal (512-bit), size = ");
+			break;
+		case SIZE_MAIN_REGISTER:
 #ifdef IS_64BIT
-		$(console, printf, "(64-bit), size = ");
+			$(console, printf, "(64-bit), size = ");
 #else
-		$(console, printf, "(32-bit), size = ");
+			$(console, printf, "(32-bit), size = ");
 #endif
-		break;
-	case SIZE_MAIN_REGISTER_NONTEMPORAL:
+			break;
+		case SIZE_MAIN_REGISTER_NONTEMPORAL:
 #ifdef IS_64BIT
-		$(console, printf, "nontemporal (64-bit), size = ");
+			$(console, printf, "nontemporal (64-bit), size = ");
 #else
-		$(console, printf, "nontemporal (32-bit), size = ");
+			$(console, printf, "nontemporal (32-bit), size = ");
 #endif
-		break;
+			break;
 
-	default:
-		break;
+		default:
+			break;
+		}
+
+		$(self, printSize, size);
+		$(console, printf, ", ");
+		$(console, flush);
 	}
-
-	$(self, printSize, size);
-	$(console, printf, ", ");
-	$(console, flush);
 
 	loops = (1 << 26) / size; 
 	if (loops < 1) {
@@ -353,15 +332,17 @@ static long BenchmarkX86_write (BenchmarkX86 *self, unsigned long size, Benchmar
 		diff = DateTime_getMicrosecondTime () - t0;
 	}
 
-	$(console, printf, "loops = ");
-	$(console, printUnsigned, total_count);
-	$(console, printf, ", ");
+	if (!self->quietMode) {
+		$(console, printf, "loops = ");
+		$(console, printUnsigned, total_count);
+		$(console, printf, ", ");
+		$(console, flush);
+	}
+
+	long result = $(self, calculateResult, size, total_count, diff);
 	$(console, flush);
 
-	int result = $(self, calculateResult, size, total_count, diff);
-	$(console, flush);
-
-	$(self, deferFreeOfChunk, (void*)chunk0, size+128);
+	$(self, deferFreeOfChunk, (void*)chunk, size);
 
 	if (chunk_ptrs) {
 		$(self, deferFreeOfChunk, (void*)chunk_ptrs, sizeof (unsigned long*) * nChunks);
@@ -486,43 +467,22 @@ static long BenchmarkX86_read (BenchmarkX86 *self, unsigned long size, Benchmark
 	}
 
 	//-------------------------------------------------
-	unsigned long long loops;
+	unsigned long long loops = 0;
 	unsigned long long total_count = 0;
 	unsigned long t0, diff=0;
 	unsigned long *chunk;
-	unsigned long *chunk0;
 	unsigned long **chunk_ptrs = NULL;
 
-	chunk0 = malloc (size+128);
-	if (!chunk0) {
+	chunk = aligned_alloc (64, size);
+	if (!chunk) {
 		error (__FUNCTION__, "Out of memory");
-	}
-
-	chunk = chunk0;
-	if (mode != SIZE_VECTOR_512 && mode != SIZE_VECTOR_512_NONTEMPORAL) {
-		unsigned long tmp = (unsigned long) chunk;
-		if (tmp & 31) {
-			tmp -= (tmp & 31);
-			tmp += 32;
-			chunk = (unsigned long*) tmp;
-		}
-	} else {
-		unsigned long tmp = (unsigned long) chunk;
-		if (tmp & 63) {
-			tmp -= (tmp & 63);
-			tmp += 64;
-			chunk = (unsigned long*) tmp;
-		}
 	}
 
 	// Touch all memory blocks, in case a read from an unwritten block
 	// is a no-op for the CPU.
-	unsigned long nChunks = size/256;
-	char *touchPtr = (char*) chunk;
-	for (unsigned long i=0; i < nChunks; i += 16) {
-		*touchPtr = 0;
-		touchPtr += 4096;
-	}
+	//
+	ooc_bzero (chunk, size);
+        unsigned long nChunks = size/256;
 
 	//----------------------------------------
 	// Set up random pointers to chunks.
@@ -558,55 +518,57 @@ static long BenchmarkX86_read (BenchmarkX86 *self, unsigned long size, Benchmark
 	}
 
 	//-------------------------------------------------
-	if (random)
-		$(console, printf, "Random read ");
-	else
-		$(console, printf, "Sequential read ");
+	if (!self->quietMode) {
+		if (random)
+			$(console, printf, "Random read ");
+		else
+			$(console, printf, "Sequential read ");
 
-	switch (mode) {
-	case SIZE_VECTOR_128:
-		$(console, printf, "(128-bit), size = ");
-		break;
-	case SIZE_VECTOR_128_NONTEMPORAL:
-                $(console, printf, "nontemporal (128-bit), size = ");
-		break;
-	case SIZE_VECTOR_256:
-		$(console, printf, "(256-bit), size = ");
-		break;
-	case SIZE_VECTOR_256_NONTEMPORAL:
-                $(console, printf, "nontemporal (256-bit), size = ");
-		break;
-	case SIZE_VECTOR_512:
-		$(console, printf, "(512-bit), size = ");
-		break;
-	case SIZE_VECTOR_512_NONTEMPORAL:
-                $(console, printf, "nontemporal (512-bit), size = ");
-		break;
-	case SIZE_MAIN_REGISTER:
+		switch (mode) {
+		case SIZE_MAIN_REGISTER:
 #ifdef IS_64BIT
-		$(console, printf, "(64-bit), size = ");
+			$(console, printf, "(64-bit), size = ");
 #else
-		$(console, printf, "(32-bit), size = ");
+			$(console, printf, "(32-bit), size = ");
 #endif
-		break;
+			break;
 
-	case SIZE_MAIN_REGISTER_NONTEMPORAL:
+		case SIZE_MAIN_REGISTER_NONTEMPORAL:
 #ifdef IS_64BIT
-		$(console, printf, "nontemporal (64-bit), size = ");
+			$(console, printf, "nontemporal (64-bit), size = ");
 #else
-		$(console, printf, "nontemporal (32-bit), size = ");
+			$(console, printf, "nontemporal (32-bit), size = ");
 #endif
-		break;
+			break;
+		case SIZE_VECTOR_128:
+			$(console, printf, "(128-bit), size = ");
+			break;
+		case SIZE_VECTOR_128_NONTEMPORAL:
+			$(console, printf, "nontemporal (128-bit), size = ");
+			break;
+		case SIZE_VECTOR_256:
+			$(console, printf, "(256-bit), size = ");
+			break;
+		case SIZE_VECTOR_256_NONTEMPORAL:
+			$(console, printf, "nontemporal (256-bit), size = ");
+			break;
+		case SIZE_VECTOR_512:
+			$(console, printf, "(512-bit), size = ");
+			break;
+		case SIZE_VECTOR_512_NONTEMPORAL:
+			$(console, printf, "nontemporal (512-bit), size = ");
+			break;
 
-	default:
-		break;
+		default:
+			break;
+		}
+
+		$(self, printSize, size);
+		$(console, printf, ", ");
+		$(console, flush);
 	}
 
-	$(self, printSize, size);
-	$(console, printf, ", ");
-	$(console, flush);
-
-	loops = (1 << 29) / size; 
+	loops = (1LU << 29) / size; 
 	if (loops < 1) {
 		loops = 1;
 	}
@@ -681,21 +643,24 @@ static long BenchmarkX86_read (BenchmarkX86 *self, unsigned long size, Benchmark
 			break;
 
 		default:
+			exit(-9);
 			break;
 		}
 
 		diff = DateTime_getMicrosecondTime () - t0;
 	}
 
-	$(console, printf, "loops = ");
-	$(console, printUnsigned, total_count);
-	$(console, printf, ", ");
+	if (!self->quietMode) {
+		$(console, printf, "loops = ");
+		$(console, printUnsigned, total_count);
+		$(console, printf, ", ");
+		$(console, flush);
+	}
+
+	long result = $(self, calculateResult, size, total_count, diff);
 	$(console, flush);
 
-	int result = $(self, calculateResult, size, total_count, diff);
-	$(console, flush);
-
-	$(self, deferFreeOfChunk, (void*)chunk0, size+128);
+	$(self, deferFreeOfChunk, (void*)chunk, size);
 
 	if (chunk_ptrs) {
 		$(self, deferFreeOfChunk, (void*)chunk_ptrs, sizeof (unsigned long*) * nChunks);
@@ -765,8 +730,6 @@ static long BenchmarkX86_copy (BenchmarkX86 *self, unsigned long size, Benchmark
 	unsigned long t0, diff=0;
 	unsigned char *chunk_src;
 	unsigned char *chunk_dest;
-	unsigned char *chunk_src0;
-	unsigned char *chunk_dest0;
 
 	switch (mode) {
 	case SIZE_VECTOR_128_NONTEMPORAL:
@@ -782,57 +745,42 @@ static long BenchmarkX86_copy (BenchmarkX86 *self, unsigned long size, Benchmark
 	}
 
 	//-------------------------------------------------
-	chunk_src0 = malloc (size+128);
-	if (!chunk_src0) {
+	chunk_src = aligned_alloc (64, size);
+	if (!chunk_src) {
 		error (__FUNCTION__, "Out of memory");
 	}
-	chunk_dest0 = malloc (size+128);
-	if (!chunk_dest0) {
+	chunk_dest = aligned_alloc (64, size);
+	if (!chunk_dest) {
 		error (__FUNCTION__, "Out of memory");
 	}
-
-	chunk_src = chunk_src0;
-	chunk_dest = chunk_dest0;
 	ooc_bzero (chunk_src, size);
 	ooc_bzero (chunk_dest, size);
-	
-	// Make sure both memory chunks are 64-byte aligned.
-	unsigned long tmp = (unsigned long) chunk_src;
-	if (tmp & 63) {
-		tmp -= (tmp & 63);
-		tmp += 64;
-		chunk_src = (unsigned char*) tmp;
-	}
-	tmp = (unsigned long) chunk_dest;
-	if (tmp & 63) {
-		tmp -= (tmp & 63);
-		tmp += 64;
-		chunk_dest = (unsigned char*) tmp;
-	}
 
 	//-------------------------------------------------
-	$(console, printf, "Sequential copy ");
+	if (!self->quietMode) {
+		$(console, printf, "Sequential copy ");
 
-	if (mode == SIZE_MAIN_REGISTER) {
+		if (mode == SIZE_MAIN_REGISTER) {
 #ifdef IS_64BIT
-		$(console, printf, "(64-bit), size = ");
+			$(console, printf, "(64-bit), size = ");
 #else
-		$(console, printf, "(32-bit), size = ");
+			$(console, printf, "(32-bit), size = ");
 #endif
-	}
-	else if (mode == SIZE_VECTOR_128) {
-		$(console, printf, "(128-bit), size = ");
-	}
-	else if (mode == SIZE_VECTOR_256) {
-		$(console, printf, "(256-bit), size = ");
-	}
-	else if (mode == SIZE_VECTOR_512) {
-		$(console, printf, "(512-bit), size = ");
-	}
+		}
+		else if (mode == SIZE_VECTOR_128) {
+			$(console, printf, "(128-bit), size = ");
+		}
+		else if (mode == SIZE_VECTOR_256) {
+			$(console, printf, "(256-bit), size = ");
+		}
+		else if (mode == SIZE_VECTOR_512) {
+			$(console, printf, "(512-bit), size = ");
+		}
 
-	$(self, printSize, size);
-	$(console, printf, ", ");
-	$(console, flush);
+		$(self, printSize, size);
+		$(console, printf, ", ");
+		$(console, flush);
+	}
 
 	loops = (1 << 26) / size; 
 	if (loops < 1) {
@@ -860,14 +808,16 @@ static long BenchmarkX86_copy (BenchmarkX86 *self, unsigned long size, Benchmark
 		diff = DateTime_getMicrosecondTime () - t0;
 	}
 
-	$(console, printf, "loops = %llu, ", total_count);
+	if (!self->quietMode) {
+		$(console, printf, "loops = %llu, ", total_count);
+		$(console, flush);
+	}
+
+	long result = $(self, calculateResult, size, total_count, diff);
 	$(console, flush);
 
-	int result = $(self, calculateResult, size, total_count, diff);
-	$(console, flush);
-
-	$(self, deferFreeOfChunk, (void*)chunk_src0, size+64);
-	$(self, deferFreeOfChunk, (void*)chunk_dest0, size+64);
+	$(self, deferFreeOfChunk, (void*)chunk_src, size);
+	$(self, deferFreeOfChunk, (void*)chunk_dest, size);
 
 	return result;
 }
@@ -1019,7 +969,7 @@ static MemoryCorrectnessTestResult BenchmarkX86_memoryRowHammerTest (BenchmarkX8
 		Log_perror(__FUNCTION__, "memalign");
 		return MemoryCorrectnessTestResultMallocFailed;
 	}
-	int result = RowHammerTest (buffer, bufferSize, nCycles);
+	long result = RowHammerTest (buffer, bufferSize, nCycles);
 	free (buffer);
 	
 	return !result ? MemoryCorrectnessTestResultSuccess : MemoryCorrectnessTestResultFailure;

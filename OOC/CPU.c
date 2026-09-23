@@ -236,6 +236,7 @@ static bool CPU_hasVectorUnit (CPU* restrict self)
 
 static int CPU_currentCore (CPU* restrict self)
 {
+	return cpu_current_core();
 #ifdef __linux__
 	int cpu = sched_getcpu ();
 	if (cpu < 0) {
@@ -244,11 +245,13 @@ static int CPU_currentCore (CPU* restrict self)
 	return cpu;
 #elif defined(_WIN32)
 	return GetCurrentProcessorNumber();
-#else
+#elif defined(__APPLE__) && defined(__aarch64__)
 	uint64_t mpidr;
 	asm volatile("mrs %0, mpidr_el1" : "=r" (mpidr));
 	uint32_t core_id = mpidr & 0xFF; 
 	return core_id;
+#else
+	return -1;
 #endif
 }
 

@@ -1,5 +1,16 @@
 +-------+
 | TO DO |
 +-------+
-* Multithreaded mode to measure total main memory bandwidth by measuring across all cores simultaneously.
-* Maybe support RISC-V and/or PowerPC vector instructions.
+* Multithreaded mode:
+	- MacOS and Windows get current core number.
+	- Force thread onto particular core?
+	- Use Table to format output.
+	- Nice mode?
+* More vector instructions:
+	- RISC-V?
+	- PowerPC?
+* Refactoring
+	- Refector taskRunner.c to adopt structure of multithreadedRunner.c
+* MacOS
+	- Improve thread affinity in multithreaded mode.
+	- ARM feature extraction using sysctl.

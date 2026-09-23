@@ -28,6 +28,7 @@
 #include <locale.h>
 //#include <openssl/sha.h>
 #include <sys/mman.h>
+#include <string.h> // memcpy
 
 DataClass *_DataClass = NULL;
 

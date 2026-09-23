@@ -30,9 +30,6 @@
 
 #ifdef __APPLE__
 #include <sys/syslimits.h> // PATH_MAX
-#include <strings.h> 
-#else
-#include <string.h>
 #endif
 
 #include "defs.h"

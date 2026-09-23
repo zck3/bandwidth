@@ -34,6 +34,9 @@ typedef Object *ObjectPointer;
 	MutableArray *rows; \
 	unsigned nColumns;
 
+	// TODO
+	// String *title;
+
 #define DECLARE_TABLE_METHODS(TYPE_POINTER) \
 	Any *(*at) (TYPE_POINTER, unsigned row, unsigned column); \
 	unsigned (*nRows) (TYPE_POINTER); \

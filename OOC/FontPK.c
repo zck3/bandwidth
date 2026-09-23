@@ -18,13 +18,14 @@
   The author may be reached at 3 at zs3 dot me.
  *===========================================================================*/
 
-#include <ctype.h>
-#include <sys/stat.h>
-#include <time.h>
-
 #include "Font.h"
 #include "FontPK.h"
 #include "Log.h"
+
+#include <ctype.h>
+#include <sys/stat.h>
+#include <time.h>
+#include <string.h> // strcmp
 
 FontPKClass *_FontPKClass = NULL;
 

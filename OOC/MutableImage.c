@@ -23,6 +23,8 @@
 #include "minifont.h"
 #include "colors.h"
 
+#include <string.h> // memcpy, strlen
+
 // Narrowest possible numbers.
 static char* narrow_nums [] = 
 {

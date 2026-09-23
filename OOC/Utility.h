@@ -22,10 +22,12 @@
 #ifndef _UTILITY_H
 #define _UTILITY_H
 
+#define _GNU_SOURCE
 #include <stdio.h>
 #include <string.h>
 #include <stdint.h>
 #include <stdbool.h>
+#include <sched.h>
 #include <limits.h>
 #include <unistd.h>
 #include <time.h>
@@ -38,5 +40,7 @@ extern bool Network_isReachable (void);
 extern const char *ipv4_to_string (unsigned value);
 
 extern char *execute_and_return_first_line (char *cmd);
+
+extern int cpu_current_core();
 
 #endif

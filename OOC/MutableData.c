@@ -1,6 +1,6 @@
 /*============================================================================
   MutableData, an object-oriented C string manipulation class.
-  Copyright (C) 2019, 2022 by Zack T Smith.
+  Copyright (C) 2019, 2022, 2026 by Zack T Smith.
 
   Object-Oriented C is free software: you can redistribute it and/or modify
   it under the terms of the GNU Lesser General Public License as published
@@ -19,6 +19,8 @@
  *===========================================================================*/
 
 #include "MutableData.h"
+
+#include <string.h> // memcpy
 
 MutableDataClass *_MutableDataClass = NULL;
 

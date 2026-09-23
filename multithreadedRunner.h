@@ -1,6 +1,6 @@
 /*============================================================================
   bandwidth, a benchmark to measure memory transfer bandwidth.
-  Copyright (C) 2005-2024, 2026 by Zack T Smith.
+  This file has copyright (C) 2026 by Zack T Smith.
 
   This program is free software; you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -19,13 +19,12 @@
   The author may be reached at 3 at zs3 dot me.
  *===========================================================================*/
 
-#ifndef _TESTRUNNER_H
-#define _TESTRUNNER_H
+#ifndef _MULTITHREADED_TESTRUNNER_H
+#define _MULTITHREADED_TESTRUNNER_H
 
-#include "OOC/MutableString.h"
 #include "OOC/CPU.h"
 #include "Benchmark.h"
 
-extern void runTests (Benchmark *, CPU *, MutableString *title);
+extern void runMultithreadedTests (Benchmark *benchmarks, CPU *cpu);
 
 #endif

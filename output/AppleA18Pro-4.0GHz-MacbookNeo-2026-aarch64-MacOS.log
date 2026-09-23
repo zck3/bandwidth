@@ -1,0 +1,140 @@
+This is bandwidth 1.17.0
+Copyright (C) 2005-2024, 2026 by Zack T Smith.
+
+This software is covered by the GNU Public License.
+It is provided AS-IS, use at your own risk.
+See the file LICENSE for more information.
+
+Notation: B = byte, kB = 1024 B, MB = 1048576 B.
+
+Computer make: Apple
+Computer model: Mac17,5
+CPU family: AppleSiliconARM
+CPU model: Apple A18 Pro
+CPU register size: 64 bits
+CPU vector sizes: 128 bits
+CPU instruction set: aarch64
+CPU features: [neon]
+CPU total cores: 6
+CPU current core: caches: L1 instruction 128kB, L1 data 64kB, L2 4MB
+Cache line size: 128 bytes
+Memory page size: 16384 bytes
+Physical memory: 8 GB
+Memory available: 3642 MB
+Kernel name: Darwin
+Kernel release: 25.6.0
+OS type: macOS
+OS name: Tahoe 26
+OS version: 26.6
+
+[1mApple Mac17,5 Apple A18 Pro aarch64 Darwin 25.6.0 macOS Tahoe 26 26.6[0m
+
+Sequential 64-bit reads:
+Thread 0: 9158.7 MB/s (ran on core 4)
+Thread 1: 9381.7 MB/s (ran on cores 2 & 4)
+Thread 2: 9298.8 MB/s (ran on cores 3 & 5)
+Thread 3: 9342.4 MB/s (ran on cores 1 & 0)
+Thread 4: 9385.7 MB/s (ran on cores 3 & 4)
+Thread 5: 9087.6 MB/s (ran on cores 1 & 4)
+Sum: 55654.9 MB/s
+
+Sequential 128-bit reads:
+Thread 0: 9245.0 MB/s (ran on cores 0 & 4)
+Thread 1: 9163.9 MB/s (ran on cores 2 & 4)
+Thread 2: 9236.4 MB/s (ran on cores 4 & 5)
+Thread 3: 9158.1 MB/s (ran on cores 5 & 1)
+Thread 4: 9435.2 MB/s (ran on cores 1 & 4)
+Thread 5: 9537.1 MB/s (ran on cores 3 & 5)
+Sum: 55775.7 MB/s
+
+Sequential 64-bit nontemporal reads:
+Thread 0: 9399.3 MB/s (ran on core 5)
+Thread 1: 9042.9 MB/s (ran on cores 3 & 5)
+Thread 2: 9251.9 MB/s (ran on cores 0 & 5)
+Thread 3: 9013.1 MB/s (ran on cores 2 & 4)
+Thread 4: 9378.4 MB/s (ran on cores 4 & 3)
+Thread 5: 9366.2 MB/s (ran on cores 1 & 5)
+Sum: 55451.8 MB/s
+
+Random 64-bit reads:
+Thread 0: 3338.3 MB/s (ran on cores 0 & 4)
+Thread 1: 2664.6 MB/s (ran on cores 2 & 0)
+Thread 2: 2648.7 MB/s (ran on cores 3 & 4)
+Thread 3: 3398.8 MB/s (ran on core 5)
+Thread 4: 3461.0 MB/s (ran on cores 1 & 5)
+Thread 5: 2666.3 MB/s (ran on core 4)
+Sum: 18177.7 MB/s
+
+Random 128-bit reads:
+Thread 0: 4077.4 MB/s (ran on core 4)
+Thread 1: 4102.9 MB/s (ran on cores 0 & 5)
+Thread 2: 4126.7 MB/s (ran on cores 2 & 1)
+Thread 3: 4176.1 MB/s (ran on cores 3 & 5)
+Thread 4: 3464.9 MB/s (ran on cores 5 & 1)
+Thread 5: 4154.7 MB/s (ran on cores 5 & 4)
+Sum: 24102.7 MB/s
+
+Sequential 64-bit writes:
+Thread 0: 4117.7 MB/s (ran on core 5)
+Thread 1: 4165.6 MB/s (ran on cores 2 & 4)
+Thread 2: 4368.5 MB/s (ran on cores 0 & 2)
+Thread 3: 4221.1 MB/s (ran on cores 1 & 4)
+Thread 4: 4129.2 MB/s (ran on cores 3 & 1)
+Thread 5: 4278.8 MB/s (ran on cores 4 & 5)
+Sum: 25280.9 MB/s
+
+Sequential 128-bit writes:
+Thread 0: 4084.9 MB/s (ran on cores 1 & 4)
+Thread 1: 4255.1 MB/s (ran on cores 0 & 1)
+Thread 2: 4162.1 MB/s (ran on cores 2 & 5)
+Thread 3: 4238.7 MB/s (ran on cores 3 & 5)
+Thread 4: 4218.7 MB/s (ran on core 4)
+Thread 5: 4309.9 MB/s (ran on core 5)
+Sum: 25269.4 MB/s
+
+Sequential 64-bit nontemporal writes:
+Thread 0: 8126.8 MB/s (ran on cores 0 & 5)
+Thread 1: 8198.9 MB/s (ran on cores 1 & 5)
+Thread 2: 8189.7 MB/s (ran on core 3)
+Thread 3: 8173.5 MB/s (ran on cores 2 & 4)
+Thread 4: 8085.8 MB/s (ran on core 4)
+Thread 5: 8049.7 MB/s (ran on cores 5 & 4)
+Sum: 48824.4 MB/s
+
+Random 64-bit writes:
+Thread 0: 2428.0 MB/s (ran on cores 1 & 4)
+Thread 1: 2504.1 MB/s (ran on cores 3 & 4)
+Thread 2: 2533.4 MB/s (ran on cores 2 & 4)
+Thread 3: 2479.5 MB/s (ran on cores 0 & 4)
+Thread 4: 2455.1 MB/s (ran on cores 4 & 5)
+Thread 5: 2534.0 MB/s (ran on cores 5 & 4)
+Sum: 14934.1 MB/s
+
+Random 128-bit writes:
+Thread 0: 2522.1 MB/s (ran on core 4)
+Thread 1: 2473.5 MB/s (ran on cores 1 & 4)
+Thread 2: 2451.3 MB/s (ran on cores 2 & 4)
+Thread 3: 2432.0 MB/s (ran on cores 3 & 1)
+Thread 4: 2511.9 MB/s (ran on cores 5 & 0)
+Thread 5: 2512.1 MB/s (ran on cores 4 & 0)
+Sum: 14902.9 MB/s
+
+Sequential 64-bit copy:
+Thread 0: 2831.0 MB/s (ran on cores 4 & 5)
+Thread 1: 2938.8 MB/s (ran on cores 2 & 4)
+Thread 2: 2886.2 MB/s (ran on cores 3 & 4)
+Thread 3: 2937.1 MB/s (ran on cores 0 & 4)
+Thread 4: 2870.1 MB/s (ran on cores 3 & 0)
+Thread 5: 2840.3 MB/s (ran on cores 4 & 5)
+Sum: 17303.5 MB/s
+
+Sequential 128-bit copy:
+Thread 0: 2898.1 MB/s (ran on cores 0 & 4)
+Thread 1: 2949.0 MB/s (ran on cores 2 & 4)
+Thread 2: 2856.0 MB/s (ran on cores 1 & 5)
+Thread 3: 2906.6 MB/s (ran on cores 3 & 4)
+Thread 4: 2915.2 MB/s (ran on cores 5 & 4)
+Thread 5: 2955.6 MB/s (ran on cores 2 & 4)
+Sum: 17480.5 MB/s
+Deallocated classes Object, Console, Hardware, CPU, CPUARM, Set, MutableSet, String, Benchmark, BenchmarkARM, MutableString, Array, MutableArray
+All objects that were allocated were deallocated.

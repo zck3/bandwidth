@@ -27,6 +27,7 @@
 
 #include <ctype.h> 
 #include <wchar.h> 
+#include <string.h> // memcpy
 
 StringClass *_StringClass = NULL;
 

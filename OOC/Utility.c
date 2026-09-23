@@ -24,14 +24,15 @@
 #include "ObjectOriented.h"
 #include "Utility.h"
 #include "FileSystem.h"
+#include "Log.h"
 
 #include <stdio.h>
 #include <stdlib.h>
 #include <sys/stat.h>
 #include <sys/time.h>
-#include <ctype.h> // isspace
-
-#include "Log.h"
+#include <ctype.h>	// isspace
+#include <unistd.h>	// geteuid 
+#include <pthread.h>	// pthread_cpu_number_np()
 
 //----------------------------------------------------------------------------
 // Name:	has_prefix
@@ -40,14 +41,14 @@
 //----------------------------------------------------------------------------
 bool has_prefix (const char *string, const char *prefix)
 {
-	if (!string || !prefix)
+	if (!string || !prefix) {
 		return false;
-
+	}
 	size_t stringLength = strlen(string);
 	size_t prefixLength = strlen(prefix);
-	if (prefixLength > stringLength)
+	if (prefixLength > stringLength) {
 		return false;
-
+	}
 	return 0 == strncmp (string, prefix, prefixLength);
 }
 
@@ -58,14 +59,14 @@ bool has_prefix (const char *string, const char *prefix)
 //----------------------------------------------------------------------------
 bool has_suffix (const char *string, const char *suffix)
 {
-	if (!string || !suffix)
+	if (!string || !suffix) {
 		return false;
-
+	}
 	size_t stringLength = strlen(string);
 	size_t suffixLength = strlen(suffix);
-	if (suffixLength > stringLength)
+	if (suffixLength > stringLength) {
 		return false;
-
+	}
 	char *ending = (char*)string + stringLength - suffixLength;
 	return 0 == strcmp (ending, suffix);
 }
@@ -136,3 +137,25 @@ char *execute_and_return_first_line (char *cmd)
 	return success ? result : NULL;
 }
 
+int cpu_current_core()
+{
+#if defined(__linux__) || defined(__CYGWIN__) 
+	int cpu = sched_getcpu ();
+	if (cpu < 0) {
+		return -1;
+	}
+	return cpu;
+#elif defined(_WIN32) || defined(__WIN32__) || defined(__MINGW32__) 
+	return GetCurrentProcessorNumber();
+#elif defined(__APPLE__) 
+  #if defined(__aarch64__)
+	size_t cpu = 0;
+	pthread_cpu_number_np(&cpu);
+	return cpu;
+  #else
+	return -1; // TODO x86 macOS
+  #endif
+#else
+	return -1; // TODO BSD? Haiku?
+#endif
+}

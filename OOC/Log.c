@@ -19,6 +19,7 @@
  *===========================================================================*/
 
 #include <stdarg.h>
+#include <string.h> // strlen
 #include <errno.h>
 
 #if defined(__ANDROID__) && !defined(__TERMUX__)

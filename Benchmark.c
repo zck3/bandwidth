@@ -19,11 +19,6 @@
   The author may be reached at 3 at zs3 dot me.
  *===========================================================================*/
 
-#include <stdio.h>
-#include <stdint.h>
-#include <stdlib.h>
-#include <unistd.h> // usleep
-
 #include "defs.h"
 #include "routines.h"
 #include "ObjectOriented.h"
@@ -32,14 +27,25 @@
 #include "OOC/Log.h"
 #include "OOC/OS.h"
 #include "Benchmark.h"
+#include "BenchmarkX86.h"
 #include "Console.h"
+
+#include <unistd.h> // usleep
+#include <pthread.h> 
 
 BenchmarkClass* _BenchmarkClass = NULL;
 
-extern Console* console;
-
 static void Benchmark_printSize (Benchmark *self, size_t size)
 {
+        if (!self) {
+                return;
+	}
+        verifyCorrectClassOrSubclass(self,Benchmark);
+
+	if (self->quietMode) {
+		return;
+	}
+
 	if (size < 1536) {
 		$(console, printInt, size);
 		$(console, printf, " B");
@@ -107,7 +113,9 @@ static int Benchmark_calculateResult (Benchmark* self, uint64_t chunk_size, uint
 	result /= 1048576.;
 	result /= (long double) diff;
 
-	$(console, printf, "%.1Lf MB/s\n", result);
+	if (!self->quietMode) {
+		$(console, printf, "%.1Lf MB/s\n", result);
+	}
 
 	return (long) (10.0 * result);
 }
@@ -390,6 +398,10 @@ static void Benchmark_freeDeferredChunks (Benchmark* self)
 	}
 	verifyCorrectClassOrSubclass(self,Benchmark);
 
+	if (options.multithreaded) {
+		return;
+	}
+
 	for (unsigned i=0; i < MAX_DEFERRED_FREE_CHUNKS; i++) {
 		void *deferredChunk = self->deferredFreeChunks[i];
 		if (deferredChunk) {
@@ -402,6 +414,10 @@ static void Benchmark_freeDeferredChunks (Benchmark* self)
 
 static size_t totalFreeDeferred (Benchmark* self) 
 {
+	if (options.multithreaded) {
+		return 0LU;
+	}
+
 	size_t totalMegabytesDeferred = 0;
 	for (unsigned i=0; i < MAX_DEFERRED_FREE_CHUNKS; i++) {
 		totalMegabytesDeferred += self->deferredFreeChunkSizes[i];
@@ -409,12 +425,25 @@ static size_t totalFreeDeferred (Benchmark* self)
 	return totalMegabytesDeferred;
 }
 
+/* Defer freeing of a chunk, because premature freeing can create unrealistic results in Linux
+ * in which queues writes never happen. In addition, we want to avoid inadvertent reuse
+ * of memory chunks by the system because these can throw off results.
+ */
 static void Benchmark_deferFreeOfChunk (Benchmark* self, void* chunk, size_t incomingSize /*in bytes*/)
 {
 	if (!self || !chunk) {
 		return;
 	}
 	verifyCorrectClassOrSubclass(self,Benchmark);
+
+	// RULE: In multithreaded mode, because there's a real risk that numerous 
+	// large memory chunks could lead to a malloc() failure, we should not 
+	// defer freeing of chunks, at least for now.
+	//
+	if (options.multithreaded) {
+		free(chunk);
+		return;
+	}
 
 	size_t sizeInMegabytes = (incomingSize + (ONE_MEGABYTE-1)) / ONE_MEGABYTE;
 
@@ -890,6 +919,7 @@ Benchmark *Benchmark_init (Benchmark *self)
 
 	self->deferredFreeChunkIndex = 0;
 	self->vectorToFromRegisterRoutinesAvailable = false;
+	self->quietMode = false;
 	ooc_bzero (self->deferredFreeChunks, sizeof(self->deferredFreeChunks));
 	ooc_bzero (self->deferredFreeChunkSizes, sizeof(self->deferredFreeChunkSizes));
 

@@ -19,13 +19,12 @@
   The author may be reached at 3 at zs3 dot me.
  *===========================================================================*/
 
-#include <string.h>
-#include <unistd.h>
-
 #include "defs.h"
 #include "OOC/MutableImage.h"
 #include "OOC/SimpleGraphing.h"
 #include "testRunner.h"
+
+#include <unistd.h>
 
 #define TITLE_MEMORY_GRAPH "Results from ''bandwidth'' " RELEASE " by Zack T Smith, https://zs3.me"
 
@@ -224,9 +223,6 @@ void dataEnds (const char *path)
 		MutableImage *image = $(graph, image);
 		if (options.do_invert_graph) {
 			$(image, invert);
-		}
-		if (options.do_rotate_graph) {
-			$(image, rotate, MutableImageRotationAngle180);
 		}
 
 		//if ($(image, writeTIFF, path)) {
@@ -441,7 +437,8 @@ void runTests (Benchmark *benchmarks, CPU *cpu, MutableString *title)
 	}
 
 	//------------------------------------------------------------
-	// 32/64-bit sequential nontemporal reads.
+	// Sequential non-vector 32/64-bit sequential nontemporal reads
+	// e.g. aarch64 LDNP instruction.
 	//
 	supported = TEST_SUPPORTED == $(benchmarks, read, CHECK_WHETHER_SUPPORTED, SIZE_MAIN_REGISTER_NONTEMPORAL, false);
 	if (supported && options.perform_read_tests && options.perform_mainregister_nontemporal_tests) {

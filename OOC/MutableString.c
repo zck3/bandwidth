@@ -23,6 +23,7 @@
 
 #include <stdarg.h>
 #include <wctype.h> // towlower, towupper
+#include <string.h> // memcpy
 
 MutableStringClass *_MutableStringClass = NULL;
 

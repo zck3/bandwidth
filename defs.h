@@ -117,25 +117,21 @@
 //	- OOC improvements.
 // 1.16.4
 //	- Various fixes for macOS.
+// 1.17.0
+//	- Added multithreaded test runner, invoked with the -M option.
 //-----------------------------------------------------------------------------
 
 #ifndef _DEFS_H
 #define _DEFS_H
 
-#include "OOC/CPU.h"
-#include "OOC/Hardware.h"
 #include "OOC/Console.h"
-#include "Benchmark.h"
-#include "BenchmarkX86.h"
-#include "BenchmarkARM.h"
-#include "BenchmarkRISCV.h"
-#include "BenchmarkPPC.h"
-#include "BenchmarkLoong.h"
+extern Console *console;
 
-#define RELEASE "1.16.4"
+#define RELEASE "1.17.0"
 #define RESULTS_IMAGE_FILENAME "bandwidth.bmp"
 
-#define NICE_DURATION (4)
+#define DEFAULT_GRAPH_WIDTH 1440
+#define DEFAULT_GRAPH_HEIGHT 900
 
 typedef enum {
 	OUTPUT_MODE_NONE=0,
@@ -162,7 +158,6 @@ typedef struct {
 	bool limit_at_128MB;
 	bool launch_viewer;
 	bool do_invert_graph;
-	bool do_rotate_graph;
 	bool diagnostic_mode;
 	bool only_main_memory;
 	bool multithreaded;
@@ -174,6 +169,5 @@ typedef struct {
 } ProgramOptions;
 
 extern ProgramOptions options;
-extern Console *console;
 
 #endif

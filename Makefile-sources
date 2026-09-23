@@ -1,2 +1,2 @@
-SRC=main.c testRunner.c systemInfo.c 
-OBJ=main.o testRunner.o systemInfo.o
+SRC=main.c testRunner.c systemInfo.c multithreadedRunner.c
+OBJ=main.o testRunner.o systemInfo.o multithreadedRunner.o

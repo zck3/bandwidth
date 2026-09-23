@@ -19,13 +19,6 @@
   The author may be reached at 3 at zs3 dot me.
  *===========================================================================*/
 
-#include <string.h>
-#include <unistd.h>
-#include <getopt.h>
-
-#define DEFAULT_GRAPH_WIDTH 1440
-#define DEFAULT_GRAPH_HEIGHT 900
-
 #include "defs.h"
 
 #include "OOC/Console.h"
@@ -45,7 +38,11 @@
 #include "BenchmarkPPC.h"
 #include "BenchmarkLoong.h"
 #include "testRunner.h"
+#include "multithreadedRunner.h"
 #include "systemInfo.h"
+
+#include <unistd.h>
+#include <getopt.h>
 
 ProgramOptions options;
 
@@ -85,7 +82,7 @@ void usage ()
 	$(table, append, Array_with (_String("--csv/-c FILE"), _String("Send output to CSV file"), NULL));
 	$(table, append, Array_with (_String("--slow/-s"), _String("Slow run to smoothen graph"), NULL));
 	$(table, append, Array_with (_String("--fast/-f"), _String("Fast run"), NULL));
-	$(table, append, Array_with (_String("--faster/-r"), _String("Faster run"), NULL));
+	$(table, append, Array_with (_String("--faster/-a"), _String("Faster run"), NULL));
 	$(table, append, Array_with (_String("--fastest/-F"), _String("Fastest run"), NULL));
 	$(table, append, Array_with (_String("--main-memory/-m"), _String("Only benchmark system RAM"), NULL));
 	$(table, append, Array_with (_String("--noread/-R"), _String("Skip memory reads"), NULL));
@@ -100,8 +97,10 @@ void usage ()
 	$(table, append, Array_with (_String("--nice/-n"), _String("Pause to reduce CPU temperature"), NULL));
 	$(table, append, Array_with (_String("--nograph/-G"), _String("Don't generate graph"), NULL));
 	$(table, append, Array_with (_String("--noviewer/-V"), _String("Don't launch image viewer"), NULL));
+#ifdef IS_64BIT
 	$(table, append, Array_with (_String("--unlimited/-u"), _String("Go beyond 128MB"), NULL));
-	$(table, append, Array_with (_String("--reverse/-e"), _String("Reverse order of execution"), NULL));
+#endif
+	$(table, append, Array_with (_String("--reverse/-r"), _String("Reverse order of execution"), NULL));
 	$(table, append, Array_with (_String("--invert/-i"), _String("Invert graph colors"), NULL));
 	$(table, prettyPrint, NULL, false);
 
@@ -128,7 +127,7 @@ main (int argc, char **argv)
 	$(console, newline);
 	$(console, flush);
 
-	memset (&options, 0, sizeof(ProgramOptions));
+	ooc_bzero (&options, sizeof(ProgramOptions));
 
 	options.nice_mode = false; // This tries to keep CPU temperature low.
 
@@ -185,13 +184,13 @@ main (int argc, char **argv)
 
 		{"nice", no_argument, NULL, 'n'},
 		{"slow", no_argument, NULL, 's'},
-		{"reverse", no_argument, NULL, 'e'},
+		{"reverse", no_argument, NULL, 'r'},
 		{"invert", no_argument, NULL, 'i'},
 		{"unlimited", no_argument, NULL, 'u'},
 		{"multithreaded", no_argument, NULL, 'M'},
 		{"main-memory", no_argument, NULL, 'm'},
 		{"fast", no_argument, NULL, 'f'},
-		{"faster", no_argument, NULL, 'r'},
+		{"faster", no_argument, NULL, 'a'},
 		{"fastest", no_argument, NULL, 'F'},
 		{"diagnostic", no_argument, NULL, 'd'},
 		{"noregister", no_argument, NULL, 'E'},
@@ -235,7 +234,7 @@ main (int argc, char **argv)
 			case 'f': 
 				options.usec_per_test = 1000000; // 1 second per test.
 				break;
-			case 'r': 
+			case 'a': 
 				options.usec_per_test = 500000; // 0.5 second per test.
 				break;
 			case 'F': 
@@ -252,6 +251,10 @@ main (int argc, char **argv)
 				break;
 			case 'M':
 				options.multithreaded = true;
+				options.launch_viewer = false;
+				options.nice_mode = false; 
+				options.outputMode &= ~OUTPUT_MODE_GRAPH; 
+				options.only_main_memory = false;
 				break;
 			case 'm':
 				options.only_main_memory = true;
@@ -289,11 +292,15 @@ main (int argc, char **argv)
 			case 'n': 
 				options.nice_mode = true; 
 				break;
-			case 'i': options.do_invert_graph = true; break;
-			case 'e': options.reverse_chunk_size_order = true; break;
-			case 'h': usage (); break;
+			case 'i': 
+				options.do_invert_graph = true; 
+				break;
+			case 'r': 
+				options.reverse_chunk_size_order = true; 
+				break;
 			default:
-				usage();
+			case 'h': 
+				usage (); 
 				break;
 		}
 	}
@@ -338,8 +345,16 @@ main (int argc, char **argv)
 	}
 #endif
 
+	if (options.multithreaded) {
+		$(console, printf, "\n%s", ANSIForegroundBold);
+		$(title, print, NULL);
+		$(console, printf, "%s\n", ANSIForegroundPlain);
+		releaseAndClear (title);
 
-	runTests ((Benchmark*) benchmarks, cpu, title);
+		runMultithreadedTests ((Benchmark*) benchmarks, cpu);
+	} else {
+		runTests ((Benchmark*) benchmarks, cpu, title);
+	}
 
         if ((options.outputMode & OUTPUT_MODE_GRAPH) && options.launch_viewer) {
 #ifdef __APPLE__
